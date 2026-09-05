@@ -1,0 +1,47 @@
+# Configuração de Produtos Monitorados no PromoRadar
+# Cada produto define suas palavras-chave, faixas de preço e onde compensa buscar (ativo: true/false).
+
+products:
+  - id: "huawei-freebuds-pro-5"
+    nome: "Huawei FreeBuds Pro 5"
+    keywords:
+      - "Huawei FreeBuds Pro 5"
+      - "FreeBuds Pro 5"
+      - "Huawei FreeBuds Pro"
+    preco_alvo: 850.00
+    preco_maximo: 1100.00
+    ativo: true
+    sources:
+      # Fontes ativas recomendadas para este fone:
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/huawei-freebuds-pro-5"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Huawei+FreeBuds+Pro+5"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+      - marketplace: "shopee"
+        url_produto: "https://shopee.com.br/search?keyword=Huawei%20FreeBuds%20Pro%205"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=huawei+Freebuds+Pro+5&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+      # Fontes desativadas especificamente para este fone onde não compensa buscar:
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/huawei-freebuds-pro-5"
+        metodo_coleta: "scraping_html"
+        ativo: false
+        motivo_desativacao: "preco_muito_caro"
+
+      - marketplace: "aliexpress"
+        url_produto: "https://pt.aliexpress.com/w/wholesale-huawei-freebuds-pro-5.html"
+        metodo_coleta: "scraping_html"
+        ativo: false
+        motivo_desativacao: "imposto_importacao_elevado"
