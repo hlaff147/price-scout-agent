@@ -2,27 +2,31 @@
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
-![Build Status](https://img.shields.io/badge/tests-17%20passed-brightgreen.svg)
+![Build Status](https://img.shields.io/badge/tests-26%20passed-brightgreen.svg)
 ![Project Status](https://img.shields.io/badge/status-MVP%20Funcional-orange.svg)
+![Framework](https://img.shields.io/badge/Google%20ADK-2.8%2B-4285F4.svg)
+![Architecture](https://img.shields.io/badge/Architecture-Hexagonal-blueviolet.svg)
 
-Agente autônomo e modular para monitoramento contínuo de preços de produtos na web, detecção de promoções reais com base em histórico persistido e alertas automáticos via Telegram.
+Agente autônomo e modular para monitoramento contínuo de preços de produtos na web, detecção de promoções reais com base em histórico persistido, relatórios visuais interativos e alertas automáticos via Telegram.
 
-Acompanhar promoções manualmente exige visitar dezenas de e-commerces várias vezes ao dia, com alto risco de perder promoções relâmpago ou cair em falsos descontos ("metade do dobro"). O **PromoRadar** resolve esse atrito automatizando a varredura concorrente em múltiplos marketplaces, isolando falhas por subagente e alertando o usuário apenas quando o preço atinge o alvo configurado ou uma mínima histórica real.
+Construído sobre o **Google Agent Development Kit (ADK 2.8+)** e seguindo os princípios da **Arquitetura Hexagonal (Ports & Adapters)**, o PromoRadar automatiza a varredura concorrente em múltiplos e-commerces, isola falhas por marketplace, previne promoções maquiadas ("metade do dobro") e emite notificações acionáveis no momento exato em que o produto atinge o alvo estipulado.
 
 ---
 
 ## 📑 Sumário
 
 - [Funcionalidades Principais](#-funcionalidades-principais)
-- [Arquitetura](#-arquitetura)
+- [Arquitetura Hexagonal & Google ADK](#-arquitetura-hexagonal--google-adk)
 - [Stack Tecnológica](#-stack-tecnológica)
 - [Pré-requisitos](#-pré-requisitos)
 - [Instalação](#-instalação)
 - [Configuração](#-configuração)
 - [Como Usar](#-como-usar)
+- [Relatórios Visuais HTML](#-relatórios-visuais-html)
 - [Exemplo de Notificação](#-exemplo-de-notificação)
 - [Estrutura de Pastas](#-estrutura-de-pastas)
 - [Como Adicionar um Novo Marketplace](#-como-adicionar-um-novo-marketplace)
+- [Solução de Problemas (Troubleshooting)](#-solução-de-problemas-troubleshooting)
 - [Roadmap](#-roadmap)
 - [Aviso Legal](#-aviso-legal)
 - [Licença](#-licença)
@@ -32,75 +36,99 @@ Acompanhar promoções manualmente exige visitar dezenas de e-commerces várias 
 
 ## ✨ Funcionalidades Principais
 
-- **Monitoramento Concorrente:** Coleta assíncrona paralela em múltiplos marketplaces via subagentes.
-- **Isolamento Total de Falhas:** A queda, bloqueio ou alteração de layout em uma loja não interrompe a coleta nas demais.
-- **Detecção de Falsos Descontos:** Heurística que confronta o preço "de" anunciado contra o histórico real persistido.
-- **Seleção Dinâmica por Produto:** Possibilidade de escolher onde compensa buscar para cada item monitorado.
-- **Meta-Agregador Google Shopping:** Captura de ofertas em tempo real consolidadas no carrossel de Sponsored Products.
-- **Alertas Ricos via Telegram:** Notificações instantâneas com badge de oportunidade, justificativa e link direto.
-- **Persistência Leve em SQLite:** Histórico completo de preços e alertas com suporte a modo WAL.
+- **Orquestração Multiagente via Google ADK:** Pipeline determinístico composto por agentes especialistas (`BaseAgent`) orquestrados via `SequentialAgent` e gerenciados por `AdkMonitoringRunner`.
+- **Arquitetura Hexagonal (Ports & Adapters):** Domínio de negócio e modelos desacoplados de infraestrutura através de portas abstratas (`IScraper`, `IAnalyst`, `INotifier`, `IRepository`, `IHttpClient`).
+- **Monitoramento Concorrente com Isolamento de Falhas:** Coleta assíncrona paralela via `asyncio.gather(..., return_exceptions=True)`. A queda de uma loja nunca afeta as demais.
+- **Detecção Rigorosa de Falsos Descontos:** Heurística que confronta o preço original anunciado contra a média histórica de 60 dias e contra o teto máximo do usuário, desmascarando a "metade do dobro" mesmo no 1º dia de monitoramento.
+- **Linha de Base Histórica Congelada:** Fotografia pré-ciclo estável que impede que a cotação gravada por um marketplace contamine o cálculo de "menor preço histórico" das fontes subsequentes no mesmo ciclo.
+- **Relatórios Visuais HTML Interativos:** Geração automática de páginas HTML responsivas (tema dark) com gráficos comparativos e evolução temporal usando Chart.js e Jinja2.
+- **Alertas Ricos via Telegram com Anti-Spam:** Notificações instantâneas com badge de oportunidade, justificativa e link direto, com supressão inteligente para evitar repetição em menos de 6 horas.
+- **Persistência Confiável em SQLite:** Banco de dados local com modo WAL (Write-Ahead Logging) ativo para leitura e escrita concorrente veloz.
 
 ---
 
-## 🏛️ Arquitetura
+## 🏛️ Arquitetura Hexagonal & Google ADK
 
-O sistema adota uma arquitetura orientada a agentes especialistas: um **Agente Orquestrador** coordena **Subagentes** (Scrapers, Analista de Preço e Notificador), que por sua vez utilizam **Skills** procedurais e **Tools/MCPs**:
+O PromoRadar separa estritamente regras de negócio de tecnologias externas:
 
-### Diagrama de Componentes
+### Diagrama de Componentes (Ports & Adapters)
 
 ```mermaid
 graph TD
-    U["Usuário"] -->|"produto + preço alvo"| O["Agente Orquestrador"]
+    subgraph "1. Core (Domínio Puro & Contratos)"
+        PORTS["Ports (Interfaces Abstratas)<br/>IScraper, IAnalyst, INotifier, IRepository, IHttpClient"]
+        MODELS["Modelos Pydantic<br/>Product, Source, PriceRecord, Alert, DealAnalysis, ScrapedData"]
+    end
 
-    O --> SA1["Subagente Scraper - Marketplace A"]
-    O --> SA2["Subagente Scraper - Marketplace B"]
-    O --> SA3["Subagente Scraper - Marketplace C"]
+    subgraph "2. Orquestração (Google ADK 2.8+)"
+        RUNNER["AdkMonitoringRunner<br/>(Runner + InMemorySessionService)"]
+        COORD["SequentialAgent (Coordinator)"]
+        SA["AdkScraperAgent (BaseAgent)"]
+        AA["AdkAnalystAgent (BaseAgent)"]
+        NA["AdkNotifierAgent (BaseAgent)"]
+        RA["AdkReportAgent (BaseAgent)"]
 
-    SA1 --> SK1["Skill: parse_marketplace_a"]
-    SA2 --> SK2["Skill: parse_marketplace_b"]
-    SA3 --> SK3["Skill: parse_marketplace_c"]
+        RUNNER --> COORD
+        COORD --> SA --> AA --> NA --> RA
+    end
 
-    SA1 --> MCP1["MCP: Browser/Playwright"]
-    SA2 --> MCP2["MCP: Web Search"]
-    SA3 --> T1["Tool: HTTP fetch direto"]
+    subgraph "3. Adapters (Infraestrutura Concreta)"
+        SCRAPERS["ScraperSubagent<br/>(Amazon, Mercado Livre, Shopee, Google Shopping)"]
+        HTTP["HttpClient (httpx)<br/>(Rate Limit, Backoff, User-Agents)"]
+        REPO["Repository (SQLite WAL)<br/>(CRUD, Histórico, Anti-Spam)"]
+        NOTIF["NotifierSubagent<br/>(Telegram Bot API / Console)"]
+        REPORT["ReportGenerator<br/>(Jinja2 + Chart.js)"]
+    end
 
-    SA1 --> AN["Subagente Analista de Preço"]
-    SA2 --> AN
-    SA3 --> AN
-
-    AN --> SK4["Skill: normalize_product"]
-    AN --> DB[("Banco de Dados: Histórico de Preços")]
-
-    AN -->|"promoção válida?"| NT["Subagente Notificador"]
-    NT --> MCP3["MCP: Telegram/Notificações"]
-    MCP3 --> U
+    SA -->|consome| PORTS
+    AA -->|consome| PORTS
+    NA -->|consome| PORTS
+    
+    SCRAPERS -.->|implements| PORTS
+    REPO -.->|implements| PORTS
+    NOTIF -.->|implements| PORTS
+    HTTP -.->|implements| PORTS
+    RA --> REPORT
 ```
 
-### Fluxo de Execução do Ciclo
+### Fluxo de Execução do Ciclo ADK
 
 ```mermaid
 sequenceDiagram
-    participant S as Scheduler
-    participant O as Orquestrador
-    participant SA as Subagentes Scraper
-    participant AN as Analista de Preço
-    participant DB as Banco de Dados
-    participant NT as Notificador
-    participant U as Usuário
+    autonumber
+    participant CLI as CLI / Scheduler
+    participant Runner as AdkMonitoringRunner
+    participant ADK as SequentialAgent (Pipeline)
+    participant Scraper as AdkScraperAgent
+    participant Analyst as AdkAnalystAgent
+    participant DB as SQLite Repository
+    participant Notif as AdkNotifierAgent
+    participant TG as Telegram Bot API
+    participant Report as AdkReportAgent
 
-    S->>O: dispara ciclo (produto X)
-    O->>SA: aciona scrapers em paralelo
-    SA-->>O: preço, link, disponibilidade (por fonte)
-    O->>AN: envia resultados coletados
-    AN->>DB: consulta histórico de preço
-    DB-->>AN: histórico
-    AN->>AN: normaliza e calcula desconto real
-    alt promoção válida
-        AN->>NT: aciona notificação
-        NT->>U: envia alerta (Telegram)
-    else sem promoção
-        AN->>DB: apenas registra novo preço
-    end
+    CLI->>Runner: run_cycle(product_id)
+    Runner->>Runner: cria sessão isolada no SessionService
+    Runner->>ADK: runner.run_async(new_message="start")
+    
+    Note over ADK,Scraper: Fase 1: Coleta Concorrente
+    ADK->>Scraper: executa scraping em paralelo
+    Scraper-->>ADK: yield Event(state_delta={scraped_pairs})
+
+    Note over ADK,Analyst: Fase 2: Análise Histórica Congelada
+    ADK->>Analyst: lê histórico pré-ciclo e avalia ofertas
+    Analyst->>DB: persiste PriceRecords
+    Analyst-->>ADK: yield Event(state_delta={analyses, deals_found})
+
+    Note over ADK,Notif: Fase 3: Notificação Anti-Spam
+    ADK->>Notif: dispara Telegram / Console se houver deal
+    Notif-->>ADK: yield Event(state_delta={notifications_sent})
+
+    Note over ADK,Report: Fase 4: Relatório Visual
+    ADK->>Report: compila HTML interativo
+    Report-->>ADK: yield Event(state_delta={report_path})
+
+    ADK-->>Runner: ciclo finalizado
+    Runner-->>CLI: resumo do ciclo + caminho do relatório
 ```
 
 ---
@@ -109,48 +137,47 @@ sequenceDiagram
 
 | Camada | Tecnologia | Justificativa / Uso |
 |---|---|---|
-| **Linguagem** | Python 3.10+ (compatível com 3.14) | Produtividade, ecossistema assíncrono e tipagem moderna |
-| **Orquestração** | Python Nativo (`asyncio` / subagentes) | Desacoplamento entre coleta, regras de negócio e notificação |
-| **Scraping Estático** | `httpx` + `BeautifulSoup4` | Requisições assíncronas com backoff, rate limit e parsing rápido de HTML |
-| **Navegação Dinâmica** | Playwright (planejado / sob demanda) | Renderização para marketplaces que dependem estritamente de JS pesado |
-| **Validação de Dados** | `pydantic` v2 + `pydantic-settings` | Schemas estritos de domínio e validação de variáveis de ambiente |
-| **Banco de Dados** | SQLite (modo WAL) | Persistência local com zero dependência externa no MVP |
-| **Agendamento** | `APScheduler` | Daemon assíncrono para ciclos periódicos configuráveis |
-| **Notificações** | Telegram Bot API | Disparo push imediato via HTTP com fallback para console |
-| **Logs & Testes** | `loguru`, `pytest`, `pytest-asyncio` | Logs estruturados e suíte de testes unitários com fixtures locais |
-| **Qualidade de Código** | `ruff` | Linting e formatação de alta velocidade |
+| **Linguagem** | Python 3.10+ (testado em 3.14) | Tipagem moderna, ecossistema assíncrono de alto desempenho |
+| **Framework de Agentes** | Google ADK (`google-adk` 2.8+) | Orquestração nativa, agentes determinísticos (`BaseAgent`), propagação de estado por eventos |
+| **Arquitetura** | Hexagonal (Ports & Adapters) | Total desacoplamento entre domínio, persistência, scraping e notificação |
+| **Scraping Estático** | `httpx` + `BeautifulSoup4` | Requisições assíncronas com backoff, rate limit por domínio e rotação de headers |
+| **Validação de Dados** | `pydantic` v2 + `pydantic-settings` | Schemas estritos de domínio e tipagem das configurações de ambiente |
+| **Banco de Dados** | SQLite (modo WAL) | Persistência local rápida, sem necessidade de subir serviços de terceiros no MVP |
+| **Relatórios Visuais** | `jinja2` + Chart.js | Relatórios HTML responsivos com gráficos comparativos e temporais |
+| **Agendamento** | `APScheduler` | Daemon assíncrono para execução periódica com suporte a modo simulação |
+| **Notificações** | Telegram Bot API | Disparo push imediato via HTTP com formatação rica em HTML e fallback para console |
+| **Logs & Testes** | `loguru`, `pytest`, `pytest-asyncio` | Logs coloridos/estruturados e 26 testes automatizados com fixtures offline |
+| **Qualidade de Código** | `ruff` | Linter e formatador de alto desempenho |
 
 ---
 
 ## ⚙️ Pré-requisitos
 
-- **Python:** Versão 3.10 ou superior instalada no sistema.
+- **Python:** Versão 3.10 ou superior (totalmente compatível com Python 3.14).
 - **Git:** Para clonagem e versionamento.
-- **Credenciais do Telegram (Opcional):** Token do bot (`TELEGRAM_BOT_TOKEN`) e ID do chat (`TELEGRAM_CHAT_ID`). Se ausentes, o sistema exibe os alertas diretamente no terminal.
+- **Credenciais do Telegram (Opcional):** Token do bot (`TELEGRAM_BOT_TOKEN`) e ID do chat (`TELEGRAM_CHAT_ID`). Se não preenchidos, os alertas são exibidos com destaque no terminal.
 
 ---
 
 ## 📦 Instalação
-
-Siga os passos abaixo para configurar o ambiente local:
 
 ```bash
 # 1. Clonar o repositório
 git clone https://github.com/hlaff147/price-scout-agent.git
 cd price-scout-agent
 
-# 2. Criar e ativar o ambiente virtual (venv)
+# 2. Criar e ativar o ambiente virtual (.venv)
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 3. Instalar dependências em modo editável com ferramentas de dev
+# 3. Instalar dependências em modo editável com ferramentas de desenvolvimento
 pip install -e ".[dev]"
 
 # 4. Configurar as variáveis de ambiente
 cp .env.example .env
 ```
 
-Edite o arquivo `.env` para preencher as credenciais (Telegram, nível de log, etc.):
+Edite o arquivo `.env` para personalizar suas credenciais:
 
 ```env
 TELEGRAM_BOT_TOKEN=seu_token_aqui
@@ -165,7 +192,7 @@ DRY_RUN=false
 
 ## 🛠️ Configuração
 
-Os produtos monitorados são configurados no arquivo [`src/config/products.yaml`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/config/products.yaml). Você pode definir nome, palavras-chave, limites de preço e habilitar (`ativo: true`) apenas as lojas onde compensa buscar:
+Os produtos monitorados ficam declarados no arquivo [`src/config/products.yaml`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/config/products.yaml):
 
 ```yaml
 products:
@@ -179,7 +206,6 @@ products:
     preco_maximo: 1100.00
     ativo: true
     sources:
-      # Fontes ativas recomendadas para este fone:
       - marketplace: "amazon"
         url_produto: "https://www.amazon.com.br/s?k=Huawei+FreeBuds+Pro+5"
         metodo_coleta: "scraping_html"
@@ -200,7 +226,7 @@ products:
         metodo_coleta: "scraping_html"
         ativo: true
 
-      # Fontes desativadas especificamente onde não compensa buscar este item:
+      # Fontes desativadas onde não compensa buscar:
       - marketplace: "kabum"
         url_produto: "https://www.kabum.com.br/busca/huawei-freebuds-pro-5"
         ativo: false
@@ -216,46 +242,70 @@ products:
 
 ## 🚀 Como Usar
 
-### 1. Execução Sob Demanda (Ciclo Único)
+### 1. Execução Sob Demanda (Ciclo Único via Google ADK)
 
 ```bash
-# Execução normal (envia notificações se houver oferta)
+# Execução padrão (Google ADK + gera relatório HTML + abre no navegador):
 python scripts/run_cycle.py
 
-# Simulação sem envio de alertas reais (Dry-Run)
+# Filtrando por um produto específico:
+python scripts/run_cycle.py --product huawei-freebuds-pro-5
+
+# Simulação sem envio de alertas reais (Dry-Run):
 python scripts/run_cycle.py --dry-run
 
-# Execução com logs detalhados de depuração
-python scripts/run_cycle.py --dry-run -v
+# Gera o relatório HTML mas não abre automaticamente no navegador:
+python scripts/run_cycle.py --no-open
 
-# Filtrando por um produto específico
-python scripts/run_cycle.py --product huawei-freebuds-pro-5
+# Desabilita a geração do relatório HTML:
+python scripts/run_cycle.py --no-report
+
+# Fallback opcional para o orquestrador procedural anterior:
+python scripts/run_cycle.py --legacy
 ```
 
 ### 2. Execução Agendada Contínua (Daemon)
 
 ```bash
-# Inicia o agendador em segundo plano (intervalo padrão: 1 hora)
+# Inicia o daemon periódico (intervalo padrão configurado no .env):
 python scripts/schedule_daemon.py
 
-# Definindo intervalo customizado (ex: a cada 2 horas)
+# Definindo intervalo customizado (ex: a cada 2 horas):
 python scripts/schedule_daemon.py --interval-hours 2
+
+# Modo simulação agendado (sem disparo real):
+python scripts/schedule_daemon.py --dry-run
 ```
 
 ### 3. Atalhos via Makefile
 
 ```bash
-make run       # Executa o ciclo sob demanda
+make run       # Executa o ciclo sob demanda com Google ADK
 make dry-run   # Executa em modo simulação com logs verbose
-make test      # Executa a suíte completa de 17 testes automatizados
+make test      # Executa a suíte completa de 26 testes automatizados
 make daemon    # Inicia o daemon agendado
+```
+
+---
+
+## 📊 Relatórios Visuais HTML
+
+Ao final de cada ciclo, o PromoRadar compila automaticamente um relatório visual em `reports/`:
+- **Tema Dark Moderno:** Layout responsivo otimizado para desktop e mobile.
+- **Gráfico Comparativo de Preços:** Barras por marketplace com linhas de referência horizontais para o Preço Alvo e o Preço Máximo.
+- **Gráfico de Tendência Histórica:** Curvas temporais demonstrando a variação de preços ao longo das semanas por loja.
+- **Cards de Status e Oportunidades:** Indicadores de fontes consultadas, cotações válidas, ofertas ativas e erros isolados.
+
+Para inspecionar relatórios gerados manualmente:
+```bash
+open reports/huawei-freebuds-pro-5_*.html
 ```
 
 ---
 
 ## 📬 Exemplo de Notificação
 
-Quando o agente detecta uma oferta real que cumpre as condições de compra, a notificação chega formatada no Telegram:
+Quando uma oportunidade é identificada, o alerta chega formatado no Telegram:
 
 ```text
 🎯 PREÇO ABAIXO DO ALVO DEFINIDO!
@@ -279,40 +329,47 @@ Quando o agente detecta uma oferta real que cumpre as condições de compra, a n
 ```
 promo-radar/
 ├── src/
-│   ├── orchestrator/        # Coordenação central do ciclo e execução paralela
-│   ├── subagents/           # Subagentes isolados (scraper, analista, notificador)
-│   │   ├── scraper_agent/
-│   │   ├── price_analyst_agent/
-│   │   └── notifier_agent/
-│   ├── skills/              # SKILL.md + lógica de parsing por marketplace
+│   ├── core/                # 🔵 Núcleo da Arquitetura Hexagonal
+│   │   └── ports/           # Interfaces abstratas (IScraper, IAnalyst, INotifier, IRepository, IHttpClient)
+│   ├── agents/              # 🟡 Agentes Google ADK (BaseAgent, SequentialAgent, AdkRunner)
+│   │   ├── scraper_agent.py
+│   │   ├── analyst_agent.py
+│   │   ├── notifier_agent.py
+│   │   ├── report_agent.py
+│   │   ├── coordinator.py
+│   │   └── adk_runner.py
+│   ├── orchestrator/        # Orquestrador procedural (mantido para fallback --legacy)
+│   ├── subagents/           # 🟢 Adaptadores especialistas (Scraper, Analista, Notificador)
+│   ├── skills/              # Parsers de marketplaces e detecção de falsos descontos
 │   │   ├── parse_amazon/
 │   │   ├── parse_mercadolivre/
 │   │   ├── parse_shopee/
+│   │   ├── parse_google_shopping/
 │   │   ├── parse_aliexpress/
 │   │   ├── parse_kabum/
-│   │   ├── parse_google_shopping/
 │   │   ├── normalize_product/
 │   │   ├── detect_fake_discount/
 │   │   └── format_alert/
-│   ├── tools/               # Utilitários (HttpClient com backoff, headers e rate-limit)
-│   ├── data/                # Models Pydantic, conexão SQLite e Repository
-│   └── config/              # Settings (.env) e cadastro de produtos (YAML)
-├── tests/
+│   ├── tools/               # 🔧 ADK Tools e HttpClient resiliente
+│   ├── reporting/           # 📊 Gerador de relatórios HTML (Jinja2 + Chart.js)
+│   │   └── templates/       # Template HTML responsivo
+│   ├── data/                # Models Pydantic e persistência SQLite WAL
+│   └── config/              # Produtos (YAML) e configurações (.env)
+├── tests/                   # 🧪 26 testes unitários e de integração
 │   ├── fixtures/            # HTMLs offline reais para testes sem rede
-│   ├── test_parsers.py
-│   ├── test_analyst.py
-│   ├── test_repository.py
-│   └── test_orchestrator.py
-├── scripts/                 # Scripts de CLI sob demanda e daemon agendado
-│   ├── run_cycle.py
-│   └── schedule_daemon.py
-├── docs/
-│   ├── NEGOCIAL.md
-│   ├── TECNICO.md
-│   └── ARQUITETURA.md
+│   ├── test_ports.py        # Validação de conformidade com os Ports
+│   ├── test_adk_agents.py   # Testes do pipeline e runners do Google ADK
+│   ├── test_parsers.py      # Testes dos parsers de cada marketplace
+│   ├── test_analyst.py      # Testes de histórico estável e falso desconto
+│   ├── test_repository.py   # CRUD, histórico e anti-spam no SQLite
+│   └── test_orchestrator.py # Testes de isolamento de falhas
+├── scripts/                 # CLI sob demanda e daemon de agendamento
+├── docs/                    # NEGOCIAL.md, TECNICO.md e ARQUITETURA.md (com ADRs)
+├── reports/                 # Relatórios HTML gerados pós-ciclo (ignorado no git)
 ├── .env.example
 ├── pyproject.toml
 ├── Makefile
+├── LICENSE                  # Licença MIT
 └── README.md
 ```
 
@@ -320,12 +377,23 @@ promo-radar/
 
 ## 🔌 Como Adicionar um Novo Marketplace
 
-O design modular permite adicionar novas fontes sem alterar o orquestrador nem o analista:
+O design modular permite estender fontes sem alterar as regras de negócio:
 
-1. **Crie a Skill:** Crie a pasta `src/skills/parse_<marketplace>/` contendo o `SKILL.md` (regras do site) e o `parser.py` (herdando de `BaseSkill`).
-2. **Registre no ScraperSubagent:** Em [`src/subagents/scraper_agent/agent.py`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/subagents/scraper_agent/agent.py), adicione a skill ao dicionário `SKILL_REGISTRY`.
-3. **Configure o Produto:** Adicione o novo marketplace e a URL correspondente na seção `sources` do produto em [`src/config/products.yaml`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/config/products.yaml).
-4. **Adicione Testes:** Crie uma fixture HTML em `tests/fixtures/` e adicione o teste unitário correspondente em `tests/test_parsers.py`.
+1. **Crie a Skill:** Adicione a pasta `src/skills/parse_<marketplace>/` com `SKILL.md` e `parser.py` (herdando de `BaseSkill`).
+2. **Registre a Skill:** No dicionário `SKILL_REGISTRY` em [`src/subagents/scraper_agent/agent.py`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/subagents/scraper_agent/agent.py).
+3. **Configure o Produto:** Adicione o novo marketplace na seção `sources` em [`src/config/products.yaml`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/src/config/products.yaml).
+4. **Adicione Testes:** Salve um HTML de exemplo em `tests/fixtures/` e adicione o teste unitário em `tests/test_parsers.py`.
+
+---
+
+## 🔧 Solução de Problemas (Troubleshooting)
+
+| Sintoma | Causa Mais Provável | Solução Recomendada |
+|---|---|---|
+| `Sem resultado: 3` no console | Páginas que renderizam produtos exclusivamente via JavaScript no cliente | O PromoRadar utiliza requisições estáticas HTTP velozes no MVP. Caso a loja mude layout para JS estrito, o resultado é classificado como "sem resultado" sem quebrar o ciclo. Para a versão 2.0, o suporte a Playwright cobrirá essas fontes. |
+| `Telegram não configurado...` | Ausência de `TELEGRAM_BOT_TOKEN` no arquivo `.env` | O PromoRadar continua funcionando normalmente exibindo alertas no terminal. Para habilitar Telegram, crie um bot no `@BotFather` e preencha as chaves no `.env`. |
+| Erro de lock no SQLite | Múltiplos processos acessando o arquivo sem modo WAL | O banco é inicializado automaticamente com `PRAGMA journal_mode = WAL`. Certifique-se de que o diretório `data/` tenha permissão de escrita para o usuário local. |
+| `command not found: python` | Execução fora do ambiente virtual ativo | Execute sempre ativando o `.venv` (`source .venv/bin/activate`) ou use o `make run` / `python3 scripts/run_cycle.py`. |
 
 ---
 
@@ -334,12 +402,14 @@ O design modular permite adicionar novas fontes sem alterar o orquestrador nem o
 Evoluções planejadas para versões futuras:
 
 1. [x] MVP funcional com monitoramento multi-marketplace e histórico persistido.
-2. [ ] Múltiplos produtos simultâneos com diferentes níveis de prioridade.
-3. [ ] Dashboard web com histórico de preços e visualização gráfica de tendência (Streamlit/FastAPI).
-4. [ ] Deduplicação inteligente de variantes (cor/edição global) via LLM.
-5. [ ] Alertas especializados por cupom e código promocional.
-6. [ ] Suporte a canais adicionais de notificação (Discord Webhook, WhatsApp e E-mail).
-7. [ ] Modelo preditivo simples indicando o "melhor momento para comprar".
+2. [x] Arquitetura Hexagonal (Ports & Adapters) e orquestração com Google ADK 2.8+.
+3. [x] Relatórios visuais pós-ciclo em HTML com gráficos interativos Chart.js.
+4. [ ] Múltiplos produtos simultâneos com diferentes níveis de prioridade.
+5. [ ] Suporte a automação de navegador via Playwright para marketplaces JS-pesados.
+6. [ ] Subagentes inteligentes com Gemini (self-healing scraper para reparo automático de seletores CSS).
+7. [ ] Deduplicação semântica de variantes (cor/edição global) e bot conversacional no Telegram.
+8. [ ] Alertas especializados por cupom e código promocional.
+9. [ ] Empacotamento Docker e deploy de serviço agendado em nuvem.
 
 ---
 
@@ -354,16 +424,14 @@ Este projeto foi desenvolvido para fins de pesquisa, automação pessoal e estud
 
 ## 📄 Licença
 
-Distribuído sob a licença **MIT**. Consulte o arquivo `LICENSE` para mais informações.
+Distribuído sob a licença **MIT**. Consulte o arquivo [`LICENSE`](file:///Users/humbertolimadealcantarafonsecafilho/price-scout-agent/LICENSE) para mais informações.
 
 ---
 
 ## 🤝 Como Contribuir
 
-Contribuições são bem-vindas! Siga os passos:
-
 1. Faça um Fork do projeto.
 2. Crie uma branch para sua funcionalidade (`git checkout -b feature/novo-marketplace`).
-3. Garanta que a suíte de testes passe (`pytest -v tests/`).
+3. Garanta que a suíte de 26 testes passe (`pytest -v tests/`).
 4. Envie o commit com mensagens claras (`git commit -m 'feat: adiciona skill do marketplace X'`).
 5. Abra um Pull Request detalhando as alterações.

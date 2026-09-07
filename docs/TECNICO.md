@@ -19,9 +19,10 @@ promoção real.
 | Parsing estruturado / schemas | `pydantic` | `dataclasses` |
 | Banco de dados | SQLite (MVP) | PostgreSQL (produção/escala) |
 | Agendamento | `APScheduler` ou cron do SO | GitHub Actions (workflow agendado) |
-| Notificações | Bot do Telegram (`python-telegram-bot`) | E-mail (SMTP), Discord Webhook |
+| Notificações | Bot do Telegram (`python-telegram-bot` / HTTP) | E-mail (SMTP), Discord Webhook |
+| Relatórios Visuais | `jinja2` + Chart.js | Streamlit, Dash |
 | Logging | `loguru` | `structlog` |
-| Testes | `pytest` + `pytest-mock` | — |
+| Testes | `pytest` + `pytest-mock` + `pytest-asyncio` | — |
 | Lint/format | `ruff` + `black` | — |
 | Empacotamento/deploy | Docker | `systemd` timer em VPS |
 
@@ -133,35 +134,53 @@ Alert
 ```
 promo-radar/
 ├── src/
-│   ├── orchestrator/        # agente orquestrador principal
-│   ├── subagents/           # um módulo por subagente
+│   ├── core/                # Núcleo da Arquitetura Hexagonal
+│   │   └── ports/           # Interfaces abstratas (IScraper, IAnalyst, INotifier, IRepository, IHttpClient)
+│   ├── agents/              # Agentes Google ADK (BaseAgent, SequentialAgent, AdkRunner)
+│   ├── orchestrator/        # Orquestrador procedural (mantido para compatibilidade --legacy)
+│   ├── subagents/           # Adaptadores de scraping, análise e notificação
 │   │   ├── scraper_agent/
 │   │   ├── price_analyst_agent/
 │   │   └── notifier_agent/
 │   ├── skills/              # SKILL.md + lógica de parsing por marketplace
 │   │   ├── parse_amazon/
 │   │   ├── parse_mercadolivre/
-│   │   └── normalize_product/
-│   ├── mcp_servers/         # servidores MCP customizados (se necessário)
-│   ├── tools/               # funções utilitárias chamadas por agentes
-│   ├── data/                # models pydantic + acesso a banco
-│   └── config/              # produtos monitorados, thresholds
-├── tests/
-├── scripts/                 # scripts de agendamento/execução manual
-├── docs/
-│   ├── NEGOCIAL.md
-│   ├── TECNICO.md
-│   └── ARQUITETURA.md
+│   │   ├── parse_shopee/
+│   │   ├── parse_google_shopping/
+│   │   ├── parse_aliexpress/
+│   │   ├── parse_kabum/
+│   │   ├── normalize_product/
+│   │   ├── detect_fake_discount/
+│   │   └── format_alert/
+│   ├── tools/               # ADK Tools tipadas e HttpClient resiliente
+│   ├── reporting/           # Gerador de relatórios HTML visuais (Jinja2 + Chart.js)
+│   │   └── templates/       # Templates HTML responsivos (tema dark)
+│   ├── data/                # Models Pydantic + acesso a banco SQLite (WAL)
+│   └── config/              # Produtos monitorados (YAML) e settings (.env)
+├── tests/                   # 26 testes unitários e de integração
+│   ├── fixtures/            # HTMLs offline reais para testes sem rede
+│   ├── test_ports.py
+│   ├── test_adk_agents.py
+│   ├── test_parsers.py
+│   ├── test_analyst.py
+│   ├── test_repository.py
+│   └── test_orchestrator.py
+├── scripts/                 # CLI sob demanda (run_cycle.py) e daemon agendado (schedule_daemon.py)
+├── docs/                    # Documentação técnica, negocial e arquitetural
+├── reports/                 # Relatórios HTML gerados pós-ciclo (ignorado no git)
 ├── .env.example
 ├── pyproject.toml
+├── Makefile
+├── LICENSE                  # Licença MIT
 └── README.md
 ```
 
 ## 12. Roadmap Técnico
 
-1. MVP com 1 produto, scraping simples (requests/BS4) em 2-3 sites estáticos.
-2. Adicionar Playwright para sites dependentes de JS.
-3. Introduzir subagentes paralelos (um por marketplace) via Claude Agent SDK.
-4. Adicionar skills reutilizáveis de parsing/normalização.
-5. Persistência em Postgres + dashboard simples (opcional, ex.: Streamlit).
-6. Empacotar como serviço agendado em nuvem.
+1. [x] MVP com monitoramento concorrente, isolamento de falhas e histórico persistido.
+2. [x] Relatórios visuais pós-ciclo em HTML com gráficos Chart.js interativos.
+3. [x] Arquitetura Hexagonal (Ports & Adapters) e orquestração via Google ADK (`google-adk` 2.8+).
+4. [ ] Adicionar automação via browser (Playwright) para marketplaces com bloqueio severo de JS.
+5. [ ] Subagentes inteligentes baseados em LLM (self-healing scraper para reparo automático de seletores CSS).
+6. [ ] Deduplicação semântica de variantes via LLM e bot conversacional no Telegram.
+7. [ ] Empacotamento Docker e deploy de serviço agendado em nuvem (Cloud Run / VPS).

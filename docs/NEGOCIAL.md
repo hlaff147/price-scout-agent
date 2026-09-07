@@ -59,7 +59,7 @@ no rótulo "promoção") e notifique o usuário automaticamente.
 ## 7. Escopo Futuro (Roadmap)
 
 1. Múltiplos produtos com prioridades diferentes.
-2. Dashboard web com histórico de preços (gráfico).
+2. [x] Relatório visual pós-ciclo em HTML com gráficos interativos Chart.js (Dashboard web interativo em tempo real via Streamlit/FastAPI permanece como evolução).
 3. Deduplicação inteligente de variantes (cor/versão) via LLM.
 4. Alertas por cupom/código de desconto, não só preço.
 5. Suporte a mais canais de notificação (WhatsApp, e-mail, Discord).
@@ -95,11 +95,10 @@ no rótulo "promoção") e notifique o usuário automaticamente.
   espaçadas (algumas dezenas de chamadas/dia).
 - Proxies (opcional, se houver bloqueio): variável, pode começar sem.
 
-## 11. Critérios de Aceite do MVP
+## 11. Critérios de Aceite do MVP (Validados ✅)
 
-- [ ] Consigo cadastrar um produto (nome + faixa de preço) via config simples.
-- [ ] O agente varre pelo menos 3 fontes automaticamente em um ciclo agendado.
-- [ ] Recebo notificação no Telegram quando o preço encontrado é vantajoso.
-- [ ] Existe histórico de preço persistido (consigo consultar depois).
-- [ ] Falhas de scraping em uma fonte não derrubam o ciclo inteiro (isolamento
-      de falhas por subagente).
+- [x] Consigo cadastrar um produto (nome + faixa de preço) via config simples (`src/config/products.yaml`).
+- [x] O agente varre pelo menos 3 fontes automaticamente em um ciclo agendado (Mercado Livre, Amazon, Shopee, Google Shopping).
+- [x] Recebo notificação no Telegram quando o preço encontrado é vantajoso (`NotifierSubagent` / `AdkNotifierAgent`).
+- [x] Existe histórico de preço persistido (SQLite WAL consultável por data e fonte).
+- [x] Falhas de scraping em uma fonte não derrubam o ciclo inteiro (isolamento com `asyncio.gather(..., return_exceptions=True)`).

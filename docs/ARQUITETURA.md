@@ -2,171 +2,174 @@
 
 ## 1. Visão Geral
 
-Arquitetura orientada a agentes: um **agente orquestrador** recebe o produto
-de interesse e coordena **subagentes** especializados, que usam **skills**
-(instruções + lógica reutilizável) e **MCP servers**/**tools** para executar
-o trabalho de coleta, análise e notificação.
+O **PromoRadar** adota uma arquitetura híbrida moderna que combina **Arquitetura Hexagonal (Ports & Adapters)** com o **Google Agent Development Kit (ADK 2.8+)**. 
+
+O sistema é estruturado em três macro-camadas:
+1. **Core (Domínio Puro):** Regras de negócio, modelos de dados Pydantic e interfaces abstratas (Ports) completamente livres de frameworks externos.
+2. **Camada de Agentes (Google ADK):** Agentes determinísticos (`BaseAgent`) orquestrados sequencialmente em um pipeline (`SequentialAgent`), gerenciando estado compartilhado da sessão com rastreabilidade total.
+3. **Adapters (Infraestrutura):** Implementações concretas para scraping de marketplaces, cliente HTTP com backoff, persistência em SQLite, envio de alertas via Telegram e geração de relatórios visuais em HTML.
 
 ```mermaid
 graph TD
-    U[Usuário] -->|"produto + preço alvo"| O[Agente Orquestrador]
+    subgraph "1. Core (Domínio Puro & Contratos)"
+        PORTS["Ports (Interfaces Abstratas)<br/>IScraper, IAnalyst, INotifier, IRepository, IHttpClient"]
+        MODELS["Modelos Pydantic<br/>Product, Source, PriceRecord, Alert, DealAnalysis, ScrapedData"]
+    end
 
-    O --> SA1[Subagente Scraper - Marketplace A]
-    O --> SA2[Subagente Scraper - Marketplace B]
-    O --> SA3[Subagente Scraper - Marketplace C]
+    subgraph "2. Orquestração (Google ADK 2.8+)"
+        RUNNER["AdkMonitoringRunner<br/>(Runner + InMemorySessionService)"]
+        COORD["SequentialAgent (Coordinator)"]
+        SA["AdkScraperAgent<br/>(BaseAgent)"]
+        AA["AdkAnalystAgent<br/>(BaseAgent)"]
+        NA["AdkNotifierAgent<br/>(BaseAgent)"]
+        RA["AdkReportAgent<br/>(BaseAgent)"]
 
-    SA1 --> SK1[Skill: parse_marketplace_a]
-    SA2 --> SK2[Skill: parse_marketplace_b]
-    SA3 --> SK3[Skill: parse_marketplace_c]
+        RUNNER --> COORD
+        COORD --> SA --> AA --> NA --> RA
+    end
 
-    SA1 --> MCP1[MCP: Browser/Playwright]
-    SA2 --> MCP2[MCP: Web Search]
-    SA3 --> T1[Tool: HTTP fetch direto]
+    subgraph "3. Adapters (Infraestrutura Concreta)"
+        SCRAPERS["ScraperSubagent<br/>(Amazon, Mercado Livre, Shopee, Google Shopping)"]
+        HTTP["HttpClient (httpx)<br/>(Rate Limit, Backoff, User-Agents)"]
+        REPO["Repository (SQLite WAL)<br/>(CRUD, Histórico, Anti-Spam)"]
+        NOTIF["NotifierSubagent<br/>(Telegram Bot API / Console)"]
+        REPORT["ReportGenerator<br/>(Jinja2 + Chart.js)"]
+    end
 
-    SA1 --> AN[Subagente Analista de Preço]
-    SA2 --> AN
-    SA3 --> AN
-
-    AN --> SK4[Skill: normalize_product]
-    AN --> DB[(Banco de Dados
-    Histórico de Preços)]
-
-    AN -->|"promoção válida?"| NT[Subagente Notificador]
-    NT --> MCP3[MCP: Telegram/Notificações]
-    MCP3 --> U
+    SA -->|consome| PORTS
+    AA -->|consome| PORTS
+    NA -->|consome| PORTS
+    
+    SCRAPERS -.->|implements| PORTS
+    REPO -.->|implements| PORTS
+    NOTIF -.->|implements| PORTS
+    HTTP -.->|implements| PORTS
+    RA --> REPORT
 ```
 
-## 2. Camadas da Arquitetura
+---
 
-| Camada | Responsabilidade |
-|---|---|
-| Interface | Entrada do usuário (config de produto, CLI, ou chat) |
-| Orquestração | Agente principal: decide quais subagentes acionar e quando |
-| Subagentes | Unidades especializadas com escopo restrito de tarefa |
-| Skills | Conhecimento/procedimento reutilizável (ex.: como extrair preço de um site específico) |
-| MCP / Tools | Capacidades externas concretas (navegador, busca, notificação, DB) |
-| Dados | Persistência de produtos, fontes, preços e alertas |
-| Agendamento | Dispara o ciclo de monitoramento periodicamente |
+## 2. Camadas da Arquitetura Hexagonal
 
-## 3. Agente Orquestrador
-
-**Responsabilidade:** receber o produto monitorado, decidir quais fontes
-consultar, disparar os subagentes de scraping em paralelo, aguardar os
-resultados, encaminhar ao subagente analista e decidir se aciona o
-notificador.
-
-**Entrada:** `Product` (nome, keywords, preço alvo/máximo).
-**Saída:** log do ciclo + (opcionalmente) alerta disparado.
-
-## 4. Subagentes
-
-### 4.1 Subagente Scraper (um por marketplace ou grupo de marketplaces)
-- **Responsabilidade:** dado um produto, buscar/raspar a página de resultado
-  ou de produto e devolver preço, disponibilidade, link e cupom (se houver).
-- **Isolamento:** falha em um scraper não deve derrubar os demais — o
-  orquestrador trata cada subagente como unidade independente com tratamento
-  de erro próprio.
-- **Usa:** skill de parsing específica do site + MCP de browser (se o site
-  depende de JavaScript) ou tool de HTTP direto (se HTML estático).
-
-### 4.2 Subagente Analista de Preço
-- **Responsabilidade:** normalizar os resultados recebidos (mesma unidade,
-  mesma variante do produto), consultar o histórico no banco, calcular
-  desconto real (vs. preço histórico, não vs. preço "riscado" do site) e
-  decidir se a oferta atende ao critério do usuário.
-- **Usa:** skill `normalize_product`, acesso direto ao banco de dados.
-
-### 4.3 Subagente Notificador
-- **Responsabilidade:** formatar e enviar a notificação pelo canal
-  configurado, incluir link direto, preço, desconto e justificativa
-  (ex.: "menor preço dos últimos 60 dias").
-- **Usa:** MCP de notificação (Telegram/Discord/e-mail).
-
-## 5. Skills
-
-Skills funcionam como "manuais de procedimento" reutilizáveis que os
-subagentes consultam antes de agir — evita reimplementar lógica em cada
-subagente e facilita adicionar um novo marketplace sem tocar no orquestrador.
-
-| Skill | Usada por | Função |
+| Camada | Módulo / Pacote | Responsabilidade |
 |---|---|---|
-| `parse_<marketplace>` | Subagente Scraper | Regras de extração de preço/título/disponibilidade daquele site específico |
-| `normalize_product` | Subagente Analista | Padronizar nome/variante do produto entre fontes diferentes |
-| `format_alert` | Subagente Notificador | Template de mensagem de alerta |
-| `detect_fake_discount` | Subagente Analista | Heurística para identificar "preço riscado" inflado artificialmente |
+| **Core (Domínio & Ports)** | `src/core/ports/`, `src/data/models.py` | Define as interfaces abstratas (`IScraper`, `IAnalyst`, `INotifier`, `IRepository`, `IHttpClient`) e os schemas de dados. Zero acoplamento com redes, bancos ou frameworks. |
+| **Agentes ADK** | `src/agents/` | Agentes orientados a eventos (`google.adk.agents.BaseAgent`). Orquestram a execução dos casos de uso, recebem o estado da sessão e propagam dados via `EventActions(state_delta={...})`. |
+| **Adapters de Coleta** | `src/subagents/scraper_agent/`, `src/skills/` | Implementa `IScraper`. Contém os parsers de HTML específicos por marketplace e estratégias de extração. |
+| **Adapters de Análise** | `src/subagents/price_analyst_agent/` | Implementa `IAnalyst`. Avalia desconto real contra histórico de 60 dias e detecta maquiagem de preços ("metade do dobro"). |
+| **Adapters de Alerta** | `src/subagents/notifier_agent/`, `src/tools/notification_tools.py` | Implementa `INotifier`. Dispara mensagens formatadas no Telegram com controle de anti-spam (supressão em < 6h). |
+| **Adapters de Persistência** | `src/data/repository.py`, `src/data/database.py` | Implementa `IRepository`. Persiste cotações e alertas em SQLite no modo WAL (Write-Ahead Logging). |
+| **Adapters de Relatório** | `src/reporting/report_generator.py` | Renderiza relatórios HTML visuais e responsivos com gráficos comparativos e históricos via Chart.js. |
+| **Execução & CLI** | `scripts/run_cycle.py`, `scripts/schedule_daemon.py` | Ponto de entrada para execução sob demanda ou em segundo plano via `APScheduler`. |
 
-Cada skill segue o padrão de pasta com `SKILL.md` (instruções) + código de
-apoio, permitindo evoluir/testar cada uma isoladamente.
+---
 
-## 6. MCP Servers
+## 3. Orquestração via Google ADK
 
-MCP é usado para capacidades que fazem sentido como serviço externo
-reutilizável entre vários subagentes:
+O pipeline do PromoRadar utiliza o **Google ADK** de forma determinística (agentes não-LLM, custo zero de tokens e latência em milissegundos), deixando a arquitetura pronta para futura injeção de agentes com LLM (ex.: self-healing scrapers):
 
-| MCP Server | Propósito |
-|---|---|
-| Browser (Playwright) | Renderizar páginas com JavaScript pesado / anti-bot básico |
-| Web Search | Encontrar página do produto quando a URL direta não é conhecida |
-| Notificações (Telegram) | Envio de mensagens ao usuário |
-| Banco de Dados (opcional) | Persistência via MCP em vez de acesso direto, se quiser desacoplar |
+1. **`AdkMonitoringRunner`**: Inicializa a sessão com `InMemorySessionService`, configura o estado inicial (`product`, `sources`, `dry_run`, `generate_report`) e inicia o streaming do `Runner`.
+2. **`AdkScraperAgent`**:
+   - Lê fontes ativas da sessão.
+   - Dispara scraping concorrente com `asyncio.gather(..., return_exceptions=True)`.
+   - Classifica resultados entre cotações coletadas, "sem resultado" e erros de rede.
+   - Emite evento com `EventActions(state_delta={"scraped_pairs": ...})`.
+3. **`AdkAnalystAgent`**:
+   - Congela a linha de base histórica pré-ciclo (`prev_min`, `prev_avg`).
+   - Avalia ofertas sem contaminação entre fontes do mesmo ciclo.
+   - Emite evento com `EventActions(state_delta={"analyses": ..., "deals_found": ...})`.
+4. **`AdkNotifierAgent`**:
+   - Processa as ofertas detectadas e aplica a política anti-spam.
+   - Dispara alertas no Telegram ou exibe no Console.
+   - Emite evento com `EventActions(state_delta={"notifications_sent": ...})`.
+5. **`AdkReportAgent`**:
+   - Constrói o resumo do ciclo e compila o relatório HTML interativo com Chart.js.
+   - Emite evento com `EventActions(state_delta={"report_path": ...})`.
 
-> Observação: nem toda capacidade precisa ser um MCP — scraping HTML simples
-> via `requests`/`BeautifulSoup` pode ser uma **tool** comum, mais barata e
-> rápida que subir um MCP server só para isso. MCP compensa quando a
-> capacidade é reutilizada por múltiplos agentes/projetos ou exige estado
-> (ex.: sessão de navegador).
+---
 
-## 7. Tools (funções diretas do agente)
-
-| Tool | Função |
-|---|---|
-| `fetch_html(url)` | Requisição HTTP simples com headers/retry |
-| `extract_price(html, skill)` | Aplica a skill de parsing correspondente |
-| `save_price_record(...)` | Persiste no banco |
-| `get_price_history(product_id)` | Consulta histórico para comparação |
-| `check_threshold(preco, alvo, historico)` | Decide se é uma promoção válida |
-
-## 8. Fluxo de Execução (ciclo de monitoramento)
+## 4. Fluxo de Execução (Ciclo Completo)
 
 ```mermaid
 sequenceDiagram
-    participant S as Scheduler
-    participant O as Orquestrador
-    participant SA as Subagentes Scraper
-    participant AN as Analista de Preço
-    participant DB as Banco de Dados
-    participant NT as Notificador
-    participant U as Usuário
+    autonumber
+    participant CLI as CLI / Scheduler
+    participant Runner as AdkMonitoringRunner
+    participant ADK as SequentialAgent (Pipeline)
+    participant Scraper as AdkScraperAgent
+    participant Analyst as AdkAnalystAgent
+    participant DB as SQLite Repository
+    participant Notif as AdkNotifierAgent
+    participant TG as Telegram Bot API
+    participant Report as AdkReportAgent
 
-    S->>O: dispara ciclo (produto X)
-    O->>SA: aciona scrapers em paralelo
-    SA-->>O: preço, link, disponibilidade (por fonte)
-    O->>AN: envia resultados coletados
-    AN->>DB: consulta histórico de preço
-    DB-->>AN: histórico
-    AN->>AN: normaliza e calcula desconto real
-    alt promoção válida
-        AN->>NT: aciona notificação
-        NT->>U: envia alerta (Telegram)
-    else sem promoção
-        AN->>DB: apenas registra novo preço
+    CLI->>Runner: run_cycle(product_id)
+    Runner->>Runner: cria sessão isolada no SessionService
+    Runner->>ADK: runner.run_async(new_message="start")
+    
+    rect rgb(240, 248, 255)
+        Note over ADK,Scraper: Fase 1: Coleta Concorrente
+        ADK->>Scraper: _run_async_impl(ctx)
+        Scraper->>Scraper: asyncio.gather(fontes ativas)
+        Scraper-->>ADK: yield Event(state_delta={scraped_pairs})
     end
+
+    rect rgb(255, 250, 240)
+        Note over ADK,Analyst: Fase 2: Análise Histórica Estável
+        ADK->>Analyst: _run_async_impl(ctx)
+        Analyst->>DB: busca linha de base pré-ciclo (prev_min, prev_avg)
+        Analyst->>DB: persiste novos PriceRecords
+        Analyst->>Analyst: detecta ofertas e falso desconto
+        Analyst-->>ADK: yield Event(state_delta={analyses, deals_found})
+    end
+
+    rect rgb(240, 255, 240)
+        Note over ADK,Notif: Fase 3: Notificação Anti-Spam
+        ADK->>Notif: _run_async_impl(ctx)
+        opt Oferta válida e sem spam (<6h)
+            Notif->>TG: envia mensagem formatada (HTML)
+            Notif->>DB: registra Alert enviado
+        end
+        Notif-->>ADK: yield Event(state_delta={notifications_sent})
+    end
+
+    rect rgb(255, 245, 245)
+        Note over ADK,Report: Fase 4: Relatório Visual
+        ADK->>Report: _run_async_impl(ctx)
+        Report->>Report: renderiza Jinja2 + Chart.js
+        Report-->>ADK: yield Event(state_delta={report_path})
+    end
+
+    ADK-->>Runner: turn_complete
+    Runner->>Runner: recupera estado final consolidado
+    Runner-->>CLI: resumo do ciclo + link do relatório
 ```
 
-## 9. Modelo de Extensibilidade
+---
 
-Para adicionar um novo marketplace:
-1. Criar uma nova skill `parse_<novo_marketplace>` com as regras de extração.
-2. Criar/configurar um novo Subagente Scraper apontando para essa skill.
-3. Registrar o marketplace na config do produto (`Source`).
-4. Nenhuma mudança é necessária no orquestrador ou no analista — eles
-   trabalham com o formato normalizado de saída, independente da fonte.
+## 5. Skills e ADK Tools
 
-## 10. Decisões de Arquitetura (resumo)
+### Skills (Módulos de Domínio & Extração)
+Skills funcionam como procedimentos desacoplados reutilizáveis:
+- **`parse_<marketplace>`**: Extrai preço, título e disponibilidade usando seletores CSS resilientes.
+- **`normalize_product`**: Padroniza caracteres, moedas (`R$ 1.234,56`) e valida relevância por palavras-chave.
+- **`detect_fake_discount`**: Heurística de confronto contra histórico real e contra teto máximo do usuário.
+- **`format_alert`**: Formata mensagens em HTML para o Telegram e texto estruturado para console.
 
-| Decisão | Alternativa considerada | Motivo da escolha |
-|---|---|---|
-| Subagentes por marketplace (não 1 agente genérico) | Um único scraper genérico | Isolamento de falha e facilidade de manter regras específicas por site |
-| SQLite no MVP | Postgres desde o início | Menor fricção para começar; migração é trivial depois |
-| MCP só onde há reuso/estado | MCP para tudo | Reduz complexidade operacional no MVP |
-| Análise de "desconto real" via histórico | Confiar no rótulo do site | Evita cair em falsas promoções |
+### ADK Tools (Funções Python Puras)
+Localizadas em `src/tools/`:
+- **`scraping_tools.py`**: `fetch_page_content(url)`, `parse_marketplace_html(html, marketplace, url)`.
+- **`analysis_tools.py`**: `evaluate_fake_discount(...)`, `query_historical_prices(...)` (com injeção de `IRepository`).
+- **`notification_tools.py`**: `send_telegram_notification(text, parse_mode)`.
+
+---
+
+## 6. Registro de Decisões de Arquitetura (ADRs)
+
+| ADR | Título | Status | Decisão & Justificativa |
+|---|---|---|---|
+| **ADR-001** | Adoção do Google Agent Development Kit (ADK) | **Aprovada** | Substituiu o plano inicial de orquestrador puramente procedural e ideias de Claude SDK por `google-adk` (2.8+). Permite pipeline multiagente tipado, suporte nativo a agentes determinísticos (`BaseAgent`), propagação de estado padronizada (`EventActions`) e facilidade de plugar agentes com Gemini no futuro sem alterar o pipeline. |
+| **ADR-002** | Refatoração para Arquitetura Hexagonal (Ports & Adapters) | **Aprovada** | Criação de interfaces abstratas (`IScraper`, `IAnalyst`, `INotifier`, `IRepository`, `IHttpClient`) em `src/core/ports/`. Garante que os agentes e a lógica de negócio não conheçam detalhes de rede (httpx), banco (sqlite3) ou Telegram, viabilizando mocks e troca de tecnologia com impacto zero no core. |
+| **ADR-003** | Relatórios Visuais HTML pós-ciclo com Chart.js | **Aprovada** | Em vez de depender de um servidor de dashboard pesado (Streamlit) ativo 24/7, o próprio ciclo compila um arquivo HTML estático autocontido com gráficos interativos de histórico e comparação de preços, abrindo automaticamente no navegador. |
+| **ADR-004** | Scraping HTTP Direto vs. Servidores MCP no MVP | **Aprovada** | Servidores MCP externos (Playwright, Search) adicionam custo de processo desnecessário para páginas onde requests estáticos com rotação de User-Agents atendem perfeitamente. O MCP permanece reservado para expansão futura. |
+| **ADR-005** | Isolamento da Linha de Base no Analista de Preços | **Aprovada** | A consulta de mínima e média histórica (`prev_min`, `prev_avg`) deve ser capturada uma única vez no início do lote do produto, impedindo que a gravação de uma fonte contamine a comparação das fontes subsequentes no mesmo ciclo. |
