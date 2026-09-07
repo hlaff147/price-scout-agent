@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS products (
     keywords TEXT NOT NULL,  -- JSON list
     preco_alvo REAL NOT NULL,
     preco_maximo REAL NOT NULL,
+    prioridade TEXT NOT NULL DEFAULT 'medium',
+    intervalo_customizado_min INTEGER,
+    ultimo_ciclo_em TIMESTAMP,
+    proximo_ciclo_em TIMESTAMP,
     ativo INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -66,6 +70,45 @@ CREATE TABLE IF NOT EXISTS alerts (
 
 CREATE INDEX IF NOT EXISTS idx_alerts_product_date 
 ON alerts(product_id, enviado_em DESC);
+
+CREATE TABLE IF NOT EXISTS selector_overrides (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    marketplace TEXT NOT NULL,
+    target_field TEXT NOT NULL,
+    original_selector TEXT NOT NULL,
+    healed_selector TEXT NOT NULL,
+    confidence_score REAL DEFAULT 1.0,
+    status TEXT NOT NULL DEFAULT 'active',
+    sucessos_consecutivos INTEGER NOT NULL DEFAULT 0,
+    falhas_consecutivas INTEGER NOT NULL DEFAULT 0,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(marketplace, target_field)
+);
+
+CREATE TABLE IF NOT EXISTS healing_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    marketplace TEXT NOT NULL,
+    tentado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS coupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    marketplace TEXT NOT NULL,
+    product_id TEXT,
+    codigo TEXT NOT NULL,
+    descricao TEXT,
+    desconto_percentual REAL,
+    desconto_fixo REAL,
+    preco_minimo REAL,
+    valido_ate TIMESTAMP,
+    primeira_vez_visto TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ultimo_visto TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ativo INTEGER DEFAULT 1,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL,
+    UNIQUE (marketplace, codigo)
+);
+
+CREATE INDEX IF NOT EXISTS idx_coupons_mkt_code ON coupons(marketplace, codigo);
 """
 
 
@@ -112,11 +155,23 @@ class Database:
                 setup_conn.execute("PRAGMA journal_mode = WAL;")
         with self.get_connection() as conn:
             conn.executescript(SCHEMA_SQL)
-            columns = [col[1] for col in conn.execute("PRAGMA table_info(sources)").fetchall()]
-            if "ativo" not in columns:
+            # Migrações para tabela sources
+            src_cols = [col[1] for col in conn.execute("PRAGMA table_info(sources)").fetchall()]
+            if "ativo" not in src_cols:
                 conn.execute("ALTER TABLE sources ADD COLUMN ativo INTEGER NOT NULL DEFAULT 1;")
-            if "motivo_desativacao" not in columns:
+            if "motivo_desativacao" not in src_cols:
                 conn.execute("ALTER TABLE sources ADD COLUMN motivo_desativacao TEXT;")
+            
+            # Migrações para tabela products
+            prod_cols = [col[1] for col in conn.execute("PRAGMA table_info(products)").fetchall()]
+            if "prioridade" not in prod_cols:
+                conn.execute("ALTER TABLE products ADD COLUMN prioridade TEXT NOT NULL DEFAULT 'medium';")
+            if "intervalo_customizado_min" not in prod_cols:
+                conn.execute("ALTER TABLE products ADD COLUMN intervalo_customizado_min INTEGER;")
+            if "ultimo_ciclo_em" not in prod_cols:
+                conn.execute("ALTER TABLE products ADD COLUMN ultimo_ciclo_em TIMESTAMP;")
+            if "proximo_ciclo_em" not in prod_cols:
+                conn.execute("ALTER TABLE products ADD COLUMN proximo_ciclo_em TIMESTAMP;")
         logger.debug(f"Banco de dados inicializado em: {self.db_path}")
 
 

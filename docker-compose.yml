@@ -1,0 +1,39 @@
+services:
+  promoradar-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: promoradar-daemon
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_PATH=data/promoradar.db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  promoradar-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: promoradar-cli
+    profiles:
+      - cli
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_PATH=data/promoradar.db
+    entrypoint: ["python", "scripts/run_cycle.py"]

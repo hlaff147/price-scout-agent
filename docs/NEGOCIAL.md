@@ -58,12 +58,15 @@ no rótulo "promoção") e notifique o usuário automaticamente.
 
 ## 7. Escopo Futuro (Roadmap)
 
-1. Múltiplos produtos com prioridades diferentes.
-2. [x] Relatório visual pós-ciclo em HTML com gráficos interativos Chart.js (Dashboard web interativo em tempo real via Streamlit/FastAPI permanece como evolução).
-3. Deduplicação inteligente de variantes (cor/versão) via LLM.
-4. Alertas por cupom/código de desconto, não só preço.
-5. Suporte a mais canais de notificação (WhatsApp, e-mail, Discord).
-6. Modelo preditivo simples de "melhor momento para comprar".
+1. [x] Múltiplos produtos com prioridades diferentes (High=1h, Medium=4h, Low=12h) e rate limiter por domínio.
+2. [x] Suporte a Playwright para renderização de SPAs e marketplaces JS-pesados com pool de browsers.
+3. [x] Deduplicação inteligente de variantes (cor/versão/capacidade/região) e Bot Conversacional no Telegram.
+4. [x] Subagente Self-Healing com Gemini 1.5 Flash e validação rigorosa em sandbox.
+5. [x] Alertas por cupom/código de desconto com cálculo de preço efetivo e listagem via bot (`/coupons`).
+6. [x] Empacotamento Full Docker (multi-stage) e suporte a deploy 24/7 em VPS com SQLite WAL.
+7. [x] Relatório visual pós-ciclo em HTML com gráficos interativos Chart.js.
+8. [ ] Suporte a mais canais de notificação (WhatsApp, Discord).
+9. [ ] Modelo preditivo simples de "melhor momento para comprar".
 
 ## 8. Métricas de Sucesso (KPIs)
 
@@ -71,34 +74,48 @@ no rótulo "promoção") e notifique o usuário automaticamente.
 - **Taxa de captura:** % de promoções reais que o agente identificou vs. as
   que você encontrou depois manualmente (idealmente 0 promoções perdidas).
 - **Taxa de falso positivo:** alertas disparados que não eram realmente boas
-  ofertas.
+  ofertas (minimizada pela deduplicação semântica e detector de desconto inflado).
 - **Latência do alerta:** tempo entre a promoção aparecer no site e a
-  notificação chegar.
+  notificação chegar (otimizada pelos ciclos por prioridade: 1h para itens de alta prioridade).
 
 ## 9. Riscos e Restrições
 
 - **Legal/ToS:** scraping pode violar termos de uso de alguns sites; mitigar
   priorizando APIs oficiais quando existirem e respeitando `robots.txt` e
-  limites de requisição.
+  limites de requisição com `DomainRateLimiter`.
 - **Fragilidade de scraping:** mudanças de layout no site quebram o parser.
-  Mitigar com testes automatizados e alertas de falha do próprio agente.
-- **Custo de LLM:** uso de agentes com LLM tem custo por chamada; mitigar
-  usando modelos menores/baratos para tarefas simples (ex.: parsing) e
-  reservando modelos maiores só para decisão/orquestração.
-- **Bloqueio por anti-bot:** IP/rate limit block. Mitigar com backoff,
-  user-agents variados e, se necessário, proxies.
+  Mitigado com o subagente `GeminiHealerSubagent` (Self-Healing com Circuit Breaker e validação em sandbox).
+- **Custo de LLM:** uso de agentes com LLM tem custo por chamada; mitigado
+  com sanitização prévia do DOM (reduzindo tokens em até 85%) e circuit breaker (máx 2 tentativas/dia por loja).
+- **Bloqueio por anti-bot:** IP/rate limit block. Mitigado com espaçamento configurável por domínio (1.5s–3.0s),
+  user-agents realistas e renderização headless via Playwright.
 
 ## 10. Estimativa de Custos (ordem de grandeza)
 
-- Hospedagem: gratuito (execução local/cron) a ~US$5-10/mês (VPS pequena).
-- API de LLM: baixo, dado uso pessoal com poucos produtos e execuções
-  espaçadas (algumas dezenas de chamadas/dia).
-- Proxies (opcional, se houver bloqueio): variável, pode começar sem.
+- Hospedagem: VPS Linux básica (1-2 vCPU, 2GB RAM) a ~US$ 4-6/mês via Docker Compose.
+- API de LLM: desprezível (< US$ 0.10/mês no Gemini Flash), acionado apenas em quebras de layout ou variantes complexas.
+- Armazenamento: local SQLite em volume Docker persistente (WAL).
 
 ## 11. Critérios de Aceite do MVP (Validados ✅)
 
-- [x] Consigo cadastrar um produto (nome + faixa de preço) via config simples (`src/config/products.yaml`).
-- [x] O agente varre pelo menos 3 fontes automaticamente em um ciclo agendado (Mercado Livre, Amazon, Shopee, Google Shopping).
+- [x] Consigo cadastrar um produto (nome + faixa de preço) via config simples (`src/config/products.yaml`) ou Telegram (`/add`).
+- [x] O agente varre pelo menos 3 fontes automaticamente em um ciclo agendado (Mercado Livre, Amazon, Shopee, KaBuM, Google Shopping).
 - [x] Recebo notificação no Telegram quando o preço encontrado é vantajoso (`NotifierSubagent` / `AdkNotifierAgent`).
 - [x] Existe histórico de preço persistido (SQLite WAL consultável por data e fonte).
 - [x] Falhas de scraping em uma fonte não derrubam o ciclo inteiro (isolamento com `asyncio.gather(..., return_exceptions=True)`).
+
+## 12. Funcionalidades Estratégicas Entregues (Evolução Contínua ✅)
+
+- **Fase 1: Múltiplos Produtos & Priorização Inteligente:**
+  Escalonamento com `HIGH` (1h), `MEDIUM` (4h) e `LOW` (12h), com cálculo atômico de `proximo_ciclo_em` e `DomainRateLimiter` protegendo requisições contra bloqueios por domínio.
+- **Fase 2: Suporte a Playwright para SPAs/JS:**
+  Pool de navegadores gerenciado (`PlaywrightBrowserPool`) com bloqueio de assets pesados (imagens/fontes) e fallback automático entre requisição HTTP e renderização completa de browser.
+- **Fase 3: Deduplicação Semântica & Bot Conversacional no Telegram:**
+  Deduplicação de variantes divergentes (exclui acessórios, cores e versões incompatíveis como Global vs Nacional) e interface conversacional completa no Telegram com comandos `/list`, `/add`, `/priority`, `/pause`, `/resume`, `/coupons`, `/check` e `/status`.
+- **Fase 4: Subagente Self-Healing com Gemini:**
+  Reparo autônomo de seletores CSS quebrados via Gemini 1.5 Flash, com sanitizador de DOM, circuit breaker de segurança (máx 2 tentativas em 24h) e validação obrigatória em sandbox antes da persistência.
+- **Fase 5: Alertas Especializados por Cupom e Códigos Promocionais:**
+  Detecção inteligente de cupons em texto de anúncios, cálculo de preço efetivo com desconto (percentual ou fixo), armazenamento dedicado na tabela `coupons` e alertas específicos com templates ricos.
+- **Fase 6: Full Docker & Deploy Contínuo em VPS:**
+  Container multi-stage com Chromium, usuário não-root `appuser`, healthcheck integrado, Docker Compose com volume persistente para SQLite e relatórios de ciclo montados no host.
+

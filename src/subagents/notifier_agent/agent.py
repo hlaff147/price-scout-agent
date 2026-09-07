@@ -3,7 +3,7 @@ from loguru import logger
 from src.config.settings import settings
 from src.core.ports.notifier_port import INotifier
 from src.core.ports.repository_port import IRepository
-from src.data.models import Alert, DealAnalysis, Product
+from src.data.models import Alert, Coupon, DealAnalysis, Product
 from src.data.repository import Repository
 from src.skills.format_alert.formatter import FormatAlertSkill
 from src.subagents.base import BaseSubagent
@@ -11,7 +11,7 @@ from src.tools.notification_tools import send_telegram_notification
 
 
 class NotifierSubagent(BaseSubagent, INotifier):
-    """Subagente responsável por formatar e disparar notificações de ofertas."""
+    """Subagente responsável por formatar e disparar notificações de ofertas e cupons."""
 
     name = "notifier_agent"
     role = "Alert & Notification Dispatcher"
@@ -70,6 +70,47 @@ class NotifierSubagent(BaseSubagent, INotifier):
 
         return sent_successfully
 
+    async def notify_coupon(
+        self,
+        coupon: Coupon,
+        product: Product | None = None,
+        final_price: float | None = None,
+        url: str | None = None,
+        dry_run: bool = False,
+    ) -> bool:
+        """Dispara um alerta especializado sobre um cupom detectado."""
+        console_msg = self.formatter.format_coupon_console_message(
+            coupon=coupon,
+            product=product,
+            final_price=final_price,
+            url=url,
+        )
+        logger.info(console_msg)
+
+        if dry_run:
+            logger.info("[DRY RUN] Simulação de alerta de cupom concluída com sucesso.")
+            return True
+
+        if settings.has_telegram_configured:
+            html_text = self.formatter.format_coupon_message(
+                coupon=coupon,
+                product=product,
+                final_price=final_price,
+                url=url,
+            )
+            res = await send_telegram_notification(text=html_text, parse_mode="HTML")
+            if res.get("sent"):
+                logger.success(
+                    f"Alerta de cupom '{coupon.codigo}' enviado com sucesso via Telegram!"
+                )
+                return True
+            return False
+
+        logger.warning(
+            "Telegram não configurado. Alerta de cupom exibido apenas no console."
+        )
+        return True
+
     async def _send_telegram(self, deal: DealAnalysis, product: Product) -> bool:
         """Dispara mensagem formatada via Telegram Bot API."""
         html_text = self.formatter.format_telegram_message(deal, product)
@@ -78,3 +119,4 @@ class NotifierSubagent(BaseSubagent, INotifier):
             logger.success(f"Alerta enviado com sucesso via Telegram para '{product.nome}'!")
             return True
         return False
+

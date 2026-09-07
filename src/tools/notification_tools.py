@@ -42,6 +42,6 @@ async def send_telegram_notification(
             else:
                 logger.error(f"Erro ao enviar Telegram (status {resp.status_code}): {resp.text}")
                 return {"sent": False, "status_code": resp.status_code, "error": resp.text}
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         logger.error(f"Exceção ao disparar Telegram: {exc}")
         return {"sent": False, "error": str(exc)}

@@ -95,7 +95,7 @@ async def async_main():
                 )
                 if report_path:
                     report_path_str = str(report_path.resolve())
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 logger.error(f"Erro ao gerar relatório HTML: {exc}")
     else:
         logger.info("🤖 PromoRadar: Iniciando ciclo sob demanda com Google ADK...")

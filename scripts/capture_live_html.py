@@ -32,7 +32,7 @@ async def capture_source(marketplace: str, url: str) -> None:
         logger.success(
             f"[{marketplace.upper()}] Salvo com sucesso em {out_file} ({len(html)} bytes, {len(html.splitlines())} linhas)"
         )
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         logger.error(f"[{marketplace.upper()}] Falha na captura de {url}: {exc}")
 
 

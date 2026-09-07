@@ -57,12 +57,15 @@ class Orchestrator:
                 )
                 for s in p_data.get("sources", [])
             ]
+            prioridade_val = p_data.get("prioridade", "medium")
             product = Product(
                 id=p_data["id"],
                 nome=p_data["nome"],
                 keywords=p_data.get("keywords", []),
                 preco_alvo=float(p_data["preco_alvo"]),
                 preco_maximo=float(p_data["preco_maximo"]),
+                prioridade=prioridade_val,
+                intervalo_customizado_min=p_data.get("intervalo_customizado_min"),
                 ativo=p_data.get("ativo", True),
                 sources=sources,
             )

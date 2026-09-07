@@ -35,14 +35,20 @@ Product
 ├── keywords[]          # termos de busca alternativos
 ├── preco_alvo          # preço que o usuário considera bom
 ├── preco_maximo        # teto aceitável
+├── prioridade          # "high" (1h) | "medium" (4h) | "low" (12h)
+├── intervalo_customizado_min # opcional
+├── ultimo_ciclo_em     # timestamp
+├── proximo_ciclo_em    # timestamp
 └── ativo (bool)
 
 Source
 ├── id
 ├── product_id (FK)
-├── marketplace          # "amazon", "mercadolivre", "kabum"...
+├── marketplace          # "amazon", "mercadolivre", "kabum", "shopee"...
 ├── url_produto
-└── metodo_coleta        # "scraping_html" | "browser" | "api"
+├── metodo_coleta        # "scraping_html" | "browser" | "api"
+├── ativo (bool)
+└── motivo_desativacao (nullable)
 
 PriceRecord
 ├── id
@@ -54,13 +60,38 @@ PriceRecord
 ├── cupom (nullable)
 └── coletado_em (timestamp)
 
+Coupon
+├── id
+├── marketplace
+├── product_id (FK nullable)
+├── codigo               # "TECH10", "MELI15"
+├── descricao
+├── desconto_percentual
+├── desconto_fixo
+├── preco_minimo
+├── valido_ate
+├── primeira_vez_visto
+├── ultimo_visto
+└── ativo (bool)
+
+SelectorOverride
+├── id
+├── marketplace
+├── target_field         # "container", "titulo", "preco"
+├── original_selector
+├── healed_selector
+├── confidence_score
+├── status               # "active", "pending_review", "rolled_back"
+├── sucessos_consecutivos
+└── falhas_consecutivas
+
 Alert
 ├── id
 ├── product_id (FK)
 ├── price_record_id (FK)
-├── motivo               # "abaixo_do_alvo" | "minimo_historico" | "cupom_novo"
+├── motivo               # "abaixo_do_alvo" | "minimo_historico" | "desconto_real" | "cupom_promocional"
 ├── enviado_em
-└── canal                # "telegram" | "email"
+└── canal                # "telegram" | "console"
 ```
 
 ## 4. Estratégia de Web Scraping
@@ -121,13 +152,22 @@ Alert
   disponível (ex.: Mercado Livre possui API oficial de busca).
 - Sem coleta de dados pessoais de terceiros — apenas dados públicos de preço.
 
-## 10. Deploy e Infraestrutura
+## 10. Deploy e Infraestrutura (Full Docker em VPS)
 
-- **MVP local:** execução via cron no próprio computador/Raspberry Pi.
-- **Produção leve:** container Docker + `systemd timer` em VPS barata, ou
-  GitHub Actions com execução agendada (`schedule:` no workflow).
-- Banco SQLite versionado em disco persistente (volume Docker) — migrar para
-  Postgres gerenciado se o projeto crescer para múltiplos usuários.
+O **PromoRadar** opera em modo **Full Docker** via **Docker Compose** para VPS (Hetzner, DigitalOcean, Lightsail):
+- **Dockerfile multi-stage** (`python:3.12-slim`) com separação de build e runtime.
+- **Segurança:** Execução estrita sob usuário não-root (`appuser:1000`).
+- **Persistência garantida via volumes:**
+  - `./data:/app/data`: preserva o banco de dados SQLite (`promoradar.db`, `wal`, `shm`).
+  - `./reports:/app/reports`: preserva os relatórios HTML interativos gerados.
+- **Resiliência:** Política `restart: unless-stopped`, rotação de logs (`max-size: 10m`, `max-file: 3`) e `HEALTHCHECK` periódico do SQLite.
+- **Comandos operacionais rápidos (`Makefile`):**
+  - `make docker-build`: compila a imagem do container.
+  - `make docker-up`: inicia o daemon contínuo em background.
+  - `make docker-down`: encerra a execução dos serviços.
+  - `make docker-logs`: acompanha os logs em tempo real.
+  - `make docker-cycle`: dispara um ciclo avulso sob demanda via container CLI.
+  - `make docker-dry-run`: executa um ciclo de teste sem disparar alertas reais.
 
 ## 11. Estrutura de Pastas do Repositório
 
@@ -135,43 +175,49 @@ Alert
 promo-radar/
 ├── src/
 │   ├── core/                # Núcleo da Arquitetura Hexagonal
-│   │   └── ports/           # Interfaces abstratas (IScraper, IAnalyst, INotifier, IRepository, IHttpClient)
-│   ├── agents/              # Agentes Google ADK (BaseAgent, SequentialAgent, AdkRunner)
+│   │   └── ports/           # Interfaces abstratas (IScraper, IAnalyst, INotifier, IRepository, IProductManagementPort, ISelectorRepositoryPort, ICouponRepositoryPort, IHttpClient)
+│   ├── agents/              # Agentes Google ADK (BaseAgent, SequentialAgent, AdkMonitoringRunner)
+│   ├── adapters/            # Driving Adapters
+│   │   └── telegram_bot/    # Bot conversacional interativo (/list, /add, /priority, /pause, /resume, /coupons, /check, /status)
 │   ├── orchestrator/        # Orquestrador procedural (mantido para compatibilidade --legacy)
-│   ├── subagents/           # Adaptadores de scraping, análise e notificação
-│   │   ├── scraper_agent/
-│   │   ├── price_analyst_agent/
-│   │   └── notifier_agent/
-│   ├── skills/              # SKILL.md + lógica de parsing por marketplace
+│   ├── subagents/           # Adaptadores de scraping, análise, cura e notificação
+│   │   ├── scraper_agent/   # ScraperSubagent (composite), HttpScraperSubagent, PlaywrightScraperSubagent, extractor
+│   │   ├── price_analyst_agent/ # PriceAnalystSubagent (análise com histórico, cupons e variantes)
+│   │   ├── healing_agent/   # GeminiHealerSubagent (self-healing de CSS com validação sandbox)
+│   │   ├── matcher/         # HybridProductMatcher (deduplicação semântica de variantes)
+│   │   └── notifier_agent/  # NotifierSubagent (despacho Telegram/Console para deals e cupons)
+│   ├── skills/              # SKILL.md + lógica de parsing e formatação
 │   │   ├── parse_amazon/
 │   │   ├── parse_mercadolivre/
 │   │   ├── parse_shopee/
 │   │   ├── parse_google_shopping/
 │   │   ├── parse_aliexpress/
 │   │   ├── parse_kabum/
+│   │   ├── parse_coupon/    # Parser e normalizador de cupons promocionais
 │   │   ├── normalize_product/
 │   │   ├── detect_fake_discount/
 │   │   └── format_alert/
-│   ├── tools/               # ADK Tools tipadas e HttpClient resiliente
+│   ├── tools/               # BrowserPool (Playwright), DomainRateLimiter, HttpClient, TelegramTools
 │   ├── reporting/           # Gerador de relatórios HTML visuais (Jinja2 + Chart.js)
-│   │   └── templates/       # Templates HTML responsivos (tema dark)
-│   ├── data/                # Models Pydantic + acesso a banco SQLite (WAL)
+│   ├── data/                # Models Pydantic + SQLite WAL com migrations automáticas
 │   └── config/              # Produtos monitorados (YAML) e settings (.env)
-├── tests/                   # 26 testes unitários e de integração
-│   ├── fixtures/            # HTMLs offline reais para testes sem rede
+├── tests/                   # 88 testes automatizados (100% de sucesso)
 │   ├── test_ports.py
-│   ├── test_adk_agents.py
+│   ├── test_priority_and_rate_limiter.py
+│   ├── test_playwright_scraper.py
+│   ├── test_matcher_and_telegram_bot.py
+│   ├── test_self_healing.py
+│   ├── test_coupons.py
 │   ├── test_parsers.py
 │   ├── test_analyst.py
 │   ├── test_repository.py
 │   └── test_orchestrator.py
-├── scripts/                 # CLI sob demanda (run_cycle.py) e daemon agendado (schedule_daemon.py)
-├── docs/                    # Documentação técnica, negocial e arquitetural
-├── reports/                 # Relatórios HTML gerados pós-ciclo (ignorado no git)
-├── .env.example
-├── pyproject.toml
-├── Makefile
-├── LICENSE                  # Licença MIT
+├── scripts/                 # CLI (run_cycle.py) e daemon agendado (schedule_daemon.py)
+├── docker/                  # Healthcheck para container
+├── Dockerfile               # Multi-stage build com Chromium e appuser não-root
+├── docker-compose.yml       # Orquestração de volume persistente e restart contínuo
+├── Makefile                 # Comandos operacionais locais e Docker
+├── docs/                    # Documentação técnica, negocial e arquitetural (ADRs)
 └── README.md
 ```
 
@@ -180,7 +226,9 @@ promo-radar/
 1. [x] MVP com monitoramento concorrente, isolamento de falhas e histórico persistido.
 2. [x] Relatórios visuais pós-ciclo em HTML com gráficos Chart.js interativos.
 3. [x] Arquitetura Hexagonal (Ports & Adapters) e orquestração via Google ADK (`google-adk` 2.8+).
-4. [ ] Adicionar automação via browser (Playwright) para marketplaces com bloqueio severo de JS.
-5. [ ] Subagentes inteligentes baseados em LLM (self-healing scraper para reparo automático de seletores CSS).
-6. [ ] Deduplicação semântica de variantes via LLM e bot conversacional no Telegram.
-7. [ ] Empacotamento Docker e deploy de serviço agendado em nuvem (Cloud Run / VPS).
+4. [x] Automação via browser (Playwright) com pool de instâncias e bloqueio de mídia para SPAs.
+5. [x] Subagente inteligente Self-Healing (Gemini 1.5 Flash) com sandbox e circuit breaker.
+6. [x] Deduplicação semântica de variantes e Bot conversacional no Telegram (Driving Adapter).
+7. [x] Alertas especializados por cupom, código promocional e cálculo de preço efetivo.
+8. [x] Empacotamento Docker multi-stage e deploy contínuo em VPS com persistência SQLite WAL.
+

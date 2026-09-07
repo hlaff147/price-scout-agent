@@ -1,4 +1,4 @@
-.PHONY: run dry-run test daemon venv
+.PHONY: run dry-run test daemon venv docker-build docker-up docker-down docker-logs docker-cycle docker-dry-run
 
 # Ativação rápida ou comandos diretos usando o .venv
 
@@ -17,3 +17,24 @@ test:
 
 daemon:
 	@.venv/bin/python scripts/schedule_daemon.py
+
+# Comandos Docker (Full Docker em VPS)
+
+docker-build:
+	@docker compose build
+
+docker-up:
+	@docker compose up -d
+	@echo "🛰️ PromoRadar Daemon iniciado em segundo plano no Docker."
+
+docker-down:
+	@docker compose down
+
+docker-logs:
+	@docker compose logs -f
+
+docker-cycle:
+	@docker compose run --rm promoradar-cli
+
+docker-dry-run:
+	@docker compose run --rm promoradar-cli --dry-run

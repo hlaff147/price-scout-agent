@@ -1,7 +1,6 @@
-"""Scraper subagent for isolated marketplace data extraction."""
+"""Composite scraper subagent dispatching between HTTP and Playwright browser adapters."""
 
-
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from loguru import logger
 
@@ -9,76 +8,72 @@ from src.core.ports.http_port import IHttpClient
 from src.core.ports.scraper_port import IScraper
 from src.data.models import Product, ScrapedData, Source
 from src.skills.base import BaseSkill
-from src.skills.parse_aliexpress.parser import ParseAliExpressSkill
-from src.skills.parse_amazon.parser import ParseAmazonSkill
-from src.skills.parse_google_shopping.parser import ParseGoogleShoppingSkill
-from src.skills.parse_kabum.parser import ParseKabumSkill
-from src.skills.parse_mercadolivre.parser import ParseMercadoLivreSkill
-from src.skills.parse_shopee.parser import ParseShopeeSkill
 from src.subagents.base import BaseSubagent
-from src.tools.http_client import http_client
+from src.subagents.scraper_agent.http_adapter import HttpScraperSubagent
+from src.subagents.scraper_agent.playwright_adapter import PlaywrightScraperSubagent
 
 
 class ScraperSubagent(BaseSubagent, IScraper):
-    """Subagente responsável por consultar uma fonte e extrair dados de preço."""
+    """Subagente orquestrador que despacha para HTTP ou Playwright conforme o método de coleta."""
 
     name = "scraper_subagent"
-    role = "Marketplace Web Scraper"
+    role = "Marketplace Multi-Transport Scraper"
 
-    # Mapeamento de skills de parsing por marketplace
-    SKILL_REGISTRY: ClassVar[dict[str, type[BaseSkill]]] = {
-        "mercadolivre": ParseMercadoLivreSkill,
-        "amazon": ParseAmazonSkill,
-        "kabum": ParseKabumSkill,
-        "shopee": ParseShopeeSkill,
-        "aliexpress": ParseAliExpressSkill,
-        "google_shopping": ParseGoogleShoppingSkill,
-    }
+    SKILL_REGISTRY: ClassVar[dict[str, type[BaseSkill]]] = HttpScraperSubagent.SKILL_REGISTRY
 
-    def __init__(self, client: IHttpClient | None = None):
-        self.client = client or http_client
-        self._skills: dict[str, BaseSkill] = {
-            mkt: skill_cls() for mkt, skill_cls in self.SKILL_REGISTRY.items()
-        }
+    def __init__(
+        self,
+        client: IHttpClient | None = None,
+        http_scraper: IScraper | None = None,
+        browser_scraper: IScraper | None = None,
+        enable_fallback: bool = True,
+        selector_repo: Any | None = None,
+        healer: Any | None = None,
+    ):
+        self.selector_repo = selector_repo
+        self.healer = healer
+        self.http_scraper = http_scraper or HttpScraperSubagent(
+            client=client,
+            selector_repo=selector_repo,
+            healer=healer,
+        )
+        self.browser_scraper = browser_scraper or PlaywrightScraperSubagent(
+            selector_repo=selector_repo,
+            healer=healer,
+        )
+        self.enable_fallback = enable_fallback
 
     def register_skill(self, marketplace: str, skill: BaseSkill) -> None:
-        """Permite registrar dinamicamente novos parsers de marketplace."""
-        self._skills[marketplace.lower()] = skill
+        """Registra uma nova skill de parsing em ambos os adaptadores."""
+        if hasattr(self.http_scraper, "register_skill"):
+            self.http_scraper.register_skill(marketplace, skill)
+        if hasattr(self.browser_scraper, "register_skill"):
+            self.browser_scraper.register_skill(marketplace, skill)
 
     async def run(self, source: Source, product: Product) -> ScrapedData:
-        """Executa a coleta para uma fonte específica com isolamento de falha."""
-        mkt = source.marketplace.lower()
-        parser = self._skills.get(mkt)
-        if not parser:
-            return ScrapedData(
-                marketplace=mkt,
-                success=False,
-                url=source.url_produto,
-                error_message=f"Nenhuma skill de parsing configurada para o marketplace '{mkt}'.",
-            )
+        """Despacha a coleta para o adapter apropriado baseado em source.metodo_coleta."""
+        metodo = (source.metodo_coleta or "scraping_html").lower()
 
-        try:
-            logger.info(f"Coletando preços em [{mkt.upper()}] para '{product.nome}'...")
-            html = await self.client.fetch(source.url_produto)
-            scraped = parser.execute(
-                html=html,
-                url=source.url_produto,
-                keywords=product.keywords,
-            )
-            if scraped.success and scraped.preco:
+        # 1. Se configurado explicitamente para browser / playwright
+        if metodo in ("browser", "playwright"):
+            logger.debug(f"Despachando coleta de {source.marketplace} para PlaywrightBrowser...")
+            return await self.browser_scraper.run(source, product)
+
+        # 2. Execução padrão via HTTP
+        scraped = await self.http_scraper.run(source, product)
+
+        # 3. Fallback dinâmico opcional: se o parser ou erro acusar necessidade de JS
+        if self.enable_fallback and not scraped.success:
+            err = (scraped.error_message or "").lower()
+            if "javascript" in err or "spa" in err:
                 logger.info(
-                    f"[{mkt.upper()}] Preço encontrado: R$ {scraped.preco:.2f} (Título: {scraped.titulo})"
+                    f"Detectada necessidade de renderização JS em [{source.marketplace.upper()}]. "
+                    f"Acionando fallback automático para Playwright..."
                 )
-            else:
-                msg = scraped.error_message or "Nenhum produto correspondente identificado na página."
-                logger.warning(f"[{mkt.upper()}] {msg}")
-            return scraped
+                return await self.browser_scraper.run(source, product)
 
-        except Exception as exc:
-            logger.error(f"Falha na coleta de [{mkt.upper()}]: {exc}")
-            return ScrapedData(
-                marketplace=mkt,
-                success=False,
-                url=source.url_produto,
-                error_message=str(exc),
-            )
+        return scraped
+
+
+# Alias semântico
+CompositeScraperSubagent = ScraperSubagent

@@ -1,6 +1,7 @@
 """High-level runner integrating Google ADK Runner with PromoRadar monitoring."""
 
 import uuid
+from datetime import datetime, timezone
 from typing import Any
 
 from google.adk.runners import Runner
@@ -16,7 +17,7 @@ from src.core.ports.repository_port import IRepository
 from src.core.ports.scraper_port import IScraper
 from src.data.database import default_db
 from src.data.models import Product
-from src.data.repository import Repository
+from src.data.repository import Repository, calculate_next_run
 from src.orchestrator.orchestrator import Orchestrator
 from src.reporting.report_generator import ReportGenerator
 
@@ -42,6 +43,7 @@ class AdkMonitoringRunner:
     async def run_cycle(
         self,
         product_id: str | None = None,
+        only_due: bool = False,
         dry_run: bool | None = None,
         generate_report: bool = True,
         open_browser: bool = True,
@@ -54,24 +56,45 @@ class AdkMonitoringRunner:
         orchestrator_helper = Orchestrator(repository=self.repository)
         orchestrator_helper.load_products_from_yaml(config_path)
 
-        products: list[Product] = self.repository.list_active_products()
+        if only_due and hasattr(self.repository, "get_due_products"):
+            products: list[Product] = self.repository.get_due_products()
+        else:
+            products = self.repository.list_active_products()
+
         if product_id:
             products = [p for p in products if p.id == product_id]
 
         if not products:
-            logger.warning("Nenhum produto ativo encontrado para monitoramento no ADK Runner.")
+            logger.info("Nenhum produto pendente para monitoramento no ciclo do ADK Runner.")
             return {"total_products": 0, "cycles": []}
 
         summary: dict[str, Any] = {"total_products": len(products), "cycles": []}
 
         for product in products:
-            product_cycle = await self._run_single_product_adk(
-                product=product,
-                dry_run=is_dry_run,
-                generate_report=generate_report,
-                open_browser=open_browser,
-            )
-            summary["cycles"].append(product_cycle)
+            now = datetime.now(timezone.utc)
+            try:
+                product_cycle = await self._run_single_product_adk(
+                    product=product,
+                    dry_run=is_dry_run,
+                    generate_report=generate_report,
+                    open_browser=open_browser,
+                )
+                summary["cycles"].append(product_cycle)
+            except Exception as exc:  # noqa: BLE001
+                logger.error(
+                    f"Falha isolada no monitoramento do produto '{product.nome}' ({product.id}): {exc}"
+                )
+                summary["cycles"].append({
+                    "product_id": product.id,
+                    "product_name": product.nome,
+                    "success": False,
+                    "error": str(exc),
+                })
+            finally:
+                # Atualizar próximo agendamento mesmo se houver falha isolada para não estagnar o agendador
+                if hasattr(self.repository, "update_product_schedule"):
+                    next_run = calculate_next_run(product, from_time=now)
+                    self.repository.update_product_schedule(product.id, last_run=now, next_run=next_run)
 
         return summary
 

@@ -1,10 +1,11 @@
-"""Unit tests for Hexagonal Architecture Ports and Adapters."""
-
 from src.core.ports.analyst_port import IAnalyst
+from src.core.ports.coupon_port import ICouponRepositoryPort
 from src.core.ports.http_port import IHttpClient
 from src.core.ports.notifier_port import INotifier
+from src.core.ports.product_management_port import IProductManagementPort
 from src.core.ports.repository_port import IRepository
 from src.core.ports.scraper_port import IScraper
+from src.core.ports.selector_port import ISelectorRepositoryPort
 from src.data.repository import Repository
 from src.subagents.notifier_agent.agent import NotifierSubagent
 from src.subagents.price_analyst_agent.agent import PriceAnalystSubagent
@@ -30,8 +31,12 @@ def test_notifier_subagent_implements_port():
 def test_repository_implements_port():
     repo = Repository()
     assert isinstance(repo, IRepository)
+    assert isinstance(repo, IProductManagementPort)
+    assert isinstance(repo, ISelectorRepositoryPort)
+    assert isinstance(repo, ICouponRepositoryPort)
 
 
 def test_http_client_implements_port():
     client = HttpClient()
     assert isinstance(client, IHttpClient)
+

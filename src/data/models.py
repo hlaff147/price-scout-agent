@@ -1,8 +1,16 @@
 """Data models for PromoRadar using Pydantic."""
 
 from datetime import datetime, timezone
+from enum import Enum
 
 from pydantic import BaseModel, Field
+
+
+class PriorityLevel(str, Enum):
+    """Níveis de prioridade de monitoramento de produtos."""
+    HIGH = "high"      # Ciclo a cada 1 hora
+    MEDIUM = "medium"  # Ciclo a cada 4 horas (padrão)
+    LOW = "low"        # Ciclo a cada 12 horas
 
 
 class Source(BaseModel):
@@ -23,6 +31,10 @@ class Product(BaseModel):
     keywords: list[str] = Field(default_factory=list)
     preco_alvo: float
     preco_maximo: float
+    prioridade: PriorityLevel = PriorityLevel.MEDIUM
+    intervalo_customizado_min: int | None = None
+    ultimo_ciclo_em: datetime | None = None
+    proximo_ciclo_em: datetime | None = None
     ativo: bool = True
     sources: list[Source] = Field(default_factory=list)
 
@@ -85,3 +97,56 @@ class DealAnalysis(BaseModel):
     justificativa: str = ""
     url: str
     cupom: str | None = None
+
+
+class MatchResult(BaseModel):
+    """Resultado da deduplicação e correspondência semântica de variantes."""
+    is_match: bool
+    confidence: float = 1.0
+    detected_variant: str | None = None
+    divergence_reason: str | None = None
+    method_used: str = "heuristic"  # "heuristic" | "embedding" | "llm_fallback"
+
+
+class SelectorOverride(BaseModel):
+    """Override persistido de seletores CSS auto-reparados para um marketplace."""
+    id: int | None = None
+    marketplace: str
+    target_field: str  # "container", "titulo", "preco", "preco_original"
+    original_selector: str
+    healed_selector: str
+    confidence_score: float = 1.0
+    status: str = "active"  # "active" | "pending_review" | "rolled_back"
+    sucessos_consecutivos: int = 0
+    falhas_consecutivas: int = 0
+    criado_em: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class HealingResult(BaseModel):
+    """Resultado de uma tentativa de auto-reparo de seletores."""
+    marketplace: str
+    healed: bool
+    proposed_selectors: dict[str, str] = Field(default_factory=dict)
+    validation_success: bool = False
+    validation_price: float | None = None
+    validation_title: str | None = None
+    reason: str = ""
+
+
+class Coupon(BaseModel):
+    """Representa um cupom ou código promocional detectado em um marketplace."""
+    id: int | None = None
+    marketplace: str
+    product_id: str | None = None
+    codigo: str
+    descricao: str | None = None
+    desconto_percentual: float | None = None
+    desconto_fixo: float | None = None
+    preco_minimo: float | None = None
+    valido_ate: datetime | None = None
+    primeira_vez_visto: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ultimo_visto: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ativo: bool = True
+
+
+

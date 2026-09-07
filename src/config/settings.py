@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     # Telegram
     TELEGRAM_BOT_TOKEN: str | None = None
     TELEGRAM_CHAT_ID: str | None = None
+    ALLOWED_TELEGRAM_CHAT_IDS: str | None = None
 
     # Banco de Dados
     DATABASE_PATH: str = "data/promoradar.db"
@@ -35,6 +36,18 @@ class Settings(BaseSettings):
     @property
     def has_telegram_configured(self) -> bool:
         return bool(self.TELEGRAM_BOT_TOKEN and self.TELEGRAM_CHAT_ID)
+
+    @property
+    def allowed_chat_ids(self) -> set[str]:
+        ids = set()
+        if self.TELEGRAM_CHAT_ID:
+            ids.add(str(self.TELEGRAM_CHAT_ID).strip())
+        if self.ALLOWED_TELEGRAM_CHAT_IDS:
+            for cid in self.ALLOWED_TELEGRAM_CHAT_IDS.split(","):
+                cid_clean = cid.strip()
+                if cid_clean:
+                    ids.add(cid_clean)
+        return ids
 
     @property
     def db_path(self) -> Path:

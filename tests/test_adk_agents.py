@@ -1,5 +1,7 @@
 """Integration and unit tests for Google ADK agents and coordinator."""
 
+from typing import Any
+
 import pytest
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -44,6 +46,16 @@ class MockAnalyst(IAnalyst):
 
 class MockNotifier(INotifier):
     async def run(self, deal: DealAnalysis, product: Product, dry_run: bool = False) -> bool:
+        return True
+
+    async def notify_coupon(
+        self,
+        coupon: Any,
+        product: Product | None = None,
+        final_price: float | None = None,
+        url: str | None = None,
+        dry_run: bool = False,
+    ) -> bool:
         return True
 
 

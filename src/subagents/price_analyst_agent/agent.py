@@ -3,11 +3,21 @@
 from loguru import logger
 
 from src.core.ports.analyst_port import IAnalyst
+from src.core.ports.matcher_port import IProductMatcher
 from src.core.ports.repository_port import IRepository
-from src.data.models import DealAnalysis, PriceRecord, Product, ScrapedData, Source
+from src.data.models import (
+    Coupon,
+    DealAnalysis,
+    PriceRecord,
+    Product,
+    ScrapedData,
+    Source,
+)
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
+from src.skills.parse_coupon.parser import ParseCouponSkill
 from src.subagents.base import BaseSubagent
+from src.subagents.matcher.hybrid_matcher import default_matcher
 
 
 class PriceAnalystSubagent(BaseSubagent, IAnalyst):
@@ -16,8 +26,13 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
     name = "price_analyst_agent"
     role = "Price & Deal Analyst"
 
-    def __init__(self, repository: IRepository | None = None):
+    def __init__(
+        self,
+        repository: IRepository | None = None,
+        matcher: IProductMatcher | None = None,
+    ):
         self.repository = repository or Repository()
+        self.matcher = matcher or default_matcher
         self.fake_discount_detector = DetectFakeDiscountSkill()
 
     async def run(
@@ -49,6 +64,23 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
             )
             self.repository.save_price_record(record)
 
+            # 2b. Detecção e persistência de cupom promocional
+            parsed_coupon: Coupon | None = None
+            preco_efetivo = scraped.preco
+            if scraped.cupom:
+                parsed_coupon = ParseCouponSkill.parse(
+                    raw_text=scraped.cupom,
+                    marketplace=source.marketplace,
+                    product_id=product.id,
+                )
+                if parsed_coupon:
+                    if hasattr(self.repository, "save_coupon"):
+                        self.repository.save_coupon(parsed_coupon)
+                    if parsed_coupon.desconto_percentual:
+                        preco_efetivo = scraped.preco * (1.0 - (parsed_coupon.desconto_percentual / 100.0))
+                    elif parsed_coupon.desconto_fixo:
+                        preco_efetivo = max(0.0, scraped.preco - parsed_coupon.desconto_fixo)
+
             # 3. Analisar condições de promoção e desconto real
             announced_disc, real_disc, is_fake = self.fake_discount_detector.execute(
                 current_price=scraped.preco,
@@ -57,17 +89,31 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 user_max_price=product.preco_maximo,
             )
 
-            # Condições de compra vantajosa
-            is_below_target = scraped.preco <= product.preco_alvo
-            is_all_time_low = (prev_min is not None and scraped.preco < prev_min)
-            is_below_max = scraped.preco <= product.preco_maximo
+            # 3b. Deduplicação semântica de variantes
+            match_result = await self.matcher.match(
+                target=product,
+                candidate_title=scraped.titulo or "",
+                candidate_url=scraped.url,
+            )
 
-            # Decisão de Deal
+            # Condições de compra vantajosa
+            is_below_target = scraped.preco <= product.preco_alvo or preco_efetivo <= product.preco_alvo
+            is_all_time_low = prev_min is not None and (scraped.preco < prev_min or preco_efetivo < prev_min)
+            is_below_max = scraped.preco <= product.preco_maximo or preco_efetivo <= product.preco_maximo
+
+            # Decisão de Deal (somente se a variante for compatível)
             is_deal = False
             motivo = None
             justificativa_parts = []
 
-            if scraped.disponivel and is_below_max:
+            if not match_result.is_match:
+                logger.info(
+                    f"[{source.marketplace.upper()}] Anúncio desconsiderado para deal: {match_result.divergence_reason}"
+                )
+                justificativa_parts.append(
+                    f"Variante divergente desconsiderada: {match_result.divergence_reason}."
+                )
+            elif scraped.disponivel and is_below_max:
                 if is_all_time_low:
                     is_deal = True
                     motivo = "minimo_historico"
@@ -76,16 +122,31 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     )
                 elif is_below_target:
                     is_deal = True
-                    motivo = "abaixo_do_alvo"
-                    justificativa_parts.append(
-                        f"Preço de R$ {scraped.preco:.2f} atingiu seu alvo de compra (R$ {product.preco_alvo:.2f})."
-                    )
+                    if preco_efetivo <= product.preco_alvo and scraped.preco > product.preco_alvo and parsed_coupon:
+                        motivo = "cupom_promocional"
+                        justificativa_parts.append(
+                            f"Cupom '{parsed_coupon.codigo}' reduz o preço para R$ {preco_efetivo:.2f}, atingindo seu alvo de compra (R$ {product.preco_alvo:.2f})."
+                        )
+                    else:
+                        motivo = "abaixo_do_alvo"
+                        justificativa_parts.append(
+                            f"Preço de R$ {scraped.preco:.2f} atingiu seu alvo de compra (R$ {product.preco_alvo:.2f})."
+                        )
                 elif real_disc and real_disc >= 15.0:
                     is_deal = True
                     motivo = "desconto_real"
                     justificativa_parts.append(
                         f"Desconto real de {real_disc:.1f}% em relação à média histórica recente."
                     )
+                elif parsed_coupon and (parsed_coupon.desconto_percentual or parsed_coupon.desconto_fixo):
+                    is_deal = True
+                    motivo = "cupom_promocional"
+                    justificativa_parts.append(
+                        f"Cupom promocional '{parsed_coupon.codigo}' detectado (preço c/ desconto: R$ {preco_efetivo:.2f})."
+                    )
+
+            if parsed_coupon and not is_deal:
+                justificativa_parts.append(f"Cupom disponível: {parsed_coupon.codigo}.")
 
             if is_fake:
                 justificativa_parts.append(

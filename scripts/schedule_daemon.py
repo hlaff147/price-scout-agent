@@ -52,10 +52,10 @@ async def scheduled_task(dry_run: bool, legacy: bool = False):
             logger.info("Utilizando motor legado para o ciclo periódico...")
             await run_monitoring_cycle(dry_run=dry_run)
         else:
-            logger.info("Utilizando Google ADK para o ciclo periódico...")
+            logger.info("Utilizando Google ADK para o ciclo periódico (avaliando produtos devidos por prioridade)...")
             runner = AdkMonitoringRunner()
-            await runner.run_cycle(dry_run=dry_run, generate_report=False)
-    except Exception as exc:
+            await runner.run_cycle(dry_run=dry_run, only_due=True, generate_report=False)
+    except Exception as exc:  # noqa: BLE001
         logger.error(f"Erro durante o ciclo agendado: {exc}")
 
 

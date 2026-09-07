@@ -2,14 +2,13 @@
 
 import asyncio
 import random
-import time
-from urllib.parse import urlparse
 
 import httpx
 from loguru import logger
 
 from src.config.settings import settings
 from src.core.ports.http_port import IHttpClient
+from src.tools.rate_limiter import DomainRateLimiter, shared_rate_limiter
 
 # Pool de User-Agents realistas para navegadores modernos
 USER_AGENTS = [
@@ -23,9 +22,8 @@ USER_AGENTS = [
 class HttpClient(IHttpClient):
     """Cliente HTTP assíncrono com resiliência, headers realistas e rate limiting."""
 
-    def __init__(self):
-        self._last_request_time: dict[str, float] = {}
-        self._min_domain_delay = 1.0  # Mínimo de 1 segundo entre chamadas para o mesmo domínio
+    def __init__(self, rate_limiter: DomainRateLimiter | None = None):
+        self.rate_limiter = rate_limiter or shared_rate_limiter
 
     def _get_headers(self, custom_headers: dict | None = None) -> dict:
         headers = {
@@ -47,15 +45,6 @@ class HttpClient(IHttpClient):
             headers.update(custom_headers)
         return headers
 
-    async def _rate_limit(self, domain: str) -> None:
-        """Garante espaçamento mínimo de requisições por domínio."""
-        last_time = self._last_request_time.get(domain, 0.0)
-        now = time.time()
-        elapsed = now - last_time
-        if elapsed < self._min_domain_delay:
-            await asyncio.sleep(self._min_domain_delay - elapsed)
-        self._last_request_time[domain] = time.time()
-
     async def fetch(
         self,
         url: str,
@@ -64,17 +53,17 @@ class HttpClient(IHttpClient):
         follow_redirects: bool = True,
     ) -> str:
         """Executa GET HTTP com backoff exponencial e tratamento de erros."""
-        domain = urlparse(url).netloc
-        await self._rate_limit(domain)
-
         timeout_sec = timeout or settings.REQUEST_TIMEOUT
         max_retries = settings.MAX_RETRIES
 
-        async with httpx.AsyncClient(
-            timeout=timeout_sec,
-            follow_redirects=follow_redirects,
-            verify=True,
-        ) as client:
+        async with (
+            self.rate_limiter.acquire(url),
+            httpx.AsyncClient(
+                timeout=timeout_sec,
+                follow_redirects=follow_redirects,
+                verify=True,
+            ) as client,
+        ):
             last_exception = None
             for attempt in range(1, max_retries + 1):
                 try:

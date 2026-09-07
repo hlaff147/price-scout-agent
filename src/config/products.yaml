@@ -10,6 +10,7 @@ products:
       - "Huawei FreeBuds Pro"
     preco_alvo: 850.00
     preco_maximo: 1100.00
+    prioridade: "high"
     ativo: true
     sources:
       # Fontes ativas recomendadas para este fone:
@@ -46,3 +47,24 @@ products:
         metodo_coleta: "scraping_html"
         ativo: false
         motivo_desativacao: "imposto_importacao_elevado"
+
+  - id: "kindle-paperwhite-16gb"
+    nome: "Kindle Paperwhite 16GB"
+    keywords:
+      - "Kindle Paperwhite 16GB"
+      - "Kindle Paperwhite"
+    preco_alvo: 650.00
+    preco_maximo: 800.00
+    prioridade: "medium"
+    ativo: true
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Kindle+Paperwhite+16GB"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/kindle-paperwhite-16gb"
+        metodo_coleta: "scraping_html"
+        ativo: true
+

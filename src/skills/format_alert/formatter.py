@@ -1,6 +1,6 @@
 """Alert message formatting skill."""
 
-from src.data.models import DealAnalysis, Product
+from src.data.models import Coupon, DealAnalysis, Product
 from src.skills.base import BaseSkill
 
 
@@ -69,3 +69,61 @@ class FormatAlertSkill(BaseSkill):
             f"Link: {deal.url}\n"
             f"{sep}"
         )
+
+    @staticmethod
+    def format_coupon_message(
+        coupon: Coupon,
+        product: Product | None = None,
+        final_price: float | None = None,
+        url: str | None = None,
+    ) -> str:
+        """Gera mensagem formatada em HTML especializada para cupons no Telegram Bot."""
+        market_display = coupon.marketplace.upper()
+
+        if coupon.desconto_percentual:
+            desc_text = f"<b>{coupon.desconto_percentual:.0f}% OFF</b>"
+        elif coupon.desconto_fixo:
+            desc_text = f"<b>R$ {coupon.desconto_fixo:.2f} OFF</b>"
+        elif coupon.descricao:
+            desc_text = f"<b>{coupon.descricao}</b>"
+        else:
+            desc_text = "Desconto promocional"
+
+        lines = [
+            "🎟️ <b>NOVO CUPOM DE DESCONTO DETECTADO!</b>",
+            "",
+            f"🛒 <b>Loja:</b> {market_display}",
+            f"🏷️ <b>Cupom:</b> <code>{coupon.codigo}</code>",
+            f"💰 <b>Vantagem:</b> {desc_text}",
+        ]
+
+        if product:
+            lines.append(f"📦 <b>Produto:</b> {product.nome}")
+        if final_price:
+            preco_fmt = f"R$ {final_price:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            lines.append(f"💵 <b>Preço c/ Cupom:</b> <code>{preco_fmt}</code>")
+
+        if url:
+            lines.extend(["", f"🔗 <a href='{url}'>Aproveitar Cupom na Loja</a>"])
+
+        return "\n".join(lines)
+
+    @staticmethod
+    def format_coupon_console_message(
+        coupon: Coupon,
+        product: Product | None = None,
+        final_price: float | None = None,
+        url: str | None = None,
+    ) -> str:
+        """Gera mensagem legível de cupom para logs de console."""
+        sep = "=" * 60
+        prod_str = f" para '{product.nome}'" if product else ""
+        price_str = f" | Preço c/ Cupom: R$ {final_price:.2f}" if final_price else ""
+        return (
+            f"\n{sep}\n"
+            f"[PROMORADAR CUPOM] Novo cupom em {coupon.marketplace.upper()}{prod_str}\n"
+            f"Código: {coupon.codigo} | Descrição: {coupon.descricao or 'N/A'}{price_str}\n"
+            f"Link: {url or 'N/A'}\n"
+            f"{sep}"
+        )
+

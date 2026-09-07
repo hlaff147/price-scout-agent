@@ -26,7 +26,7 @@ class BaseSubagent(ABC):
             duration = time.perf_counter() - start_time
             logger.debug(f"Subagente [{self.name}] concluído com sucesso em {duration:.2f}s.")
             return {"success": True, "result": result, "duration": duration, "error": None}
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             duration = time.perf_counter() - start_time
             logger.error(f"Erro no subagente [{self.name}] após {duration:.2f}s: {exc}")
             return {"success": False, "result": None, "duration": duration, "error": str(exc)}
