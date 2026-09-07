@@ -1,6 +1,6 @@
 """ADK Notifier Agent managing alerts and notifications."""
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from google.adk.agents import BaseAgent, InvocationContext
 from google.adk.events import Event, EventActions

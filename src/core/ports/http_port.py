@@ -25,4 +25,3 @@ class IHttpClient(ABC):
         Returns:
             Corpo textual da resposta.
         """
-        pass

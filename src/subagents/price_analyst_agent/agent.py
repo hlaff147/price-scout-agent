@@ -3,6 +3,7 @@
 from loguru import logger
 
 from src.core.ports.analyst_port import IAnalyst
+from src.core.ports.repository_port import IRepository
 from src.data.models import DealAnalysis, PriceRecord, Product, ScrapedData, Source
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill

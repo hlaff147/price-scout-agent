@@ -1,7 +1,7 @@
 """ADK Scraper Agent coordinating marketplace extraction."""
 
 import asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from google.adk.agents import BaseAgent, InvocationContext
 from google.adk.events import Event, EventActions

@@ -1,6 +1,6 @@
 """ADK Analyst Agent evaluating price history and deals."""
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from google.adk.agents import BaseAgent, InvocationContext
 from google.adk.events import Event, EventActions

@@ -7,9 +7,9 @@ from src.core.ports.repository_port import IRepository
 from src.core.ports.scraper_port import IScraper
 
 __all__ = [
-    "IScraper",
     "IAnalyst",
+    "IHttpClient",
     "INotifier",
     "IRepository",
-    "IHttpClient",
+    "IScraper",
 ]

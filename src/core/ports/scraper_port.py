@@ -19,4 +19,3 @@ class IScraper(ABC):
         Returns:
             ScrapedData contendo o resultado da extração.
         """
-        pass

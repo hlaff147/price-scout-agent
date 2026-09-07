@@ -20,8 +20,13 @@ class ParseGoogleShoppingSkill(BaseSkill):
         url: str,
         keywords: list[str] | None = None,
     ) -> ScrapedData:
-        if "google.com/sorry" in html or "recaptcha" in html.lower():
-            logger.warning("[GOOGLE_SHOPPING] Desafio anti-bot/captcha temporário do Google.")
+        if (
+            "google.com/sorry" in html
+            or "recaptcha" in html.lower()
+            or "redirecionamento não iniciar" in html.lower()
+            or "problemas para acessar a pesquisa google" in html.lower()
+        ):
+            logger.warning("[GOOGLE_SHOPPING] Desafio anti-bot/redirecionamento temporário do Google.")
             return ScrapedData(
                 marketplace="google_shopping",
                 success=False,

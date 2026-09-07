@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html lang="en-us" class="a-no-js a-lt-ie9 a-lt-ie8 a-lt-ie7"> <![endif]-->
+<html class="a-no-js" lang="en-us">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Robot Check</title>
+</head>
+<body>
+<div class="a-container a-padding-double-large" style="min-width:350px;padding:44px 0 120px 0;">
+    <div class="a-box a-alert a-alert-info text-center">
+        <h4>Digite os caracteres que você vê abaixo</h4>
+        <p>Pedimos desculpas pelo transtorno, mas precisamos ter certeza de que você não é um robô.</p>
+        <form method="get" action="/errors/validateCaptcha" name="">
+            <input type=hidden name="amzn" value="xyz" />
+            <img src="https://images-na.ssl-images-amazon.com/captcha/123.jpg">
+            <input id="captchacharacters" name="field-keywords" class="a-span12" autocapitalize="off" autocorrect="off" type="text">
+            <button type="submit" class="a-button-text">Continuar comprando</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

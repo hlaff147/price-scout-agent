@@ -32,6 +32,14 @@ class ParseShopeeSkill(BaseSkill):
         if search_data and search_data.preco:
             return search_data
 
+        if soup.select_one("div#main, div.shopee-search-page-root") and not soup.select("div[data-sqe='item']"):
+            return ScrapedData(
+                marketplace="shopee",
+                success=False,
+                url=url,
+                error_message="Limitação SPA: a Shopee requer renderização JavaScript para exibir produtos.",
+            )
+
         return ScrapedData(
             marketplace="shopee",
             success=False,

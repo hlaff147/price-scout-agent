@@ -29,12 +29,16 @@ dev = [
     "pytest-asyncio>=0.23.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.3.0",
+    "respx>=0.22.0",
 ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "diagnosis: testes de diagnostico com HTML real capturado",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]

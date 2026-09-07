@@ -2,6 +2,7 @@
 
 
 from bs4 import BeautifulSoup
+from loguru import logger
 
 from src.data.models import ScrapedData
 from src.skills.base import BaseSkill
@@ -20,6 +21,19 @@ class ParseMercadoLivreSkill(BaseSkill):
         url: str,
         keywords: list[str] | None = None,
     ) -> ScrapedData:
+        if (
+            "account-verification" in html
+            or "suspicious-traffic" in html
+            or ("acesse sua conta" in html.lower() and "trace-id" in html.lower())
+        ):
+            logger.warning("[MERCADOLIVRE] Desafio anti-bot/verificação de conta detectado.")
+            return ScrapedData(
+                marketplace="mercadolivre",
+                success=False,
+                url=url,
+                error_message="Desafio anti-bot/verificação de conta do Mercado Livre.",
+            )
+
         soup = BeautifulSoup(html, "html.parser")
 
         # 1. Tentar detectar se é página de produto individual

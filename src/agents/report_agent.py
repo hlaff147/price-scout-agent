@@ -1,7 +1,7 @@
 """ADK Report Agent generating interactive HTML reports."""
 
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import AsyncGenerator
 
 from google.adk.agents import BaseAgent, InvocationContext
 from google.adk.events import Event, EventActions

@@ -23,4 +23,3 @@ class IAnalyst(ABC):
         Returns:
             Lista de DealAnalysis contendo pareceres de compra.
         """
-        pass

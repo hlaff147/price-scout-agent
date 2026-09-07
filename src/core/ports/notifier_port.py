@@ -25,4 +25,3 @@ class INotifier(ABC):
         Returns:
             True se o alerta foi emitido com sucesso, False caso contrário.
         """
-        pass

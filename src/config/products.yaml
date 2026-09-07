@@ -23,17 +23,18 @@ products:
         metodo_coleta: "scraping_html"
         ativo: true
 
-      - marketplace: "shopee"
-        url_produto: "https://shopee.com.br/search?keyword=Huawei%20FreeBuds%20Pro%205"
-        metodo_coleta: "scraping_html"
-        ativo: true
-
       - marketplace: "google_shopping"
         url_produto: "https://www.google.com/search?q=huawei+Freebuds+Pro+5&udm=28"
         metodo_coleta: "scraping_html"
         ativo: true
 
       # Fontes desativadas especificamente para este fone onde não compensa buscar:
+      - marketplace: "shopee"
+        url_produto: "https://shopee.com.br/search?keyword=Huawei%20FreeBuds%20Pro%205"
+        metodo_coleta: "scraping_html"
+        ativo: false
+        motivo_desativacao: "spa_requer_javascript"
+
       - marketplace: "kabum"
         url_produto: "https://www.kabum.com.br/busca/huawei-freebuds-pro-5"
         metodo_coleta: "scraping_html"

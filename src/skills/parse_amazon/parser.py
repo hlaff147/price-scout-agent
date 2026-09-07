@@ -2,6 +2,7 @@
 
 
 from bs4 import BeautifulSoup
+from loguru import logger
 
 from src.data.models import ScrapedData
 from src.skills.base import BaseSkill

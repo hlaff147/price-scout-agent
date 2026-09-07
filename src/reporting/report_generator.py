@@ -12,7 +12,6 @@ from src.data.database import default_db
 from src.data.models import DealAnalysis, Product
 from src.data.repository import Repository
 
-
 # Cores por marketplace para os gráficos
 MARKETPLACE_COLORS = {
     "amazon": {"bg": "rgba(255, 153, 0, 0.7)", "border": "rgb(255, 153, 0)"},

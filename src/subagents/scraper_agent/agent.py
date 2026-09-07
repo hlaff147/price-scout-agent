@@ -5,9 +5,9 @@ from typing import ClassVar
 
 from loguru import logger
 
-from src.data.models import Product, ScrapedData, Source
 from src.core.ports.http_port import IHttpClient
 from src.core.ports.scraper_port import IScraper
+from src.data.models import Product, ScrapedData, Source
 from src.skills.base import BaseSkill
 from src.skills.parse_aliexpress.parser import ParseAliExpressSkill
 from src.skills.parse_amazon.parser import ParseAmazonSkill
@@ -16,7 +16,7 @@ from src.skills.parse_kabum.parser import ParseKabumSkill
 from src.skills.parse_mercadolivre.parser import ParseMercadoLivreSkill
 from src.skills.parse_shopee.parser import ParseShopeeSkill
 from src.subagents.base import BaseSubagent
-from src.tools.http_client import HttpClient, http_client
+from src.tools.http_client import http_client
 
 
 class ScraperSubagent(BaseSubagent, IScraper):
@@ -70,9 +70,8 @@ class ScraperSubagent(BaseSubagent, IScraper):
                     f"[{mkt.upper()}] Preço encontrado: R$ {scraped.preco:.2f} (Título: {scraped.titulo})"
                 )
             else:
-                logger.warning(
-                    f"[{mkt.upper()}] Nenhum produto correspondente identificado na página."
-                )
+                msg = scraped.error_message or "Nenhum produto correspondente identificado na página."
+                logger.warning(f"[{mkt.upper()}] {msg}")
             return scraped
 
         except Exception as exc:
