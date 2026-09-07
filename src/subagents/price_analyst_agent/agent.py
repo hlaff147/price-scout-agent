@@ -2,19 +2,20 @@
 
 from loguru import logger
 
+from src.core.ports.analyst_port import IAnalyst
 from src.data.models import DealAnalysis, PriceRecord, Product, ScrapedData, Source
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
 from src.subagents.base import BaseSubagent
 
 
-class PriceAnalystSubagent(BaseSubagent):
+class PriceAnalystSubagent(BaseSubagent, IAnalyst):
     """Subagente responsável por normalizar, persistir e analisar ofertas com base no histórico."""
 
     name = "price_analyst_agent"
     role = "Price & Deal Analyst"
 
-    def __init__(self, repository: Repository | None = None):
+    def __init__(self, repository: IRepository | None = None):
         self.repository = repository or Repository()
         self.fake_discount_detector = DetectFakeDiscountSkill()
 
@@ -26,13 +27,13 @@ class PriceAnalystSubagent(BaseSubagent):
         """Processa os dados coletados, persiste registros e identifica oportunidades reais."""
         analyses: list[DealAnalysis] = []
 
+        # 1. Congelar a linha de base histórica pré-ciclo (estável para todas as fontes do ciclo)
+        prev_min = self.repository.get_historical_min_price(product.id)
+        prev_avg = self.repository.get_historical_average_price(product.id, days=60)
+
         for source, scraped in scraped_results:
             if not scraped.success or scraped.preco is None:
                 continue
-
-            # 1. Consultar histórico prévio ANTES de salvar o preço atual
-            prev_min = self.repository.get_historical_min_price(product.id)
-            prev_avg = self.repository.get_historical_average_price(product.id, days=60)
 
             # 2. Persistir novo registro de preço
             record = PriceRecord(

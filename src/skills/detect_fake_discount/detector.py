@@ -39,13 +39,17 @@ class DetectFakeDiscountSkill(BaseSkill):
                     ((historical_avg - current_price) / historical_avg) * 100, 1
                 )
 
-            # Heurística de falso desconto:
-            # 1. Preço original anunciado é mais de 35% acima da média histórica real
-            if original_price_announced and original_price_announced > (historical_avg * 1.35) or (
-                user_max_price
-                and original_price_announced
-                and original_price_announced > (user_max_price * 1.45)
-            ):
+            # Heurística 1: Preço original anunciado mais de 35% acima da média histórica real
+            if original_price_announced and original_price_announced > (historical_avg * 1.35):
                 is_fake = True
+
+        # Heurística 2: Preço original anunciado mais de 45% acima do teto máximo definido pelo usuário
+        # (funciona mesmo sem histórico prévio, ex: 1º dia de execução)
+        if (
+            user_max_price
+            and original_price_announced
+            and original_price_announced > (user_max_price * 1.45)
+        ):
+            is_fake = True
 
         return announced_discount, real_discount, is_fake

@@ -9,6 +9,7 @@ import httpx
 from loguru import logger
 
 from src.config.settings import settings
+from src.core.ports.http_port import IHttpClient
 
 # Pool de User-Agents realistas para navegadores modernos
 USER_AGENTS = [
@@ -19,7 +20,7 @@ USER_AGENTS = [
 ]
 
 
-class HttpClient:
+class HttpClient(IHttpClient):
     """Cliente HTTP assíncrono com resiliência, headers realistas e rate limiting."""
 
     def __init__(self):

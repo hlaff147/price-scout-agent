@@ -1,22 +1,22 @@
-"""Notifier subagent for Telegram dispatch and console fallback."""
-
-import httpx
 from loguru import logger
 
 from src.config.settings import settings
+from src.core.ports.notifier_port import INotifier
+from src.core.ports.repository_port import IRepository
 from src.data.models import Alert, DealAnalysis, Product
 from src.data.repository import Repository
 from src.skills.format_alert.formatter import FormatAlertSkill
 from src.subagents.base import BaseSubagent
+from src.tools.notification_tools import send_telegram_notification
 
 
-class NotifierSubagent(BaseSubagent):
+class NotifierSubagent(BaseSubagent, INotifier):
     """Subagente responsável por formatar e disparar notificações de ofertas."""
 
     name = "notifier_agent"
     role = "Alert & Notification Dispatcher"
 
-    def __init__(self, repository: Repository | None = None):
+    def __init__(self, repository: IRepository | None = None):
         self.repository = repository or Repository()
         self.formatter = FormatAlertSkill()
 
@@ -72,25 +72,9 @@ class NotifierSubagent(BaseSubagent):
 
     async def _send_telegram(self, deal: DealAnalysis, product: Product) -> bool:
         """Dispara mensagem formatada via Telegram Bot API."""
-        url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
         html_text = self.formatter.format_telegram_message(deal, product)
-
-        payload = {
-            "chat_id": settings.TELEGRAM_CHAT_ID,
-            "text": html_text,
-            "parse_mode": "HTML",
-            "disable_web_page_preview": False,
-        }
-
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                resp = await client.post(url, json=payload)
-                if resp.status_code == 200:
-                    logger.success(f"Alerta enviado com sucesso via Telegram para '{product.nome}'!")
-                    return True
-                else:
-                    logger.error(f"Erro ao enviar Telegram (status {resp.status_code}): {resp.text}")
-                    return False
-        except Exception as exc:
-            logger.error(f"Exceção ao disparar notificação no Telegram: {exc}")
-            return False
+        res = await send_telegram_notification(text=html_text, parse_mode="HTML")
+        if res.get("sent"):
+            logger.success(f"Alerta enviado com sucesso via Telegram para '{product.nome}'!")
+            return True
+        return False

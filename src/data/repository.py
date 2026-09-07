@@ -6,11 +6,12 @@ from datetime import datetime, timedelta, timezone
 
 from loguru import logger
 
+from src.core.ports.repository_port import IRepository
 from src.data.database import Database, default_db
 from src.data.models import Alert, PriceRecord, Product, Source
 
 
-class Repository:
+class Repository(IRepository):
     """Repositório de acesso aos dados de produtos, fontes, preços e alertas."""
 
     def __init__(self, db: Database | None = None):
@@ -280,3 +281,62 @@ class Repository:
                 (product_id, cutoff),
             ).fetchone()
             return bool(row and row["count"] > 0)
+
+    def get_price_history_by_source(self, source_id: int, days: int = 90) -> list[PriceRecord]:
+        """Retorna histórico de preços de uma fonte específica nos últimos N dias."""
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with self.db.get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT id, source_id, preco, preco_original, moeda,
+                       disponivel, cupom, titulo_coletado, url_encontrada, coletado_em
+                FROM price_records
+                WHERE source_id = ? AND coletado_em >= ? AND disponivel = 1
+                ORDER BY coletado_em ASC
+                """,
+                (source_id, cutoff),
+            ).fetchall()
+
+        return [
+            PriceRecord(
+                id=r["id"],
+                source_id=r["source_id"],
+                preco=r["preco"],
+                preco_original=r["preco_original"],
+                moeda=r["moeda"],
+                disponivel=bool(r["disponivel"]),
+                cupom=r["cupom"],
+                titulo_coletado=r["titulo_coletado"],
+                url_encontrada=r["url_encontrada"],
+                coletado_em=datetime.fromisoformat(r["coletado_em"]),
+            )
+            for r in rows
+        ]
+
+    def get_recent_alerts(self, product_id: str, limit: int = 10) -> list[Alert]:
+        """Retorna os últimos N alertas de um produto."""
+        with self.db.get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT id, product_id, price_record_id, motivo, detalhes, enviado_em, canal
+                FROM alerts
+                WHERE product_id = ?
+                ORDER BY enviado_em DESC
+                LIMIT ?
+                """,
+                (product_id, limit),
+            ).fetchall()
+
+        return [
+            Alert(
+                id=r["id"],
+                product_id=r["product_id"],
+                price_record_id=r["price_record_id"],
+                motivo=r["motivo"],
+                detalhes=r["detalhes"],
+                enviado_em=datetime.fromisoformat(r["enviado_em"]),
+                canal=r["canal"],
+            )
+            for r in rows
+        ]
+

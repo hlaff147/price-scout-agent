@@ -50,3 +50,6 @@ htmlcov/
 
 # macOS
 .DS_Store
+
+# Reports (generated locally)
+reports/

@@ -6,6 +6,8 @@ from typing import ClassVar
 from loguru import logger
 
 from src.data.models import Product, ScrapedData, Source
+from src.core.ports.http_port import IHttpClient
+from src.core.ports.scraper_port import IScraper
 from src.skills.base import BaseSkill
 from src.skills.parse_aliexpress.parser import ParseAliExpressSkill
 from src.skills.parse_amazon.parser import ParseAmazonSkill
@@ -17,7 +19,7 @@ from src.subagents.base import BaseSubagent
 from src.tools.http_client import HttpClient, http_client
 
 
-class ScraperSubagent(BaseSubagent):
+class ScraperSubagent(BaseSubagent, IScraper):
     """Subagente responsável por consultar uma fonte e extrair dados de preço."""
 
     name = "scraper_subagent"
@@ -33,7 +35,7 @@ class ScraperSubagent(BaseSubagent):
         "google_shopping": ParseGoogleShoppingSkill,
     }
 
-    def __init__(self, client: HttpClient | None = None):
+    def __init__(self, client: IHttpClient | None = None):
         self.client = client or http_client
         self._skills: dict[str, BaseSkill] = {
             mkt: skill_cls() for mkt, skill_cls in self.SKILL_REGISTRY.items()

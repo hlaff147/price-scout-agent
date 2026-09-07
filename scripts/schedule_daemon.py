@@ -15,6 +15,7 @@ if venv_python.exists() and sys.executable != str(venv_python):
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger
 
+from src.agents.adk_runner import AdkMonitoringRunner
 from src.config.settings import settings
 from src.orchestrator.runner import run_monitoring_cycle
 
@@ -36,13 +37,24 @@ def parse_args():
         action="store_true",
         help="Executa em modo simulação sem disparar mensagens reais.",
     )
+    parser.add_argument(
+        "--legacy",
+        action="store_true",
+        help="Executa com o orquestrador procedural legado em vez do Google ADK.",
+    )
     return parser.parse_args()
 
 
-async def scheduled_task(dry_run: bool):
+async def scheduled_task(dry_run: bool, legacy: bool = False):
     logger.info("⏰ APScheduler: Disparando ciclo periódico de monitoramento...")
     try:
-        await run_monitoring_cycle(dry_run=dry_run)
+        if legacy:
+            logger.info("Utilizando motor legado para o ciclo periódico...")
+            await run_monitoring_cycle(dry_run=dry_run)
+        else:
+            logger.info("Utilizando Google ADK para o ciclo periódico...")
+            runner = AdkMonitoringRunner()
+            await runner.run_cycle(dry_run=dry_run, generate_report=False)
     except Exception as exc:
         logger.error(f"Erro durante o ciclo agendado: {exc}")
 
@@ -57,7 +69,7 @@ async def main():
         scheduled_task,
         "interval",
         hours=args.interval_hours,
-        args=[args.dry_run],
+        args=[args.dry_run, args.legacy],
         id="promoradar_monitor_job",
     )
 
@@ -67,7 +79,7 @@ async def main():
 
     # Executar uma primeira checagem imediata ao iniciar o daemon
     logger.info("Executando ciclo inicial imediatamente...")
-    await scheduled_task(args.dry_run)
+    await scheduled_task(args.dry_run, args.legacy)
 
     scheduler.start()
 

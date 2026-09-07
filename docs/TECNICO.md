@@ -13,7 +13,7 @@ promoção real.
 | Camada | Tecnologia sugerida | Alternativa |
 |---|---|---|
 | Linguagem | Python 3.12+ | — |
-| Orquestração de agente | Claude Agent SDK | LangGraph, CrewAI |
+| Orquestração de agente | Google ADK (`google-adk` 2.8+) | Claude Agent SDK, LangGraph |
 | Automação de navegador (sites com JS) | Playwright | Selenium |
 | Scraping simples (HTML estático) | `requests` + `BeautifulSoup4` | `httpx` + `selectolax` |
 | Parsing estruturado / schemas | `pydantic` | `dataclasses` |

@@ -3,7 +3,7 @@
 import pytest
 
 from src.data.database import Database
-from src.data.models import Product, ScrapedData, Source
+from src.data.models import PriceRecord, Product, ScrapedData, Source
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
 from src.subagents.price_analyst_agent.agent import PriceAnalystSubagent
@@ -38,6 +38,21 @@ class TestDetectFakeDiscount:
 
         assert is_fake is False
         assert real_disc == 25.0
+
+    def test_detect_fake_discount_without_historical_avg(self):
+        detector = DetectFakeDiscountSkill()
+
+        # Dia 1: Sem média histórica (None), mas preço original anunciado muito superior ao user_max_price
+        announced_disc, real_disc, is_fake = detector.execute(
+            current_price=800.0,
+            original_price_announced=2000.0,
+            historical_avg=None,
+            user_max_price=1000.0,
+        )
+
+        assert is_fake is True
+        assert real_disc is None
+        assert announced_disc == 60.0
 
 
 @pytest.mark.asyncio
@@ -90,3 +105,38 @@ class TestPriceAnalystSubagent:
         assert analyses_2[0].is_all_time_low is True
         assert analyses_2[0].is_below_target is True
         assert analyses_2[0].motivo_alerta == "minimo_historico"
+
+    async def test_multiple_sources_in_same_cycle_share_stable_baseline(self):
+        db = Database(":memory:")
+        repo = Repository(db)
+
+        product = Product(
+            id="multi-test",
+            nome="Multi Test",
+            preco_alvo=850.0,
+            preco_maximo=1000.0,
+        )
+        repo.upsert_product(product)
+
+        src_a = repo.upsert_source(Source(product_id="multi-test", marketplace="amazon", url_produto="https://a.com"))
+        src_b = repo.upsert_source(Source(product_id="multi-test", marketplace="mercadolivre", url_produto="https://b.com"))
+
+        # Histórico prévio no banco: R$ 900
+        repo.save_price_record(PriceRecord(source_id=src_a.id, preco=900.0))
+
+        analyst = PriceAnalystSubagent(repository=repo)
+
+        # No ciclo atual, Amazon acha R$ 800 e Mercado Livre acha R$ 810.
+        # Ambos estão abaixo da mínima histórica prévia (900.0).
+        # A inserção de R$ 800 da Amazon NÃO deve contaminar a análise do Mercado Livre no mesmo lote!
+        scraped_a = ScrapedData(marketplace="amazon", success=True, preco=800.0, url="https://a.com")
+        scraped_b = ScrapedData(marketplace="mercadolivre", success=True, preco=810.0, url="https://b.com")
+
+        results = await analyst.run(product, [(src_a, scraped_a), (src_b, scraped_b)])
+        assert len(results) == 2
+
+        # Ambos os marketplaces devem ter comparado com o prev_min pré-ciclo (900.0)
+        assert results[0].preco_minimo_historico == 900.0
+        assert results[1].preco_minimo_historico == 900.0
+        assert results[0].is_all_time_low is True
+        assert results[1].is_all_time_low is True

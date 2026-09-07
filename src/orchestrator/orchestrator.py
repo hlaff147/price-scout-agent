@@ -7,6 +7,10 @@ from typing import Any
 import yaml
 from loguru import logger
 
+from src.core.ports.analyst_port import IAnalyst
+from src.core.ports.notifier_port import INotifier
+from src.core.ports.repository_port import IRepository
+from src.core.ports.scraper_port import IScraper
 from src.data.database import default_db
 from src.data.models import Product, ScrapedData, Source
 from src.data.repository import Repository
@@ -20,10 +24,10 @@ class Orchestrator:
 
     def __init__(
         self,
-        repository: Repository | None = None,
-        scraper: ScraperSubagent | None = None,
-        analyst: PriceAnalystSubagent | None = None,
-        notifier: NotifierSubagent | None = None,
+        repository: IRepository | None = None,
+        scraper: IScraper | None = None,
+        analyst: IAnalyst | None = None,
+        notifier: INotifier | None = None,
     ):
         self.repository = repository or Repository(default_db)
         self.scraper = scraper or ScraperSubagent()
@@ -87,6 +91,7 @@ class Orchestrator:
 
         scraped_pairs = []
         error_count = 0
+        no_result_count = 0
 
         for source, res in zip(sources, results):
             if isinstance(res, Exception):
@@ -94,7 +99,12 @@ class Orchestrator:
                 logger.error(f"Erro não tratado no scraper [{source.marketplace}]: {res}")
             elif isinstance(res, ScrapedData):
                 if not res.success:
-                    error_count += 1
+                    # "Nenhum produto" = sem resultado; qualquer outro = erro real
+                    msg = (res.error_message or "").lower()
+                    if "nenhum produto" in msg or "nenhum" in msg and "correspondente" in msg:
+                        no_result_count += 1
+                    else:
+                        error_count += 1
                 scraped_pairs.append((source, res))
 
         # 2. Encaminhar resultados ao Analista de Preços
@@ -109,7 +119,8 @@ class Orchestrator:
 
         logger.info(
             f"=== Ciclo concluído para {product.nome}: "
-            f"{len(scraped_pairs)} fontes consultadas, {deal_count} ofertas, {error_count} erros ==="
+            f"{len(scraped_pairs)} fontes consultadas, {deal_count} ofertas, "
+            f"{no_result_count} sem resultado, {error_count} erros ==="
         )
 
         return {
@@ -117,6 +128,7 @@ class Orchestrator:
             "sources_checked": len(sources),
             "prices_collected": len([p for _, p in scraped_pairs if p.preco]),
             "deals_found": deal_count,
+            "no_results": no_result_count,
             "errors": error_count,
             "analyses": analyses,
         }

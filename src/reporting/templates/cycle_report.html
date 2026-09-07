@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromoRadar — {{ product_name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-card-hover: #22263a;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --accent-green: #34a853;
+            --accent-red: #ea4335;
+            --accent-yellow: #fbbc04;
+            --accent-blue: #4285f4;
+            --border: #2d3142;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #1a1d27 0%, #22263a 100%);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header .logo { font-size: 36px; margin-bottom: 8px; }
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .header .product-name {
+            font-size: 22px;
+            color: var(--accent-blue);
+            margin: 12px 0 4px;
+            font-weight: 600;
+        }
+        .header .targets {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .header .targets span {
+            margin: 0 12px;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .summary-card:hover { transform: translateY(-2px); }
+        .summary-card .icon { font-size: 28px; margin-bottom: 8px; }
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .summary-card .label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .card-green .value { color: var(--accent-green); }
+        .card-blue .value { color: var(--accent-blue); }
+        .card-yellow .value { color: var(--accent-yellow); }
+        .card-red .value { color: var(--accent-red); }
+
+        /* Section */
+        .section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead th {
+            background: rgba(66, 133, 244, 0.1);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--border);
+        }
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr:hover { background: var(--bg-card-hover); }
+        .price-cell {
+            font-weight: 700;
+            font-size: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+        .price-old {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-deal { background: rgba(52, 168, 83, 0.2); color: var(--accent-green); }
+        .badge-fake { background: rgba(234, 67, 53, 0.2); color: var(--accent-red); }
+        .badge-low { background: rgba(251, 188, 4, 0.2); color: var(--accent-yellow); }
+        .badge-error { background: rgba(234, 67, 53, 0.15); color: var(--accent-red); }
+        .badge-active { background: rgba(52, 168, 83, 0.2); color: var(--accent-green); }
+        .badge-inactive { background: rgba(154, 160, 166, 0.2); color: var(--text-secondary); }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-height: 400px;
+        }
+
+        /* Deal Cards */
+        .deal-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        .deal-card {
+            background: linear-gradient(135deg, rgba(52, 168, 83, 0.08) 0%, rgba(52, 168, 83, 0.02) 100%);
+            border: 1px solid rgba(52, 168, 83, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .deal-card h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--accent-green);
+        }
+        .deal-card .deal-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+        }
+        .deal-card .deal-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .deal-card .deal-link {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: var(--accent-green);
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: opacity 0.2s;
+        }
+        .deal-card .deal-link:hover { opacity: 0.85; }
+
+        /* Links */
+        a { color: var(--accent-blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(66, 133, 244, 0.08);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .stat strong { color: var(--accent-blue); }
+
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header h1 { font-size: 22px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .deal-cards { grid-template-columns: 1fr; }
+            table { font-size: 12px; }
+            thead th, tbody td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">📡</div>
+            <h1>PromoRadar</h1>
+            <div class="subtitle">Relatório de Monitoramento de Preços</div>
+            <div class="product-name">{{ product_name }}</div>
+            <div class="targets">
+                <span>🎯 Alvo: <strong>{{ preco_alvo_fmt }}</strong></span>
+                <span>🚫 Máximo: <strong>{{ preco_maximo_fmt }}</strong></span>
+            </div>
+            <div class="subtitle" style="margin-top: 12px;">🕐 {{ cycle_timestamp }}</div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card card-blue">
+                <div class="icon">🔍</div>
+                <div class="value">{{ sources_checked }}</div>
+                <div class="label">Fontes Consultadas</div>
+            </div>
+            <div class="summary-card card-green">
+                <div class="icon">💰</div>
+                <div class="value">{{ prices_collected }}</div>
+                <div class="label">Preços Coletados</div>
+            </div>
+            <div class="summary-card card-yellow">
+                <div class="icon">⚡</div>
+                <div class="value">{{ deals_found }}</div>
+                <div class="label">Ofertas Vantajosas</div>
+            </div>
+            <div class="summary-card" style="border-color: rgba(154,160,166,0.3);">
+                <div class="icon">🔇</div>
+                <div class="value" style="color: var(--text-secondary);">{{ no_results }}</div>
+                <div class="label">Sem Resultado</div>
+            </div>
+            {% if errors > 0 %}
+            <div class="summary-card card-red">
+                <div class="icon">⚠️</div>
+                <div class="value">{{ errors }}</div>
+                <div class="label">Erros de Coleta</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Deal Cards (if any) -->
+        {% if deals %}
+        <div class="section" style="border-color: rgba(52, 168, 83, 0.4);">
+            <h2>🎯 Oportunidades Encontradas</h2>
+            <div class="deal-cards">
+                {% for deal in deals %}
+                <div class="deal-card">
+                    <h3>{{ deal.marketplace }}</h3>
+                    <div class="deal-price">{{ deal.preco_fmt }}</div>
+                    {% if deal.preco_original != None %}
+                    <div class="deal-info">Preço original: <span class="price-old">{{ deal.preco_original_fmt }}</span></div>
+                    {% endif %}
+                    {% if deal.desconto_real != None %}
+                    <div class="deal-info">Desconto real: <strong>{{ deal.desconto_real_fmt }}</strong></div>
+                    {% endif %}
+                    {% if deal.cupom %}
+                    <div class="deal-info">🎟️ Cupom: <code style="background: rgba(66,133,244,0.2); padding: 2px 6px; border-radius: 4px;">{{ deal.cupom }}</code></div>
+                    {% endif %}
+                    <div class="deal-info" style="margin-top: 8px;">
+                        {% if deal.is_all_time_low %}<span class="badge badge-low">Mínimo Histórico</span> {% endif %}
+                        {% if deal.is_fake_discount %}<span class="badge badge-fake">Desconto Inflado</span> {% endif %}
+                        <span class="badge badge-deal">{{ deal.motivo }}</span>
+                    </div>
+                    <div class="deal-info" style="margin-top: 6px; font-style: italic;">{{ deal.justificativa }}</div>
+                    <a href="{{ deal.url }}" target="_blank" class="deal-link">Ver Oferta →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Current Prices Table -->
+        <div class="section">
+            <h2>💰 Preços Atuais por Marketplace</h2>
+            {% if current_prices %}
+            <div class="stats-row">
+                <div class="stat">📉 Mínimo Histórico: <strong>{{ min_price_fmt }}</strong></div>
+                <div class="stat">📊 Média 60 dias: <strong>{{ avg_price_fmt }}</strong></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Marketplace</th>
+                        <th>Preço Atual</th>
+                        <th>Preço "De"</th>
+                        <th>Desconto Real</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in current_prices %}
+                    <tr>
+                        <td>
+                            <strong>{{ p.marketplace }}</strong>
+                        </td>
+                        <td class="price-cell" style="color: {% if p.is_deal %}var(--accent-green){% else %}var(--text-primary){% endif %};">
+                            {{ p.preco_fmt }}
+                        </td>
+                        <td>
+                            {% if p.preco_original != None %}
+                            <span class="price-old">{{ p.preco_original_fmt }}</span>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>{{ p.desconto_real_fmt }}</td>
+                        <td>
+                            {% if p.is_deal %}
+                                <span class="badge badge-deal">✅ Oferta</span>
+                            {% elif p.is_fake_discount %}
+                                <span class="badge badge-fake">⚠️ Falso</span>
+                            {% else %}
+                                <span class="badge badge-inactive">Regular</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{{ p.url }}" target="_blank">Acessar →</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">Nenhum preço coletado neste ciclo.</div>
+            {% endif %}
+        </div>
+
+        <!-- Bar Chart: Price Comparison -->
+        {% if current_prices %}
+        <div class="section">
+            <h2>📊 Comparação de Preços — Ciclo Atual</h2>
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Line Chart: Price History -->
+        {% if history_datasets %}
+        <div class="section">
+            <h2>📈 Histórico de Preços (últimos 90 dias)</h2>
+            <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Alerts -->
+        {% if alerts %}
+        <div class="section">
+            <h2>🔔 Alertas Recentes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Motivo</th>
+                        <th>Detalhes</th>
+                        <th>Canal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alerts %}
+                    <tr>
+                        <td>{{ a.enviado_em }}</td>
+                        <td><span class="badge badge-deal">{{ a.motivo }}</span></td>
+                        <td>{{ a.detalhes }}</td>
+                        <td>{{ a.canal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Sources Status -->
+        <div class="section">
+            <h2>🛒 Status das Fontes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Marketplace</th>
+                        <th>Método</th>
+                        <th>Status</th>
+                        <th>Motivo Desativação</th>
+                        <th>URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sources_status %}
+                    <tr>
+                        <td><strong>{{ s.marketplace }}</strong></td>
+                        <td>{{ s.metodo }}</td>
+                        <td>
+                            {% if s.ativo %}
+                                <span class="badge badge-active">Ativa</span>
+                            {% else %}
+                                <span class="badge badge-inactive">Inativa</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ s.motivo_desativacao }}</td>
+                        <td><a href="{{ s.url }}" target="_blank" style="word-break: break-all;">{{ s.url[:60] }}{% if s.url|length > 60 %}...{% endif %}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            PromoRadar v0.1.0 — Relatório gerado automaticamente<br>
+            Produto: {{ product_id }} | {{ cycle_timestamp }}
+        </div>
+    </div>
+
+    <!-- Chart.js Scripts -->
+    <script>
+        // ===== Bar Chart: Current Price Comparison =====
+        {% if current_prices %}
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ bar_labels | tojson }},
+                datasets: [{
+                    label: 'Preço Atual (R$)',
+                    data: {{ bar_values | tojson }},
+                    backgroundColor: {{ bar_colors_bg | tojson }},
+                    borderColor: {{ bar_colors_border | tojson }},
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    maxBarThickness: 80,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: {
+                            color: '#9aa0a6',
+                            callback: function(v) { return 'R$ ' + v.toFixed(0); }
+                        },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9aa0a6', font: { weight: 'bold' } },
+                    },
+                },
+                // Annotation lines for target and max price
+            },
+            plugins: [{
+                id: 'targetLines',
+                afterDraw: function(chart) {
+                    const yAxis = chart.scales.y;
+                    const ctx = chart.ctx;
+                    const chartArea = chart.chartArea;
+
+                    // Target price line
+                    const targetY = yAxis.getPixelForValue({{ preco_alvo }});
+                    if (targetY >= chartArea.top && targetY <= chartArea.bottom) {
+                        ctx.save();
+                        ctx.strokeStyle = '#34a853';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([8, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(chartArea.left, targetY);
+                        ctx.lineTo(chartArea.right, targetY);
+                        ctx.stroke();
+                        ctx.fillStyle = '#34a853';
+                        ctx.font = '11px -apple-system, sans-serif';
+                        ctx.fillText('Alvo {{ preco_alvo_fmt }}', chartArea.right - 130, targetY - 6);
+                        ctx.restore();
+                    }
+
+                    // Max price line
+                    const maxY = yAxis.getPixelForValue({{ preco_maximo }});
+                    if (maxY >= chartArea.top && maxY <= chartArea.bottom) {
+                        ctx.save();
+                        ctx.strokeStyle = '#ea4335';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([8, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(chartArea.left, maxY);
+                        ctx.lineTo(chartArea.right, maxY);
+                        ctx.stroke();
+                        ctx.fillStyle = '#ea4335';
+                        ctx.font = '11px -apple-system, sans-serif';
+                        ctx.fillText('Máx {{ preco_maximo_fmt }}', chartArea.right - 130, maxY - 6);
+                        ctx.restore();
+                    }
+                }
+            }]
+        });
+        {% endif %}
+
+        // ===== Line Chart: Price History =====
+        {% if history_datasets %}
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const historyDatasets = {{ history_datasets | tojson }};
+
+        const lineDatasets = historyDatasets.map(ds => ({
+            label: ds.label,
+            data: ds.data.map(p => ({ x: new Date(p.x), y: p.y })),
+            borderColor: ds.borderColor,
+            backgroundColor: ds.backgroundColor,
+            fill: false,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            borderWidth: 2,
+        }));
+
+        new Chart(lineCtx, {
+            type: 'line',
+            data: { datasets: lineDatasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#e8eaed', usePointStyle: true, padding: 20 },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2).replace('.', ',');
+                            }
+                        }
+                    },
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: { day: 'dd/MM', hour: 'dd/MM HH:mm' },
+                            tooltipFormat: 'dd/MM/yyyy HH:mm',
+                        },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#9aa0a6', maxTicksLimit: 15 },
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: {
+                            color: '#9aa0a6',
+                            callback: function(v) { return 'R$ ' + v.toFixed(0); }
+                        },
+                    },
+                },
+            },
+            plugins: [{
+                id: 'targetLinesHistory',
+                afterDraw: function(chart) {
+                    const yAxis = chart.scales.y;
+                    const ctx = chart.ctx;
+                    const chartArea = chart.chartArea;
+
+                    const targetY = yAxis.getPixelForValue({{ preco_alvo }});
+                    if (targetY >= chartArea.top && targetY <= chartArea.bottom) {
+                        ctx.save();
+                        ctx.strokeStyle = '#34a853';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([6, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(chartArea.left, targetY);
+                        ctx.lineTo(chartArea.right, targetY);
+                        ctx.stroke();
+                        ctx.fillStyle = '#34a853';
+                        ctx.font = '11px -apple-system, sans-serif';
+                        ctx.fillText('Alvo', chartArea.left + 4, targetY - 6);
+                        ctx.restore();
+                    }
+                }
+            }]
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
