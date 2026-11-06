@@ -34,9 +34,11 @@ ENV/
 # Environment Variables
 .env
 
-# Database
+# Database & runtime cycle logs
 data/*.db
+data/*.db-*
 data/*.sqlite
+data/*.jsonl
 *.db
 
 # Logs

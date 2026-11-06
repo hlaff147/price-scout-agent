@@ -64,10 +64,15 @@ class HybridProductMatcher(IProductMatcher):
 
         title_words = set(norm_title.split())
 
-        # 1. Filtro de Acessórios (evita casquinha/película no lugar de fone ou kindle)
+        # 1. Filtro de Acessórios (evita casquinha/película/fonte/suporte no lugar do produto principal)
         for acc in self.ACCESSORY_KEYWORDS:
             # Só descarta se o produto original não for ele próprio um acessório
-            if acc in title_words and acc not in norm_target_name:
+            if acc in norm_target_name:
+                continue
+            if acc == "cabo" and norm_title.startswith("monitor "):
+                continue
+            matched_acc = (acc in norm_title) if " " in acc else (acc in title_words)
+            if matched_acc:
                 logger.debug(f"[Matcher] Descartado: anúncio '{candidate_title}' parece ser acessório ({acc})")
                 return MatchResult(
                     is_match=False,

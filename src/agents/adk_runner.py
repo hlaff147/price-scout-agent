@@ -43,6 +43,7 @@ class AdkMonitoringRunner:
     async def run_cycle(
         self,
         product_id: str | None = None,
+        product_ids: list[str] | None = None,
         only_due: bool = False,
         dry_run: bool | None = None,
         generate_report: bool = True,
@@ -60,6 +61,10 @@ class AdkMonitoringRunner:
             products: list[Product] = self.repository.get_due_products()
         else:
             products = self.repository.list_active_products()
+
+        if product_ids is not None:
+            allowed_ids = set(product_ids)
+            products = [p for p in products if p.id in allowed_ids]
 
         if product_id:
             products = [p for p in products if p.id == product_id]

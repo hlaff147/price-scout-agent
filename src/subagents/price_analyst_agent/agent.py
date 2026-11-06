@@ -51,23 +51,42 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
             if not scraped.success or scraped.preco is None:
                 continue
 
-            # 2. Persistir novo registro de preço
-            record = PriceRecord(
-                source_id=source.id if source.id else 0,
-                preco=scraped.preco,
-                preco_original=scraped.preco_original,
-                moeda=scraped.moeda,
-                disponivel=scraped.disponivel,
-                cupom=scraped.cupom,
-                titulo_coletado=scraped.titulo,
-                url_encontrada=scraped.url,
-            )
-            self.repository.save_price_record(record)
+            # 2a. Deduplicação semântica de variantes (antes de persistir para não poluir histórico com acessórios)
+            if scraped.titulo:
+                match_result = await self.matcher.match(
+                    target=product,
+                    candidate_title=scraped.titulo,
+                    candidate_url=scraped.url,
+                )
+            else:
+                from src.data.models import MatchResult
+                match_result = MatchResult(is_match=True, confidence=1.0, method_used="empty_title_passthrough")
 
-            # 2b. Detecção e persistência de cupom promocional
+            # Proteção contra falsos positivos de peças/acessórios muito baratos (< 30% do alvo)
+            is_implausibly_cheap = bool(
+                product.preco_alvo > 0 and scraped.preco < (product.preco_alvo * 0.30)
+            )
+
+            # 2b. Persistir registro de preço apenas quando compatível e plausível
+            saved_record_id: int | None = None
+            if match_result.is_match and not is_implausibly_cheap:
+                record = PriceRecord(
+                    source_id=source.id if source.id else 0,
+                    preco=scraped.preco,
+                    preco_original=scraped.preco_original,
+                    moeda=scraped.moeda,
+                    disponivel=scraped.disponivel,
+                    cupom=scraped.cupom,
+                    titulo_coletado=scraped.titulo,
+                    url_encontrada=scraped.url,
+                )
+                saved = self.repository.save_price_record(record)
+                saved_record_id = saved.id if saved else record.id
+
+            # 2c. Detecção e persistência de cupom promocional
             parsed_coupon: Coupon | None = None
             preco_efetivo = scraped.preco
-            if scraped.cupom:
+            if scraped.cupom and match_result.is_match and not is_implausibly_cheap:
                 parsed_coupon = ParseCouponSkill.parse(
                     raw_text=scraped.cupom,
                     marketplace=source.marketplace,
@@ -89,19 +108,12 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 user_max_price=product.preco_maximo,
             )
 
-            # 3b. Deduplicação semântica de variantes
-            match_result = await self.matcher.match(
-                target=product,
-                candidate_title=scraped.titulo or "",
-                candidate_url=scraped.url,
-            )
-
             # Condições de compra vantajosa
             is_below_target = scraped.preco <= product.preco_alvo or preco_efetivo <= product.preco_alvo
             is_all_time_low = prev_min is not None and (scraped.preco < prev_min or preco_efetivo < prev_min)
             is_below_max = scraped.preco <= product.preco_maximo or preco_efetivo <= product.preco_maximo
 
-            # Decisão de Deal (somente se a variante for compatível)
+            # Decisão de Deal (somente se a variante for compatível e preço plausível)
             is_deal = False
             motivo = None
             justificativa_parts = []
@@ -112,6 +124,13 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 )
                 justificativa_parts.append(
                     f"Variante divergente desconsiderada: {match_result.divergence_reason}."
+                )
+            elif is_implausibly_cheap:
+                logger.info(
+                    f"[{source.marketplace.upper()}] Preço suspeito/acessório ignorado: R$ {scraped.preco:.2f}"
+                )
+                justificativa_parts.append(
+                    f"Cotação ignorada (R$ {scraped.preco:.2f} < 30% do alvo — provável acessório/peça)."
                 )
             elif scraped.disponivel and is_below_max:
                 if is_all_time_low:
@@ -156,6 +175,7 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
             analysis = DealAnalysis(
                 product_id=product.id,
                 source_id=source.id if source.id else 0,
+                price_record_id=saved_record_id,
                 marketplace=source.marketplace,
                 preco_atual=scraped.preco,
                 preco_original_anunciado=scraped.preco_original,

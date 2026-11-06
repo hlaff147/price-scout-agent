@@ -28,12 +28,17 @@ class ParseKabumSkill(BaseSkill):
         if json_ld_data and json_ld_data.preco:
             return json_ld_data
 
-        # 2. Tentar página de produto individual via seletores
+        # 2. Tentar extrair de __NEXT_DATA__ (Next.js SSR usado em buscas e páginas do KaBuM!)
+        next_data = self._parse_next_data(soup, url, keywords or [])
+        if next_data and next_data.preco:
+            return next_data
+
+        # 3. Tentar página de produto individual via seletores
         product_data = self._parse_product_page(soup, url)
         if product_data and product_data.preco:
             return product_data
 
-        # 3. Listagem de busca
+        # 4. Listagem de busca
         search_data = self._parse_search_listing(soup, url, keywords or [])
         if search_data and search_data.preco:
             return search_data
@@ -44,6 +49,115 @@ class ParseKabumSkill(BaseSkill):
             url=url,
             error_message="Nenhum produto ou preço correspondente encontrado no KaBuM!.",
         )
+
+    def _parse_next_data(
+        self,
+        soup: BeautifulSoup,
+        url: str,
+        keywords: list[str],
+    ) -> ScrapedData | None:
+        script_tag = soup.find("script", id="__NEXT_DATA__")
+        if not script_tag or not script_tag.string:
+            return None
+
+        try:
+            payload = json.loads(script_tag.string)
+            page_props = payload.get("props", {}).get("pageProps", {})
+            raw_data = page_props.get("data")
+            if isinstance(raw_data, str):
+                raw_data = json.loads(raw_data)
+            if not isinstance(raw_data, dict):
+                raw_data = page_props
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return None
+
+        # Caso 1: Listagem de busca (catalogServer.data)
+        catalog_items = (
+            raw_data.get("catalogServer", {}).get("data")
+            if isinstance(raw_data.get("catalogServer"), dict)
+            else None
+        )
+        if isinstance(catalog_items, list) and catalog_items:
+            candidates: list[ScrapedData] = []
+            for item in catalog_items:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("available") is False:
+                    continue
+                title = str(item.get("name") or "")
+                if not title:
+                    continue
+                if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+                    continue
+
+                raw_price = item.get("priceWithDiscount") or item.get("price")
+                try:
+                    price = float(raw_price) if raw_price else None
+                except (TypeError, ValueError):
+                    price = None
+                if not price or price <= 0:
+                    continue
+
+                raw_old = item.get("oldPrice")
+                try:
+                    price_orig = float(raw_old) if raw_old and float(raw_old) > price else None
+                except (TypeError, ValueError):
+                    price_orig = None
+
+                code = item.get("code")
+                slug = item.get("friendlyName") or ""
+                item_url = (
+                    f"https://www.kabum.com.br/produto/{code}/{slug}".rstrip("/")
+                    if code
+                    else url
+                )
+                candidates.append(
+                    ScrapedData(
+                        marketplace="kabum",
+                        success=True,
+                        titulo=title,
+                        preco=price,
+                        preco_original=price_orig,
+                        moeda="BRL",
+                        disponivel=True,
+                        cupom=None,
+                        url=item_url,
+                    )
+                )
+            if candidates:
+                candidates.sort(key=lambda x: x.preco or float("inf"))
+                return candidates[0]
+
+        # Caso 2: Página individual de produto
+        prod_obj = raw_data.get("product") if isinstance(raw_data.get("product"), dict) else raw_data
+        if isinstance(prod_obj, dict) and prod_obj.get("name"):
+            title = str(prod_obj["name"])
+            prices_obj = prod_obj.get("prices") if isinstance(prod_obj.get("prices"), dict) else prod_obj
+            raw_price = prices_obj.get("priceWithDiscount") or prices_obj.get("price")
+            try:
+                price = float(raw_price) if raw_price else None
+            except (TypeError, ValueError):
+                price = None
+            if price and price > 0:
+                raw_old = prices_obj.get("oldPrice")
+                try:
+                    price_orig = float(raw_old) if raw_old and float(raw_old) > price else None
+                except (TypeError, ValueError):
+                    price_orig = None
+                available = prod_obj.get("available", True) is not False
+                return ScrapedData(
+                    marketplace="kabum",
+                    success=True,
+                    titulo=title,
+                    preco=price,
+                    preco_original=price_orig,
+                    moeda="BRL",
+                    disponivel=available,
+                    cupom=None,
+                    url=url,
+                )
+
+        return None
 
     def _parse_json_ld(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
         scripts = soup.find_all("script", type="application/ld+json")

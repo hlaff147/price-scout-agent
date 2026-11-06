@@ -89,10 +89,43 @@ class NormalizeProductSkill(BaseSkill):
 
     @staticmethod
     def _is_accessory_false_positive(norm_title: str, kw_tokens: list[str]) -> bool:
-        """Detecta se o item parece ser apenas um acessório (capa, case, ponta de silicone)."""
-        accessory_words = {"capa", "case", "capinha", "pelicula", "ponteira", "silicone", "protetor", "cabo"}
+        """Detecta se o item parece ser apenas um acessório (capa, case, fonte, suporte, peça)."""
+        strict_accessory_words = {
+            "capa", "case", "capinha", "pelicula", "ponteira", "silicone", "protetor"
+        }
         title_tokens = set(norm_title.split())
+        if (
+            not any(token in strict_accessory_words for token in kw_tokens)
+            and any(acc in title_tokens for acc in strict_accessory_words)
+        ):
+            return True
+
+        # Para "cabo", descartar apenas se o título não começar com "monitor" (muitos monitores citam "cabo DP incluso")
+        if (
+            "cabo" not in kw_tokens
+            and "cabo" in title_tokens
+            and not norm_title.startswith("monitor ")
+        ):
+            return True
+
+        accessory_phrases = (
+            "fonte para ",
+            "fonte carregador",
+            "carregador para ",
+            "suporte para ",
+            "suporte articulado",
+            "adaptador para ",
+            "placa principal",
+            "base pedestal",
+            "tela reposicao",
+            "display reposicao",
+        )
+        norm_kw_str = " ".join(kw_tokens)
+        if any(phrase in norm_title and phrase.strip() not in norm_kw_str for phrase in accessory_phrases):
+            return True
+
+        accessory_prefixes = ("cabo ", "fonte ", "carregador ", "suporte ", "adaptador ", "placa ", "pedestal ")
         return bool(
-            not any(token in accessory_words for token in kw_tokens)
-            and any(acc in title_tokens for acc in accessory_words)
+            norm_title.startswith(accessory_prefixes)
+            and not norm_kw_str.startswith(accessory_prefixes)
         )

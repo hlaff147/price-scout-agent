@@ -1,0 +1,550 @@
+# Catálogo e Configuração de Monitoramento Black Friday 2026: Monitores 27" com Ajuste de Altura
+# Sincronizado com o banco SQLite (data/promoradar.db) e com o painel interativo (reports/monitores_27_black_friday.html)
+
+products:
+  - id: "aoc-q27g4f"
+    nome: "AOC AGON QUAD Q27G4F"
+    keywords:
+      - "Q27G4F"
+      - "AOC Q27G4F"
+      - "AGON Q27G4F"
+    preco_alvo: 1099.00
+    preco_maximo: 1439.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 180
+      response: "0,5 ms MPRT"
+      has: "130 mm (Pivô ±90°, Giro ±30°, Inclinação)"
+      ports: "1x HDMI 2.0, 1x DP 1.4, Fonte Interna"
+      price_min_ref: 1199
+      price_max_ref: 1439
+      tag: "Melhor Custo-Benefício QHD"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "O principal destaque do mercado. Matriz Fast IPS de 2560x1440 operando a 180Hz com fonte de alimentação interna e ajuste ergonômico completo."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+AOC+Q27G4F"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/q27g4f"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-aoc-q27g4f"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+AOC+AGON+Q27G4F&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "asus-xg27acs"
+    nome: "ASUS ROG Strix XG27ACS"
+    keywords:
+      - "XG27ACS"
+      - "ROG Strix XG27ACS"
+      - "ASUS XG27ACS"
+    preco_alvo: 1099.00
+    preco_maximo: 1399.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 180
+      response: "1 ms GtG (~4,5 ms real)"
+      has: "120 mm (Pivô ±90°, Giro ±45°, Inclinação -5°/+20°)"
+      ports: "1x DP 1.4, 1x HDMI 2.0, 1x USB-C (7,5W), Encaixe 1/4\" Tripé"
+      price_min_ref: 1102
+      price_max_ref: 1399
+      tag: "Melhor Construção & Overdrive"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Excelente calibração de overdrive, HDR400 de pico, porta USB-C e rosca de 1/4\" para fixação de câmeras no topo do suporte."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=ASUS+ROG+Strix+XG27ACS"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/xg27acs"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/asus-rog-strix-xg27acs"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+ASUS+ROG+Strix+XG27ACS&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "gigabyte-g27q2"
+    nome: "Gigabyte G27Q2"
+    keywords:
+      - "G27Q2"
+      - "Gigabyte G27Q2"
+      - "Monitor Gigabyte G27Q"
+    preco_alvo: 1199.00
+    preco_maximo: 1399.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 200
+      response: "0,5 ms"
+      has: "Ajuste de Altura Integrado"
+      ports: "HDMI, DisplayPort, USB-C, G-Sync / FreeSync"
+      price_min_ref: 1299
+      price_max_ref: 1299
+      tag: "200Hz QHD Equilibrado"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Entrega taxa de atualização de 200Hz em resolução Quad HD com suporte HDR10 e conectividade moderna."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Gigabyte+G27Q2"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/gigabyte-g27q"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-gigabyte-g27q2"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Gigabyte+G27Q2&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "husky-boreal"
+    nome: "Husky Boreal HMG00827PT"
+    keywords:
+      - "HMG00827PT"
+      - "Husky Boreal QHD"
+      - "Husky Boreal 27 QHD"
+    preco_alvo: 1099.00
+    preco_maximo: 1299.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 200
+      response: "1 ms"
+      has: "Ajuste de Altura e Inclinação"
+      ports: "HDMI, DisplayPort, HDR400"
+      price_min_ref: 1199
+      price_max_ref: 1199
+      tag: "200Hz Econômico"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Opção com taxa de 200Hz e suporte a HDR400 mantendo o valor na casa dos R$ 1.199."
+    sources:
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/husky-boreal-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Husky+Boreal+27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-husky-boreal-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Husky+Boreal+HMG00827PT&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "acer-vg270u"
+    nome: "Acer Nitro VG270U X2"
+    keywords:
+      - "VG270U X2"
+      - "Nitro VG270U"
+      - "Acer VG270U"
+    preco_alvo: 1099.00
+    preco_maximo: 1599.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 210
+      response: "1 ms"
+      has: "Ajuste de Altura (Sem rotação vertical/pivô)"
+      ports: "HDMI, DisplayPort, Auto-falantes integrados"
+      price_min_ref: 1199
+      price_max_ref: 1599
+      tag: "Frequência Máxima QHD"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Alcança 210Hz de taxa de atualização e possui alto-falantes embutidos, embora o suporte não rotacione em pivô."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Acer+Nitro+VG270U"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/vg270u"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-acer-nitro-vg270u"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Acer+Nitro+VG270U+X2&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "aoc-hero-q27g2"
+    nome: "AOC Hero Q27G2"
+    keywords:
+      - "Q27G2"
+      - "AOC Hero Q27G2"
+      - "AOC Q27G2"
+    preco_alvo: 1199.00
+    preco_maximo: 1499.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "VA"
+      refresh: 155
+      response: "1 ms MPRT"
+      has: "130 mm (Pivô 90°, Giro ±30°, Inclinação)"
+      ports: "2x HDMI 2.0, 1x DP 1.2, P2"
+      price_min_ref: 1399
+      price_max_ref: 1399
+      tag: "Melhor Contraste (3000:1)"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Painel VA com excelente nível de preto para ambientes escuros e contraste estático 3x superior aos painéis IPS."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+AOC+Hero+Q27G2"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/q27g2"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-aoc-hero-q27g2"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+AOC+Hero+Q27G2&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "lg-27gs75q"
+    nome: "LG UltraGear 27GS75Q-B"
+    keywords:
+      - "27GS75Q"
+      - "27GS75Q-B"
+      - "LG 27GS75Q"
+    preco_alvo: 1350.00
+    preco_maximo: 2076.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 180
+      response: "1 ms GtG"
+      has: "110 mm (Pivô, Inclinação -5°/+15°)"
+      ports: "HDMI, DisplayPort 1.4, HDR10"
+      price_min_ref: 1492
+      price_max_ref: 2076
+      tag: "Qualidade Premium LG"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Evolução do aclamado 27GR75Q com overclock de até 200Hz em DisplayPort e excelente fidelidade de cores."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+LG+UltraGear+27GS75Q"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/27gs75q"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-lg-27gs75q"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+LG+UltraGear+27GS75Q&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "hq-27aj75g"
+    nome: "HQ Pro 27\" HQ27AJ75G"
+    keywords:
+      - "HQ27AJ75G"
+      - "HQ27AJ75"
+      - "HQ Pro 27 QHD"
+      - "Monitor HQ 27 QHD"
+    preco_alvo: 790.00
+    preco_maximo: 929.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 75
+      response: "1 ms"
+      has: "150 mm (Pivô 0° a 90°, Inclinação)"
+      ports: "HDMI, DisplayPort, Design Frameless"
+      price_min_ref: 836
+      price_max_ref: 929
+      tag: "Mais Barato QHD Office"
+      use_case: "Office"
+      ppi: 109
+      desc: "Escolha ultra-econômica para escritórios e programadores que exigem a nitidez do Quad HD sem necessitar de altas frequências."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+HQ+HQ27AJ75G"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/hq27aj75g"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-hq27aj75g"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+HQ+Pro+HQ27AJ75G&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "aoc-27g4p"
+    nome: "AOC Gaming G4 27G4/P"
+    keywords:
+      - "27G4/P"
+      - "27G4P"
+      - "AOC 27G4"
+    preco_alvo: 980.00
+    preco_maximo: 1169.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "IPS"
+      refresh: 180
+      response: "0,5 ms MPRT"
+      has: "130 mm (Pivô, Giro, Inclinação -5°/+23°)"
+      ports: "1x HDMI 2.0, 1x DP 1.4, P2, Base Hexagonal"
+      price_min_ref: 1075
+      price_max_ref: 1169
+      tag: "Melhor Custo-Benefício FHD"
+      use_case: "eSports"
+      ppi: 82
+      desc: "Dominador absoluto na categoria Full HD. Oferece base hexagonal ergonômica completa e 180Hz por cerca de R$ 1.075."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+AOC+27G4%2FP"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/27g4"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-aoc-27g4-p"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+AOC+Gaming+G4+27G4%2FP&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "husky-blizzard"
+    nome: "Husky Blizzard HGMT006"
+    keywords:
+      - "HGMT006"
+      - "Husky Blizzard 27"
+      - "Husky Blizzard 240"
+    preco_alvo: 999.00
+    preco_maximo: 1199.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "VA"
+      refresh: 240
+      response: "1 ms"
+      has: "Ajuste de Altura Integrado"
+      ports: "HDMI, DisplayPort, Tela Curva"
+      price_min_ref: 1099
+      price_max_ref: 1199
+      tag: "240Hz Curvo Entrada"
+      use_case: "eSports"
+      ppi: 82
+      desc: "Combina painel curvo em resolução Full HD com frequência de 240Hz para jogos competitivos de tiro."
+    sources:
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/husky-blizzard-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Husky+Blizzard+27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-husky-blizzard-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Husky+Blizzard+HGMT006&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "aoc-c27g4z"
+    nome: "AOC Curvo C27G4Z/P"
+    keywords:
+      - "C27G4Z"
+      - "C27G4Z/P"
+      - "AOC C27G4Z"
+    preco_alvo: 1250.00
+    preco_maximo: 1499.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "VA"
+      refresh: 280
+      response: "0,3 ms"
+      has: "Ajuste de Altura Integrado"
+      ports: "HDMI, DisplayPort, HDR10"
+      price_min_ref: 1399
+      price_max_ref: 1399
+      tag: "280Hz Velocidade Máxima"
+      use_case: "eSports"
+      ppi: 82
+      desc: "Painel Fast VA curvo ultra-rápido operando a 280Hz e resposta de 0,3ms para atletas de eSports."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+AOC+C27G4Z"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/c27g4z"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-aoc-c27g4z"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+AOC+Curvo+C27G4Z&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "dell-p2725h"
+    nome: "Dell Pro 27 Plus P2725H"
+    keywords:
+      - "P2725H"
+      - "Dell P2725H"
+    preco_alvo: 1399.00
+    preco_maximo: 1699.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "IPS"
+      refresh: 100
+      response: "5 ms GtG"
+      has: "150 mm (Pivô ±90°, Giro ±45°, Inclinação)"
+      ports: "HDMI, DP, VGA, Hub USB-B/3x USB-A/USB-C (15W)"
+      price_min_ref: 1598
+      price_max_ref: 1598
+      tag: "Referência Corporativa"
+      use_case: "Office"
+      ppi: 82
+      desc: "Foco em conforto ocular, contraste estático elevado de 1500:1, certificação TÜV de 4 estrelas e Hub USB completo."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Dell+P2725H"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/p2725h"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-dell-p2725h"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Dell+P2725H&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "samsung-odyssey-g4"
+    nome: "Samsung Odyssey G4 27\""
+    keywords:
+      - "LS27BG400"
+      - "S27BG400"
+      - "Odyssey G40 27"
+      - "Odyssey G4 27"
+    preco_alvo: 1399.00
+    preco_maximo: 1759.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "IPS"
+      refresh: 240
+      response: "1 ms"
+      has: "105-120 mm (Pivô ±92°, Giro, Inclinação)"
+      ports: "2x HDMI 2.0, 1x DP 1.2, P2"
+      price_min_ref: 1599
+      price_max_ref: 1759
+      tag: "eSports High-End FHD"
+      use_case: "eSports"
+      ppi: 82
+      desc: "Construção de topo da Samsung com 240Hz/300Hz, porém penalizado em custo-benefício frente aos modelos QHD de valor similar."
+    sources:
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Samsung+Odyssey+G40+27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/busca/odyssey-g40-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-samsung-odyssey-g40-27"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Samsung+Odyssey+G4+27+LS27BG400&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true

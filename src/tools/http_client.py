@@ -26,21 +26,29 @@ class HttpClient(IHttpClient):
         self.rate_limiter = rate_limiter or shared_rate_limiter
 
     def _get_headers(self, custom_headers: dict | None = None) -> dict:
+        ua = random.choice(USER_AGENTS)
         headers = {
-            "User-Agent": random.choice(USER_AGENTS),
+            "User-Agent": ua,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept-Encoding": "gzip, deflate",
             "Cache-Control": "max-age=0",
             "Upgrade-Insecure-Requests": "1",
-            "Sec-Ch-Ua": '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
-            "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": '"macOS"',
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-User": "?1",
         }
+        if "Chrome/" in ua:
+            ver = ua.split("Chrome/")[1].split(".")[0]
+            platform = (
+                '"Windows"'
+                if "Windows" in ua
+                else ('"Linux"' if "Linux" in ua else '"macOS"')
+            )
+            headers["Sec-Ch-Ua"] = f'"Chromium";v="{ver}", "Not;A=Brand";v="24", "Google Chrome";v="{ver}"'
+            headers["Sec-Ch-Ua-Mobile"] = "?0"
+            headers["Sec-Ch-Ua-Platform"] = platform
         if custom_headers:
             headers.update(custom_headers)
         return headers

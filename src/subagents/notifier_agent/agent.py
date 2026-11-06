@@ -57,16 +57,20 @@ class NotifierSubagent(BaseSubagent, INotifier):
                 )
             sent_successfully = True
 
-        # Registrar alerta no banco
-        if sent_successfully and not dry_run:
-            alert = Alert(
-                product_id=product.id,
-                price_record_id=deal.source_id,
-                motivo=deal.motivo_alerta or "desconto_identificado",
-                detalhes=deal.justificativa,
-                canal=canal,
-            )
-            self.repository.save_alert(alert)
+        # Registrar alerta no banco (apenas quando houver um price_record_id válido)
+        record_fk = deal.price_record_id or deal.source_id
+        if sent_successfully and not dry_run and record_fk:
+            try:
+                alert = Alert(
+                    product_id=product.id,
+                    price_record_id=record_fk,
+                    motivo=deal.motivo_alerta or "desconto_identificado",
+                    detalhes=deal.justificativa,
+                    canal=canal,
+                )
+                self.repository.save_alert(alert)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"Não foi possível persistir registro histórico de alerta: {exc}")
 
         return sent_successfully
 

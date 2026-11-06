@@ -1,4 +1,4 @@
-.PHONY: run dry-run test daemon venv docker-build docker-up docker-down docker-logs docker-cycle docker-dry-run
+.PHONY: run dry-run test daemon venv monitors monitors-dashboard docker-build docker-up docker-down docker-logs docker-cycle docker-dry-run
 
 # Ativação rápida ou comandos diretos usando o .venv
 
@@ -17,6 +17,12 @@ test:
 
 daemon:
 	@.venv/bin/python scripts/schedule_daemon.py
+
+monitors:
+	@.venv/bin/python scripts/track_monitors_27.py
+
+monitors-dashboard:
+	@.venv/bin/python scripts/track_monitors_27.py --dashboard-only
 
 # Comandos Docker (Full Docker em VPS)
 

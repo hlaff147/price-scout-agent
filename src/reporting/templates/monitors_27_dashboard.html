@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreador Black Friday 2026 • Monitores 27" com Ajuste de Altura</title>
+    <!-- Palette: Warm Slate & Mineral Teal | Pure Canvas Chart.js (NO SVG, NO Mermaid) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        warmbg: '#f8f7f4',
+                        cardbg: '#ffffff',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8f7f4;
+            color: #1f2937;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xl shadow">
+                    27"
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-stone-900 leading-tight">Radar Black Friday 2026 • Monitores 27"</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-amber-100 text-amber-900">Ciclo 6h</span>
+                    </div>
+                    <p class="text-xs text-stone-500">Atualizado em {{ kpis.last_updated }} • {{ kpis.total_cycles }} rodada(s) • {{ kpis.total_db_records }} cotações no SQLite</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-1.5 text-xs sm:text-sm font-medium text-stone-600">
+                <a href="#historico" class="px-3 py-1.5 rounded-md bg-brand-50 text-brand-800 hover:bg-brand-100 font-semibold transition">📈 Evolução Black Friday</a>
+                <a href="#catalogo" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">Catálogo Interativo</a>
+                <a href="#graficos" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">Custo × Hz & PPI</a>
+                <a href="#simulador" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">Simulador PPI & VESA</a>
+                <a href="#perfis" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">Perfis de Compra</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-12">
+
+        <!-- Intro & Dynamic KPI Grid -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 shadow-sm space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-brand-100 text-brand-800 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
+                        Monitoramento Contínuo Black Friday • Faltam {{ kpis.days_to_bf }} dias (27/11/2026)
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-stone-900">Painel Evolutivo de Monitores Ergonômicos de 27 Polegadas</h2>
+                    <p class="mt-2 text-stone-600 text-sm leading-relaxed max-w-4xl">
+                        Acompanhamento automático de 6 em 6 horas dos 13 melhores monitores de 27" com ajuste de altura no Brasil (Amazon, KaBuM!, Mercado Livre e Google Shopping), combinando histórico incremental em SQLite, detecção de promoções reais e simuladores de ergonomia e densidade de pixels.
+                    </p>
+                </div>
+                <div class="bg-stone-900 text-white rounded-xl p-4 min-w-[210px] text-center shadow-sm">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">Oportunidades no Alvo</div>
+                    <div class="text-3xl font-extrabold text-emerald-400 mt-1">{{ kpis.deals_count }} / {{ kpis.total_monitors }}</div>
+                    <div class="text-[11px] text-stone-300 mt-1">{{ kpis.live_tracked_count }} modelos com cotação ativa</div>
+                </div>
+            </div>
+
+            <!-- Key Indicators KPI Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">Melhor QHD Gamer Atual</div>
+                    <div class="text-2xl font-bold text-brand-700 mt-1">{{ kpis.best_qhd_gamer_price }}</div>
+                    <p class="text-xs text-stone-500 mt-1 truncate" title="{{ kpis.best_qhd_gamer_name }}">{{ kpis.best_qhd_gamer_name }}</p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">Ganho de Densidade (PPI)</div>
+                    <div class="text-2xl font-bold text-emerald-600 mt-1">109 PPI (QHD)</div>
+                    <p class="text-xs text-stone-500 mt-1">+33% de nitidez sobre os 82 PPI do Full HD em telas de 27".</p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">Curso do Ajuste (HAS)</div>
+                    <div class="text-2xl font-bold text-blue-600 mt-1">90mm a 150mm</div>
+                    <p class="text-xs text-stone-500 mt-1">Regulação vertical essencial para prevenção de dores cervicais.</p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">Custo Médio Braço VESA</div>
+                    <div class="text-2xl font-bold text-amber-600 mt-1">R$ 86 - 130</div>
+                    <p class="text-xs text-stone-500 mt-1">Comparado ao "imposto ergonômico" já zerado em modelos de fábrica.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 0: Incremental Black Friday Evolution & Cycle Report -->
+        <section id="historico" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Evolução Histórica de Preços & Relatório Incremental (6 em 6h)</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Cada execução agendada adiciona novos pontos aos gráficos abaixo a partir do banco SQLite (<code>data/promoradar.db</code>), permitindo identificar quedas reais e fugir de falsos descontos na Black Friday.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 0A: Incremental Historical Line Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex flex-wrap justify-between items-start gap-2">
+                            <div>
+                                <h3 class="font-bold text-stone-900 text-lg">Curva de Evolução de Preços (Ciclos de 6h)</h3>
+                                <p class="text-xs text-stone-500">Histórico acumulado desde a referência inicial até a última coleta</p>
+                            </div>
+                            <select id="history-filter" class="bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                <option value="TOP_DEALS">Destaques Custo-Benefício (Top 5)</option>
+                                <option value="ALL_QHD">Todos os Quad HD (8 modelos)</option>
+                                <option value="ALL_FHD">Todos os Full HD (5 modelos)</option>
+                                {% for m in monitors %}
+                                <option value="SINGLE:{{ m.id }}">Individual: {{ m.name }} (Alvo {{ m.priceTargetFmt }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartHistory"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Dica:</strong> Selecione um modelo individual no seletor acima para visualizar também a linha tracejada do seu <strong>Preço Alvo de Black Friday</strong>.
+                    </div>
+                </div>
+
+                <!-- Chart 0B: Current Price vs Target Price Bar Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-stone-900 text-lg">Preço Atual vs. Meta Black Friday</h3>
+                                <p class="text-xs text-stone-500">Distância atual de cada monitor para o preço-alvo de compra</p>
+                            </div>
+                            <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-semibold">Meta vs Atual</span>
+                        </div>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartTargetCompare"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Leitura rápida:</strong> Quando a barra esmeralda/azul encosta ou fica abaixo da barra âmbar (Alvo BF), o monitor entrou em zona de compra imediata.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consolidated Ranking Table -->
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-base">Tabela Consolidada de Acompanhamento Black Friday</h3>
+                        <p class="text-xs text-stone-500">Comparativo ao vivo entre menor cotação encontrada, mínima histórica no banco e preço de referência inicial</p>
+                    </div>
+                    <span class="text-xs font-mono bg-stone-100 text-stone-600 px-2.5 py-1 rounded">Ordenado por menor valor</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-stone-50 text-stone-600 uppercase border-b border-stone-200">
+                                <th class="py-3 px-4 font-bold">Monitor (27")</th>
+                                <th class="py-3 px-3 font-bold">Spec</th>
+                                <th class="py-3 px-3 font-bold">Preço Atual</th>
+                                <th class="py-3 px-3 font-bold">Melhor Loja</th>
+                                <th class="py-3 px-3 font-bold">Alvo BF</th>
+                                <th class="py-3 px-3 font-bold">Mín. SQLite</th>
+                                <th class="py-3 px-3 font-bold">Var. vs Ref.</th>
+                                <th class="py-3 px-4 font-bold text-right">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-tbody" class="divide-y divide-stone-100">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Catalog & Filters -->
+        <section id="catalogo" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Catálogo Interativo de Monitores (27")</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Explore e filtre os 13 modelos de 27 polegadas com ajuste de altura. Clique em <strong>Detalhes & Lojas</strong> para inspecionar especificações ergonômicas e todas as cotações coletadas por marketplace.
+                </p>
+            </div>
+
+            <!-- Filter Control Panel -->
+            <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-600 mb-1" for="filter-res">Resolução</label>
+                        <select id="filter-res" class="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">Todas (QHD & FHD)</option>
+                            <option value="QHD">Quad HD (2560x1440)</option>
+                            <option value="FHD">Full HD (1920x1080)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-600 mb-1" for="filter-use">Perfil de Uso</label>
+                        <select id="filter-use" class="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">Todos os Perfis</option>
+                            <option value="Gamer">Gamer / Misto</option>
+                            <option value="eSports">eSports Competitivo</option>
+                            <option value="Office">Home Office / Trabalho</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-stone-600 mb-1" for="filter-panel">Painel</label>
+                        <select id="filter-panel" class="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">Todos os Painéis</option>
+                            <option value="IPS">IPS / Fast IPS</option>
+                            <option value="VA">VA / Fast VA</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold uppercase text-stone-600" for="filter-price">Preço Máx: <span id="price-val" class="text-brand-700">R$ 2.800</span></label>
+                        </div>
+                        <input type="range" id="filter-price" min="750" max="2800" step="50" value="2800" class="w-full accent-brand-600 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between pt-2 border-t border-stone-100 text-xs text-stone-500 gap-2">
+                    <div class="flex items-center gap-4">
+                        <span>Exibindo <strong id="result-count" class="text-stone-800">0</strong> modelos compatíveis</span>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer font-semibold text-brand-800">
+                            <input type="checkbox" id="filter-deals-only" class="accent-brand-600 rounded">
+                            <span>Apenas abaixo do Preço Alvo</span>
+                        </label>
+                    </div>
+                    <button id="btn-reset" class="text-brand-700 hover:text-brand-900 font-semibold underline">Limpar Filtros</button>
+                </div>
+            </div>
+
+            <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards injetados via JS -->
+            </div>
+        </section>
+
+        <!-- Section 2: Visual Analytics & Charts -->
+        <section id="graficos" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Análise Gráfica & Relação Custo-Desempenho</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    O gráfico de dispersão utiliza automaticamente os preços mais recentes coletados para cruzar Custo vs. Taxa de Atualização (Hz), enquanto o gráfico de densidade contrasta a nitidez (PPI) em diferentes formatos.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-stone-900 text-lg">Preço Atual vs Frequência (Hz)</h3>
+                                <p class="text-xs text-stone-500">Identificação visual da zona ideal de investimento (Sweet Spot)</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded font-mono">Dispersão</span>
+                        </div>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartPriceHz"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Insight:</strong> Monitores QHD de 180Hz–210Hz posicionados na metade inferior do gráfico entregam a maior eficiência por real investido nesta Black Friday.
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-stone-900 text-lg">Comparativo de Densidade de Pixels (PPI)</h3>
+                                <p class="text-xs text-stone-500">Definição tipográfica e nitidez em diferentes diagonais</p>
+                            </div>
+                            <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded font-mono">Densidade</span>
+                        </div>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartPPI"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Insight:</strong> Telas de 27" Full HD possuem apenas 82 PPI, enquanto o Quad HD na mesma diagonal salta para 109 PPI (+33% de densidade de pontos).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Simulators & Calculators -->
+        <section id="simulador" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Simuladores Interativos & Calculadora de Ergonomia</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Teste a nitidez tipográfica entre 82 PPI e 109 PPI e avalie se vale a pena comprar um monitor básico + braço articulado VESA frente ao menor QHD ergonômico atual ({{ kpis.best_qhd_gamer_price }}).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- PPI Visualizer -->
+                <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-stone-900 flex items-center gap-2">
+                                <span>🔍</span> Simulador de Definição Textual em 27"
+                            </h3>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">Interativo</span>
+                        </div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Alterne entre as resoluções para visualizar como a densidade de pixels afeta a nitidez das fontes a 60 cm de distância.
+                        </p>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button id="btn-sim-fhd" class="flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-stone-300 bg-stone-100 text-stone-700 hover:bg-stone-200 transition">
+                            27" Full HD (82 PPI)
+                        </button>
+                        <button id="btn-sim-qhd" class="flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-brand-600 bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition">
+                            27" Quad HD (109 PPI)
+                        </button>
+                    </div>
+
+                    <div class="p-5 rounded-xl border border-stone-200 bg-stone-50 space-y-3">
+                        <div class="flex justify-between items-center text-xs text-stone-500 font-mono border-b border-stone-200 pb-2">
+                            <span>Pitch do Pixel: <strong id="sim-pitch-val" class="text-stone-800">0,233 mm</strong></span>
+                            <span>Qualidade Textual: <strong id="sim-quality-val" class="text-emerald-700">Excelente (109 PPI)</strong></span>
+                        </div>
+                        <div id="sim-text-container" class="p-4 bg-white rounded border border-stone-300 transition-all font-sans">
+                            <p class="text-sm font-semibold text-stone-900 mb-1">
+                                Exemplo de Código e Planilha Profissional
+                            </p>
+                            <p class="text-xs text-stone-600 leading-normal" id="sim-sample-text">
+                                const monitor = { resolution: "2560x1440", ppi: 109, ergonomicStand: true };<br>
+                                Texto legível com contornos suaves e sem serrilhamento perceptível.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-stone-500 italic">
+                        *Nota: No modo Full HD a 27 polegadas (0,311 mm pitch), a grade de subpixels torna-se perceptível em textos pequenos.
+                    </p>
+                </div>
+
+                <!-- VESA ROI Calculator -->
+                <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold text-stone-900 flex items-center gap-2">
+                                <span>⚖️</span> Calculadora ROI: Base Integrada vs Braço VESA
+                            </h3>
+                            <span class="text-xs bg-brand-100 text-brand-800 font-semibold px-2 py-0.5 rounded">Simulador ROI</span>
+                        </div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Compare o custo total entre comprar um monitor sem ajuste + suporte articulado (ex: ELG F80N ~R$ 110) versus adquirir um modelo QHD ergonômico monitorado neste radar.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="calc-mon-price">Preço do Monitor Sem Ajuste (R$)</label>
+                            <input type="number" id="calc-mon-price" value="999" class="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-600 mb-1" for="calc-vesa-price">Custo do Braço Articulado VESA (R$)</label>
+                            <input type="number" id="calc-vesa-price" value="110" class="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-2">
+                        <div class="flex justify-between items-center text-sm font-semibold">
+                            <span>Custo Combinado Modular:</span>
+                            <span id="calc-total-val" class="text-lg font-bold text-stone-900">R$ 1.109,00</span>
+                        </div>
+                        <div id="calc-verdict" class="text-xs text-stone-600 border-t border-stone-200 pt-2 leading-relaxed">
+                            Avaliando com o mercado atual...
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-stone-500">
+                        <strong>Referência ao vivo:</strong> O menor monitor QHD Gamer com ajuste de fábrica hoje está em <strong>{{ kpis.best_qhd_gamer_price }}</strong> ({{ kpis.best_qhd_gamer_name }}).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Deep Dive User Profiles -->
+        <section id="perfis" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Guia de Recomendações por Perfil de Utilização</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Recomendações organizadas para orientar sua compra na Black Friday de acordo com seu cenário principal de uso.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm mb-2">01</div>
+                        <h3 class="font-bold text-stone-900 text-base">Gamer & Misto QHD</h3>
+                        <div class="text-xs text-emerald-700 font-semibold mb-2">Ponto Ideal de Custo-Benefício</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Excelente definição para trabalho/código e alta fluidez em jogos. Painéis Fast IPS 1440p de 180Hz–200Hz oferecem o melhor equilíbrio visual.
+                        </p>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-100 text-xs">
+                        <strong>Alvos principais:</strong>
+                        <ul class="list-disc list-inside text-stone-600 mt-1 space-y-1">
+                            <li>AOC AGON Q27G4F</li>
+                            <li>ASUS ROG Strix XG27ACS</li>
+                            <li>LG UltraGear 27GS75Q-B</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm mb-2">02</div>
+                        <h3 class="font-bold text-stone-900 text-base">Competitivo eSports</h3>
+                        <div class="text-xs text-blue-700 font-semibold mb-2">Foco em FPS e Alta Frequência</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Prioridade para taxas de quadros altíssimas (180Hz a 280Hz) em Full HD para maximizar FPS da GPU e menor tempo de resposta em jogos competitivos.
+                        </p>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-100 text-xs">
+                        <strong>Alvos principais:</strong>
+                        <ul class="list-disc list-inside text-stone-600 mt-1 space-y-1">
+                            <li>AOC Gaming G4 27G4/P</li>
+                            <li>Husky Blizzard 240Hz</li>
+                            <li>AOC Curvo C27G4Z/P (280Hz)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-sm mb-2">03</div>
+                        <h3 class="font-bold text-stone-900 text-base">Home Office Corporativo</h3>
+                        <div class="text-xs text-purple-700 font-semibold mb-2">Ergonomia e Conectividade</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Voltado a longas jornadas de leitura e multitarefa, com Hub USB expandido, conforto ocular TÜV e contraste estático elevado (1500:1).
+                        </p>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-100 text-xs">
+                        <strong>Alvo principal:</strong>
+                        <ul class="list-disc list-inside text-stone-600 mt-1 space-y-1">
+                            <li>Dell Pro 27 Plus P2725H</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm mb-2">04</div>
+                        <h3 class="font-bold text-stone-900 text-base">Ultra-Orçamento QHD</h3>
+                        <div class="text-xs text-amber-700 font-semibold mb-2">Menor Custo com Ergonômico</div>
+                        <p class="text-xs text-stone-600 leading-relaxed">
+                            Para quem exige nitidez Quad HD (109 PPI) e ajuste de altura de 150 mm gastando abaixo de R$ 900 para produtividade diária.
+                        </p>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg border border-stone-100 text-xs">
+                        <strong>Alvo principal:</strong>
+                        <ul class="list-disc list-inside text-stone-600 mt-1 space-y-1">
+                            <li>HQ Pro 27" HQ27AJ75G</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Cycle Execution Log -->
+        <section class="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold text-stone-800 uppercase tracking-wider">⏱️ Log Incremental de Execuções (PromoRadar 6h)</h3>
+                <span class="text-xs text-stone-500">Banco SQLite WAL: <code>data/promoradar.db</code></span>
+            </div>
+            {% if cycle_logs %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                {% for log in cycle_logs[:5] %}
+                <div class="bg-stone-50 rounded-xl p-3 border border-stone-200">
+                    <div class="flex justify-between font-bold text-stone-800">
+                        <span>Ciclo #{{ log.run_number }}</span>
+                        <span class="text-brand-700">{{ log.quotes_collected }} cotações</span>
+                    </div>
+                    <div class="text-stone-500 mt-1">{{ log.timestamp_local }}</div>
+                    <div class="text-stone-600 mt-1">Ofertas no alvo: <strong>{{ log.deals_found }}</strong></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-stone-500">Painel inicializado com a base de referência 2026. As próximas execuções agendadas incrementarão automaticamente este histórico.</p>
+            {% endif %}
+        </section>
+
+    </main>
+
+    <!-- Modal Detail Window -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl border border-stone-200 space-y-4 relative max-h-[90vh] overflow-y-auto">
+            <button id="modal-close" class="absolute top-4 right-4 text-stone-400 hover:text-stone-700 text-2xl font-bold leading-none">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-stone-500 space-y-1">
+            <p>PromoRadar • Rastreador Incremental Black Friday 2026 de Monitores 27" com Ajuste de Altura</p>
+            <p>Atualizado automaticamente a cada 6 horas • Visualização 100% Canvas via Chart.js</p>
+        </div>
+    </footer>
+
+    <script>
+        const monitorsData = {{ monitors_json | safe }};
+        const timelineLabels = {{ timeline_labels_json | safe }};
+
+        let chartHistoryInstance = null;
+        let chartTargetInstance = null;
+        let chartPriceHzInstance = null;
+        let chartPPIInstance = null;
+
+        function formatBRL(v) {
+            if (v === null || v === undefined) return '—';
+            return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRankingTable(monitorsData);
+            initCatalog(monitorsData);
+            initFilterListeners();
+            initHistoryChart();
+            initTargetCompareChart();
+            initCharts();
+            initSimulators();
+            initModal();
+        });
+
+        function renderRankingTable(data) {
+            const tbody = document.getElementById('ranking-tbody');
+            const sorted = [...data].sort((a, b) => a.effectivePrice - b.effectivePrice);
+            tbody.innerHTML = sorted.map(m => {
+                const diff = m.diffVsRefPct;
+                const diffBadge = diff === null
+                    ? '<span class="text-stone-400">Ref. base</span>'
+                    : (diff <= 0
+                        ? `<span class="text-emerald-700 font-bold">${diff > 0 ? '+' : ''}${diff.toFixed(1)}%</span>`
+                        : `<span class="text-amber-700 font-semibold">+${diff.toFixed(1)}%</span>`);
+
+                const actionLink = m.bestUrl
+                    ? `<a href="${m.bestUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-md transition inline-block">Ir à Loja ↗</a>`
+                    : `<button onclick="openDetailModal('${m.id}')" class="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-md transition">Ver Spec</button>`;
+
+                return `
+                    <tr class="hover:bg-stone-50 transition">
+                        <td class="py-3 px-4">
+                            <button onclick="openDetailModal('${m.id}')" class="font-bold text-stone-900 hover:text-brand-700 text-left">${m.name}</button>
+                            ${m.isBelowTarget ? '<span class="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded">🎯 ALVO</span>' : ''}
+                        </td>
+                        <td class="py-3 px-3 text-stone-600">${m.res} • ${m.panel} ${m.refresh}Hz</td>
+                        <td class="py-3 px-3 font-extrabold text-stone-900">${m.effectivePriceFmt}</td>
+                        <td class="py-3 px-3 text-stone-700">${m.bestStore} <span class="text-[10px] text-stone-400 block">${m.bestUpdated}</span></td>
+                        <td class="py-3 px-3 font-semibold text-brand-700">${m.priceTargetFmt}</td>
+                        <td class="py-3 px-3 text-stone-600">${m.histMinFmt}</td>
+                        <td class="py-3 px-3">${diffBadge}</td>
+                        <td class="py-3 px-4 text-right">${actionLink}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function initHistoryChart() {
+            const ctx = document.getElementById('chartHistory').getContext('2d');
+            const filterSelect = document.getElementById('history-filter');
+
+            const buildDatasets = (mode) => {
+                if (mode.startsWith('SINGLE:')) {
+                    const id = mode.replace('SINGLE:', '');
+                    const m = monitorsData.find(item => item.id === id);
+                    if (!m) return [];
+                    return [
+                        {
+                            label: `${m.name} (Menor Preço)`,
+                            data: m.timelineValues,
+                            borderColor: m.color,
+                            backgroundColor: m.color + '22',
+                            borderWidth: 2.5,
+                            pointRadius: 5,
+                            tension: 0.25,
+                            spanGaps: true,
+                            fill: true
+                        },
+                        {
+                            label: `Preço Alvo BF (${m.priceTargetFmt})`,
+                            data: timelineLabels.map(() => m.priceTarget),
+                            borderColor: '#d97706',
+                            borderDash: [6, 4],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ];
+                }
+
+                let subset = monitorsData;
+                if (mode === 'TOP_DEALS') {
+                    const topIds = ['aoc-q27g4f', 'asus-xg27acs', 'lg-27gs75q', 'aoc-27g4p', 'hq-27aj75g'];
+                    subset = monitorsData.filter(m => topIds.includes(m.id));
+                } else if (mode === 'ALL_QHD') {
+                    subset = monitorsData.filter(m => m.res === 'QHD');
+                } else if (mode === 'ALL_FHD') {
+                    subset = monitorsData.filter(m => m.res === 'FHD');
+                }
+
+                return subset.map(m => ({
+                    label: m.name,
+                    data: m.timelineValues,
+                    borderColor: m.color,
+                    backgroundColor: m.color,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    tension: 0.25,
+                    spanGaps: true,
+                }));
+            };
+
+            chartHistoryInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timelineLabels,
+                    datasets: buildDatasets(filterSelect.value)
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 10 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ${formatBRL(context.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Preço (R$)', font: { size: 11, weight: 'bold' } },
+                            ticks: {
+                                callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR')
+                            }
+                        }
+                    }
+                }
+            });
+
+            filterSelect.addEventListener('change', () => {
+                chartHistoryInstance.data.datasets = buildDatasets(filterSelect.value);
+                chartHistoryInstance.update();
+            });
+        }
+
+        function initTargetCompareChart() {
+            const ctx = document.getElementById('chartTargetCompare').getContext('2d');
+            const sorted = [...monitorsData].sort((a, b) => a.effectivePrice - b.effectivePrice);
+            const shortNames = sorted.map(m => m.name.replace('Monitor ', '').slice(0, 18));
+
+            chartTargetInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: shortNames,
+                    datasets: [
+                        {
+                            label: 'Preço Atual',
+                            data: sorted.map(m => m.effectivePrice),
+                            backgroundColor: sorted.map(m => m.isBelowTarget ? '#059669' : '#0d9488'),
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Alvo Black Friday',
+                            data: sorted.map(m => m.priceTarget),
+                            backgroundColor: '#f59e0b',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (c) => `${c.dataset.label}: ${formatBRL(c.raw)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 35 } },
+                        y: {
+                            beginAtZero: false,
+                            min: 600,
+                            ticks: { callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR') }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initCatalog(data) {
+            const container = document.getElementById('catalog-grid');
+            const countEl = document.getElementById('result-count');
+            container.innerHTML = '';
+            countEl.textContent = data.length;
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-stone-200">
+                        <p class="text-stone-500 text-sm">Nenhum monitor encontrado com os filtros selecionados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.forEach(m => {
+                const isQHD = m.res === 'QHD';
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-5 border border-stone-200 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition";
+
+                const statusPill = m.isBelowTarget
+                    ? `<span class="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">🎯 Abaixo do Alvo</span>`
+                    : `<span class="text-[11px] font-medium bg-stone-100 text-stone-600 px-2 py-0.5 rounded">${m.tag}</span>`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded ${isQHD ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
+                                ${m.res} (${m.ppi} PPI)
+                            </span>
+                            ${statusPill}
+                        </div>
+                        <h3 class="font-bold text-stone-900 text-base leading-snug">${m.name}</h3>
+                        <p class="text-xs text-stone-500 mt-1 line-clamp-2">${m.desc}</p>
+                    </div>
+
+                    <div class="space-y-2 border-t border-b border-stone-100 py-3 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-stone-500">Painel & Frequência:</span>
+                            <span class="font-semibold text-stone-800">${m.panel} • ${m.refresh} Hz</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-stone-500">Ajuste de Altura:</span>
+                            <span class="font-semibold text-stone-800 truncate max-w-[180px]" title="${m.has}">${m.has}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-stone-500">Alvo Black Friday:</span>
+                            <span class="font-bold text-amber-700">${m.priceTargetFmt}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <div>
+                            <span class="text-[10px] text-stone-400 block uppercase font-bold">
+                                ${m.hasLiveQuote ? 'Menor Hoje (' + m.bestStore + ')' : 'Referência PIX'}
+                            </span>
+                            <span class="text-lg font-extrabold text-stone-900">${m.effectivePriceFmt}</span>
+                        </div>
+                        <button onclick="openDetailModal('${m.id}')" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-800 text-xs font-bold rounded-lg transition">
+                            Detalhes & Lojas
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function initFilterListeners() {
+            const resSelect = document.getElementById('filter-res');
+            const useSelect = document.getElementById('filter-use');
+            const panelSelect = document.getElementById('filter-panel');
+            const priceRange = document.getElementById('filter-price');
+            const dealsCheck = document.getElementById('filter-deals-only');
+            const priceVal = document.getElementById('price-val');
+            const resetBtn = document.getElementById('btn-reset');
+
+            const filterHandler = () => {
+                const maxPrice = parseInt(priceRange.value, 10);
+                priceVal.textContent = `R$ ${maxPrice.toLocaleString('pt-BR')}`;
+
+                const filtered = monitorsData.filter(m => {
+                    const matchRes = resSelect.value === 'ALL' || m.res === resSelect.value;
+                    const matchUse = useSelect.value === 'ALL' || m.useCase === useSelect.value;
+                    const matchPanel = panelSelect.value === 'ALL' || m.panel.includes(panelSelect.value);
+                    const matchPrice = m.effectivePrice <= maxPrice;
+                    const matchDeals = !dealsCheck.checked || m.isBelowTarget;
+                    return matchRes && matchUse && matchPanel && matchPrice && matchDeals;
+                });
+
+                initCatalog(filtered);
+            };
+
+            resSelect.addEventListener('change', filterHandler);
+            useSelect.addEventListener('change', filterHandler);
+            panelSelect.addEventListener('change', filterHandler);
+            priceRange.addEventListener('input', filterHandler);
+            dealsCheck.addEventListener('change', filterHandler);
+
+            resetBtn.addEventListener('click', () => {
+                resSelect.value = 'ALL';
+                useSelect.value = 'ALL';
+                panelSelect.value = 'ALL';
+                priceRange.value = 2800;
+                dealsCheck.checked = false;
+                priceVal.textContent = 'R$ 2.800';
+                initCatalog(monitorsData);
+            });
+        }
+
+        function initCharts() {
+            const ctx1 = document.getElementById('chartPriceHz').getContext('2d');
+            const qhdPoints = monitorsData.filter(m => m.res === 'QHD').map(m => ({ x: m.refresh, y: m.effectivePrice, label: m.name }));
+            const fhdPoints = monitorsData.filter(m => m.res === 'FHD').map(m => ({ x: m.refresh, y: m.effectivePrice, label: m.name }));
+
+            chartPriceHzInstance = new Chart(ctx1, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Quad HD (2560x1440)',
+                            data: qhdPoints,
+                            backgroundColor: '#0d9488',
+                            pointRadius: 7,
+                            pointHoverRadius: 9
+                        },
+                        {
+                            label: 'Full HD (1920x1080)',
+                            data: fhdPoints,
+                            backgroundColor: '#3b82f6',
+                            pointRadius: 7,
+                            pointHoverRadius: 9
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const pt = context.raw;
+                                    return `${pt.label}: ${pt.x} Hz - ${formatBRL(pt.y)}`;
+                                }
+                            }
+                        },
+                        legend: { position: 'top', labels: { font: { size: 11 } } }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Taxa de Atualização (Hz)', font: { size: 11, weight: 'bold' } },
+                            min: 60,
+                            max: 300
+                        },
+                        y: {
+                            title: { display: true, text: 'Preço Atual / Ref. (R$)', font: { size: 11, weight: 'bold' } },
+                            min: 650
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('chartPPI').getContext('2d');
+            chartPPIInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['27" Full HD', '24" Full HD', '27" Quad HD', '27" 4K UHD'],
+                    datasets: [{
+                        label: 'Densidade de Pixels (PPI)',
+                        data: [82, 92, 109, 163],
+                        backgroundColor: ['#f87171', '#fbbf24', '#10b981', '#6366f1'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: { label: (context) => ` Densidade: ${context.raw} PPI` }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Pixels Por Polegada (PPI)', font: { size: 11, weight: 'bold' } },
+                            min: 0,
+                            max: 180
+                        }
+                    }
+                }
+            });
+        }
+
+        function initSimulators() {
+            const btnFHD = document.getElementById('btn-sim-fhd');
+            const btnQHD = document.getElementById('btn-sim-qhd');
+            const pitchVal = document.getElementById('sim-pitch-val');
+            const qualityVal = document.getElementById('sim-quality-val');
+            const textContainer = document.getElementById('sim-text-container');
+            const sampleText = document.getElementById('sim-sample-text');
+
+            btnFHD.addEventListener('click', () => {
+                btnFHD.className = "flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-brand-600 bg-brand-600 text-white shadow-sm transition";
+                btnQHD.className = "flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-stone-300 bg-stone-100 text-stone-700 hover:bg-stone-200 transition";
+                pitchVal.textContent = "0,311 mm";
+                qualityVal.textContent = "Baixa Nitidez (82 PPI)";
+                qualityVal.className = "text-amber-700";
+                textContainer.style.filter = "blur(0.4px)";
+                sampleText.innerHTML = `const monitor = { resolution: "1920x1080", ppi: 82, ergonomicStand: true };<br><span class="text-amber-700 font-medium">Serrilhamento leve perceptível em texto pequeno e bordas de janelas.</span>`;
+            });
+
+            btnQHD.addEventListener('click', () => {
+                btnQHD.className = "flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-brand-600 bg-brand-600 text-white shadow-sm transition";
+                btnFHD.className = "flex-1 py-2 px-3 text-xs font-bold rounded-lg border border-stone-300 bg-stone-100 text-stone-700 hover:bg-stone-200 transition";
+                pitchVal.textContent = "0,233 mm";
+                qualityVal.textContent = "Excelente (109 PPI)";
+                qualityVal.className = "text-emerald-700";
+                textContainer.style.filter = "none";
+                sampleText.innerHTML = `const monitor = { resolution: "2560x1440", ppi: 109, ergonomicStand: true };<br><span class="text-emerald-700 font-medium">Texto extremamente nítido, ideal para programação, leitura e planilhas.</span>`;
+            });
+
+            const monPriceInput = document.getElementById('calc-mon-price');
+            const vesaPriceInput = document.getElementById('calc-vesa-price');
+            const totalVal = document.getElementById('calc-total-val');
+            const verdictEl = document.getElementById('calc-verdict');
+
+            const qhdGamerPrices = monitorsData.filter(m => m.res === 'QHD' && m.refresh >= 144).map(m => m.effectivePrice);
+            const benchmarkErgoPrice = qhdGamerPrices.length > 0 ? Math.min(...qhdGamerPrices) : 1199;
+
+            const updateCalc = () => {
+                const monP = parseFloat(monPriceInput.value) || 0;
+                const vesaP = parseFloat(vesaPriceInput.value) || 0;
+                const total = monP + vesaP;
+
+                totalVal.textContent = formatBRL(total);
+
+                if (total >= benchmarkErgoPrice) {
+                    verdictEl.innerHTML = `<span class="text-amber-800 font-semibold">⚠️ Pouco Vantajoso:</span> Com total de ${formatBRL(total)}, compensa mais adquirir diretamente um monitor QHD ergonômico de fábrica (a partir de ${formatBRL(benchmarkErgoPrice)} neste ciclo).`;
+                } else {
+                    verdictEl.innerHTML = `<span class="text-emerald-800 font-semibold">✓ Vantajoso:</span> Economizando ${formatBRL(benchmarkErgoPrice - total)} frente ao QHD ergonômico mais barato (${formatBRL(benchmarkErgoPrice)}), o kit modular faz sentido financeiro.`;
+                }
+            };
+
+            monPriceInput.addEventListener('input', updateCalc);
+            vesaPriceInput.addEventListener('input', updateCalc);
+            updateCalc();
+        }
+
+        function initModal() {
+            const backdrop = document.getElementById('modal-backdrop');
+            const closeBtn = document.getElementById('modal-close');
+            closeBtn.addEventListener('click', () => backdrop.classList.add('hidden'));
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) backdrop.classList.add('hidden');
+            });
+        }
+
+        function openDetailModal(id) {
+            const monitor = monitorsData.find(m => m.id === id);
+            if (!monitor) return;
+
+            const offersHtml = monitor.storeOffers && monitor.storeOffers.length > 0
+                ? monitor.storeOffers.map(o => `
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100 last:border-0 text-xs">
+                        <div>
+                            <span class="font-bold text-stone-800">${o.marketplace}</span>
+                            <span class="text-stone-400 ml-1">(${o.coletado_em})</span>
+                            ${o.cupom ? `<span class="ml-1 px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px] font-bold">${o.cupom}</span>` : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-brand-700">${o.preco_fmt}</span>
+                            ${o.url ? `<a href="${o.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 bg-brand-600 text-white rounded font-semibold hover:bg-brand-700">Ver ↗</a>` : ''}
+                        </div>
+                    </div>
+                `).join('')
+                : `<p class="text-xs text-stone-500 py-2">Nenhuma cotação online registrada ainda neste banco — exibindo faixa de referência inicial (R$ ${monitor.priceMinRef.toLocaleString('pt-BR')} - R$ ${monitor.priceMaxRef.toLocaleString('pt-BR')}).</p>`;
+
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="space-y-4 pr-4">
+                    <div class="flex items-start justify-between">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded ${monitor.res === 'QHD' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
+                            ${monitor.res} (${monitor.ppi} PPI)
+                        </span>
+                        <span class="text-xs font-bold text-stone-500">${monitor.tag}</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-stone-900">${monitor.name}</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">${monitor.desc}</p>
+
+                    <div class="bg-stone-50 p-4 rounded-xl space-y-2 text-xs border border-stone-200">
+                        <div class="flex justify-between"><strong>Painel:</strong> <span>${monitor.panel}</span></div>
+                        <div class="flex justify-between"><strong>Frequência:</strong> <span>${monitor.refresh} Hz</span></div>
+                        <div class="flex justify-between"><strong>Tempo de Resposta:</strong> <span>${monitor.response}</span></div>
+                        <div class="flex justify-between"><strong>Ajustes da Base:</strong> <span class="text-right max-w-[230px]">${monitor.has}</span></div>
+                        <div class="flex justify-between"><strong>Conectividade:</strong> <span class="text-right max-w-[230px]">${monitor.ports}</span></div>
+                        <div class="flex justify-between border-t border-stone-200 pt-2">
+                            <strong>Meta Black Friday:</strong> <span class="font-bold text-amber-700">${monitor.priceTargetFmt}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Mínima Histórica SQLite:</strong> <span class="font-bold text-emerald-700">${monitor.histMinFmt} (${monitor.recordsCount} coletas)</span>
+                        </div>
+                    </div>
+
+                    <div class="border border-stone-200 rounded-xl p-4 space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-stone-600">🛒 Cotações mais recentes por Loja</h4>
+                        ${offersHtml}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modal-backdrop').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

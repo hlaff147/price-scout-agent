@@ -82,6 +82,7 @@ class DealAnalysis(BaseModel):
     """Resultado da análise de oportunidade de compra."""
     product_id: str
     source_id: int
+    price_record_id: int | None = None
     marketplace: str
     preco_atual: float
     preco_original_anunciado: float | None = None
