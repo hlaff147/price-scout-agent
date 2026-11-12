@@ -2,6 +2,7 @@ from src.core.ports.repository_port import IRepository
 from src.data.database import default_db
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
+from src.skills.price_statistics.analyzer import PriceStatisticalProfile, PriceStatisticsSkill
 
 
 def evaluate_fake_discount(
@@ -58,3 +59,43 @@ def query_historical_prices(
         "minimo_historico": min_price,
         "media_historica": avg_price,
     }
+
+
+def compute_price_statistical_profile(
+    product_id: str,
+    current_price: float,
+    days: int = 90,
+    repository: IRepository | None = None,
+    target_price: float | None = None,
+    user_max_price: float | None = None,
+    is_fake_discount: bool = False,
+) -> PriceStatisticalProfile:
+    """Calcula o perfil estatístico completo de um produto consultando o repositório.
+
+    Args:
+        product_id: Identificador do produto no banco.
+        current_price: Preço atual a ser posicionado estatisticamente.
+        days: Janela retroativa de dias no SQLite.
+        repository: Repositório de dados opcional.
+        target_price: Preço-alvo para Deal Score.
+        user_max_price: Preço máximo tolerado.
+        is_fake_discount: Se houve maquiagem no desconto.
+
+    Returns:
+        PriceStatisticalProfile preenchido.
+    """
+    repo = repository or Repository(default_db)
+    records = repo.get_price_history(product_id, days=days)
+    hist_prices = [r.preco for r in records if r.preco is not None and r.preco > 0]
+    hist_dates = [r.coletado_em for r in records if r.preco is not None and r.preco > 0]
+
+    skill = PriceStatisticsSkill()
+    return skill.execute(
+        historical_prices=hist_prices,
+        current_price=current_price,
+        historical_dates=hist_dates,
+        target_price=target_price,
+        user_max_price=user_max_price,
+        is_fake_discount=is_fake_discount,
+    )
+

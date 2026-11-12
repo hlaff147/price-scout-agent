@@ -16,6 +16,7 @@ from src.data.models import (
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
 from src.skills.parse_coupon.parser import ParseCouponSkill
+from src.skills.price_statistics.analyzer import PriceStatisticsSkill
 from src.subagents.base import BaseSubagent
 from src.subagents.matcher.hybrid_matcher import default_matcher
 
@@ -30,10 +31,12 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
         self,
         repository: IRepository | None = None,
         matcher: IProductMatcher | None = None,
+        statistics_skill: PriceStatisticsSkill | None = None,
     ):
         self.repository = repository or Repository()
         self.matcher = matcher or default_matcher
         self.fake_discount_detector = DetectFakeDiscountSkill()
+        self.statistics_skill = statistics_skill or PriceStatisticsSkill()
 
     async def run(
         self,
@@ -46,6 +49,9 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
         # 1. Congelar a linha de base histórica pré-ciclo (estável para todas as fontes do ciclo)
         prev_min = self.repository.get_historical_min_price(product.id)
         prev_avg = self.repository.get_historical_average_price(product.id, days=60)
+        history_records = self.repository.get_price_history(product.id, days=90)
+        hist_prices = [r.preco for r in history_records if r.preco is not None and r.preco > 0]
+        hist_dates = [r.coletado_em for r in history_records if r.preco is not None and r.preco > 0]
 
         for source, scraped in scraped_results:
             if not scraped.success or scraped.preco is None:
@@ -100,7 +106,7 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     elif parsed_coupon.desconto_fixo:
                         preco_efetivo = max(0.0, scraped.preco - parsed_coupon.desconto_fixo)
 
-            # 3. Analisar condições de promoção e desconto real
+            # 3. Analisar condições de promoção, desconto real e estatística de série temporal
             announced_disc, real_disc, is_fake = self.fake_discount_detector.execute(
                 current_price=scraped.preco,
                 original_price_announced=scraped.preco_original,
@@ -108,10 +114,25 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 user_max_price=product.preco_maximo,
             )
 
+            # Cálculo de Métricas de Ciência de Dados sobre a série temporal
+            stat_profile = self.statistics_skill.execute(
+                historical_prices=hist_prices,
+                current_price=scraped.preco,
+                historical_dates=hist_dates,
+                target_price=product.preco_alvo,
+                user_max_price=product.preco_maximo,
+                is_fake_discount=is_fake,
+            )
+
             # Condições de compra vantajosa
             is_below_target = scraped.preco <= product.preco_alvo or preco_efetivo <= product.preco_alvo
             is_all_time_low = prev_min is not None and (scraped.preco < prev_min or preco_efetivo < prev_min)
             is_below_max = scraped.preco <= product.preco_maximo or preco_efetivo <= product.preco_maximo
+            is_stat_anomaly = (
+                stat_profile.robust_z_score <= -1.8
+                and stat_profile.sample_size >= 3
+                and not is_fake
+            )
 
             # Decisão de Deal (somente se a variante for compatível e preço plausível)
             is_deal = False
@@ -163,6 +184,18 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     justificativa_parts.append(
                         f"Cupom promocional '{parsed_coupon.codigo}' detectado (preço c/ desconto: R$ {preco_efetivo:.2f})."
                     )
+                elif is_stat_anomaly:
+                    is_deal = True
+                    motivo = "queda_anomala_estatistica"
+                    justificativa_parts.append(
+                        f"Queda estatisticamente anômala (Z-Score Robusto {stat_profile.robust_z_score:.2f}, "
+                        f"Percentil {stat_profile.percentile_rank:.0f}% frente à mediana de R$ {stat_profile.median:.2f})."
+                    )
+
+            if stat_profile.sample_size >= 3 and stat_profile.robust_z_score <= -1.5 and not is_stat_anomaly:
+                justificativa_parts.append(
+                    f"Sinal estatístico: Z-Score Robusto {stat_profile.robust_z_score:.2f} (Percentil {stat_profile.percentile_rank:.0f}%)."
+                )
 
             if parsed_coupon and not is_deal:
                 justificativa_parts.append(f"Cupom disponível: {parsed_coupon.codigo}.")
@@ -191,6 +224,14 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 justificativa=" ".join(justificativa_parts) if justificativa_parts else "Preço regular de mercado.",
                 url=scraped.url,
                 cupom=scraped.cupom,
+                z_score=stat_profile.z_score,
+                robust_z_score=stat_profile.robust_z_score,
+                percentile_rank=stat_profile.percentile_rank,
+                cv_volatilidade_percent=stat_profile.cv_percent,
+                tendencia_diaria_brl=stat_profile.trend_slope_brl_per_day,
+                regime_preco=stat_profile.regime_preco,
+                deal_score=stat_profile.deal_confidence_score,
+                match_confidence=match_result.confidence,
             )
             analyses.append(analysis)
 

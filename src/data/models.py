@@ -98,6 +98,15 @@ class DealAnalysis(BaseModel):
     justificativa: str = ""
     url: str
     cupom: str | None = None
+    # Métricas de Data Science e Análise Estatística de Séries Temporais
+    z_score: float | None = None
+    robust_z_score: float | None = None
+    percentile_rank: float | None = None
+    cv_volatilidade_percent: float | None = None
+    tendencia_diaria_brl: float | None = None
+    regime_preco: str | None = None
+    deal_score: float | None = None
+    match_confidence: float | None = None
 
 
 class MatchResult(BaseModel):
