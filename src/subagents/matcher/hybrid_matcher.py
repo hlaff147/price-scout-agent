@@ -27,9 +27,12 @@ class HybridProductMatcher(IProductMatcher):
 
     # Palavras-chave indicativas de acessórios não desejados
     ACCESSORY_KEYWORDS = (
-        "capa", "capinha", "case", "pelicula", "protecao", "cabo", "carregador para",
-        "suporte para", "bracadeira", "cordao", "alca", "adaptador para", "protetor",
-        "pulseira", "bracelete", "strap", "bezel", "dock"
+        "capa", "capas", "capinha", "capinhas", "case", "cases", "pelicula", "peliculas",
+        "protecao", "cabo", "cabos", "carregador", "carregadores", "carregador para",
+        "suporte", "suportes", "suporte para", "bracadeira", "cordao", "alca",
+        "adaptador", "adaptadores", "adaptador para", "protetor", "protetores",
+        "pulseira", "pulseiras", "bracelete", "braceletes", "strap", "straps",
+        "bezel", "dock", "docks", "fonte", "fontes",
     )
 
     # Cores conhecidas
@@ -64,7 +67,7 @@ class HybridProductMatcher(IProductMatcher):
         norm_target_name = normalize_text(target.nome)
         norm_keywords = [normalize_text(kw) for kw in target.keywords if kw]
 
-        title_words = set(norm_title.split())
+        title_words = set(re.findall(r"\b\w+\b", norm_title))
 
         # 1. Filtro de Acessórios (evita casquinha/película/fonte/suporte no lugar do produto principal)
         for acc in self.ACCESSORY_KEYWORDS:
@@ -82,6 +85,16 @@ class HybridProductMatcher(IProductMatcher):
                     divergence_reason=f"Anúncio identificado como acessório/peça secundária ('{acc}')",
                     method_used="heuristic",
                 )
+
+        # 1b. Filtro de Produtos Recondicionados / Vitrine / Usados
+        if any(term in title_words for term in NormalizeProductSkill.REFURBISHED_TERMS):
+            logger.debug(f"[Matcher] Descartado: anúncio '{candidate_title}' parece ser item usado/vitrine")
+            return MatchResult(
+                is_match=False,
+                confidence=0.99,
+                divergence_reason="Anúncio identificado como item usado, vitrine ou recondicionado",
+                method_used="heuristic",
+            )
 
         # 2. Edição Global vs Nacional (Premissa de Negócio: NÃO deduplicar)
         is_candidate_global = "global" in title_words or "importado" in title_words
@@ -129,6 +142,20 @@ class HybridProductMatcher(IProductMatcher):
                     method_used="heuristic",
                 )
 
+        # 3b. Tamanho de Caixa em Milímetros (ex.: Smartwatches 40mm vs 44mm)
+        target_mm = re.findall(r"\b(\d+)\s*mm\b", norm_target_name)
+        candidate_mm = re.findall(r"\b(\d+)\s*mm\b", norm_title)
+        if target_mm and candidate_mm and target_mm[0] not in candidate_mm:
+            return MatchResult(
+                is_match=False,
+                confidence=0.98,
+                detected_variant=f"{candidate_mm[0]}mm",
+                divergence_reason=(
+                    f"Tamanho de caixa do anúncio ({candidate_mm[0]}mm) difere do alvo ({target_mm[0]}mm)"
+                ),
+                method_used="heuristic",
+            )
+
         # 4. Detecção de Variante de Cor
         detected_color = None
         for color in self.COMMON_COLORS:
@@ -152,7 +179,22 @@ class HybridProductMatcher(IProductMatcher):
                 method_used="heuristic",
             )
 
-        # 5. Overlap de Termos Essenciais
+        # 5. Overlap de Termos Essenciais e Validação Estrita de Exclusões
+        all_negatives = [
+            p[1:] for kw in target.keywords for p in kw.split() if p.startswith("-") and len(p) > 1
+        ]
+        if all_negatives:
+            combined_tokens = title_words | set(NormalizeProductSkill.match_view(candidate_title).split())
+            for neg in all_negatives:
+                neg_tokens = NormalizeProductSkill.match_view(neg).split()
+                if neg_tokens and all(t in combined_tokens for t in neg_tokens):
+                    return MatchResult(
+                        is_match=False,
+                        confidence=0.99,
+                        divergence_reason=f"Anúncio corresponde a uma variante explicitamente excluída ('-{neg}')",
+                        method_used="heuristic",
+                    )
+
         target_tokens = set(re.findall(r"\b\w{2,}\b", norm_target_name))
         # Remove palavras genéricas
         stop_words = {"com", "para", "sem", "pro", "plus", "ultra", "max"}
@@ -164,24 +206,10 @@ class HybridProductMatcher(IProductMatcher):
         else:
             overlap_ratio = 1.0
 
-        # Verifica se alguma keyword inteira está contida no título
-        keyword_matched = any(kw in norm_title for kw in norm_keywords if len(kw) >= 4)
-        # Mesma regra de tokens/exclusões usada pelos parsers dos marketplaces (512gb, 'S25+', '-max')
-        if not keyword_matched and target.keywords:
+        # Verifica se alguma keyword atende aos critérios estritos da skill
+        keyword_matched = False
+        if target.keywords:
             keyword_matched = NormalizeProductSkill.matches_keywords(candidate_title, target.keywords)
-
-        # Catálogos com exclusões explícitas ('-max', '-ultra') exigem a regra estrita de keywords,
-        # evitando que o overlap de tokens aceite variantes irmãs (ex.: X8 Pro x X8 Pro Max).
-        has_exclusions = any(
-            part.startswith("-") and len(part) > 1 for kw in target.keywords for part in kw.split()
-        )
-        if has_exclusions and not NormalizeProductSkill.matches_keywords(candidate_title, target.keywords):
-            return MatchResult(
-                is_match=False,
-                confidence=0.9,
-                divergence_reason="Anúncio corresponde a uma variante excluída ou não atende às keywords estritas",
-                method_used="heuristic",
-            )
 
         if overlap_ratio >= 0.70 or keyword_matched:
             variant_desc = f"Cor: {detected_color}" if detected_color else None

@@ -97,22 +97,23 @@ class NormalizeProductSkill(BaseSkill):
         norm_title = cls.normalize_text(title)
         title_tokens = set(norm_title.split()) | set(cls.match_view(title).split())
 
+        # Exclusões globais explícitas vinculadas ao produto (-max, -ultra, -6t)
+        all_negatives = [
+            p[1:] for kw in keywords for p in kw.split() if p.startswith("-") and len(p) > 1
+        ]
+        for neg in all_negatives:
+            neg_tokens = cls.match_view(neg).split()
+            if neg_tokens and all(t in title_tokens for t in neg_tokens):
+                return False
+
         for kw in keywords:
             raw_parts = kw.split()
-            negatives = [p[1:] for p in raw_parts if p.startswith("-") and len(p) > 1]
             positive_raw = " ".join(p for p in raw_parts if not (p.startswith("-") and len(p) > 1))
             kw_tokens = cls.match_view(positive_raw).split()
             if not kw_tokens:
                 continue
             # Se todos os tokens da palavra-chave estiverem presentes no título
             if not all(token in title_tokens for token in kw_tokens):
-                continue
-            # Exclusões explícitas da keyword
-            if any(
-                (neg_tokens := cls.match_view(neg).split())
-                and all(t in title_tokens for t in neg_tokens)
-                for neg in negatives
-            ):
                 continue
             # Itens usados / recondicionados / vitrine nunca entram na série de preços de novos
             if any(t in title_tokens and t not in kw_tokens for t in cls.REFURBISHED_TERMS):
