@@ -35,6 +35,8 @@ MONITOR_PALETTE = [
     "#65a30d",  # lime-600
     "#9333ea",  # purple-600
     "#be123c",  # rose-700
+    "#0284c7",  # sky-600
+    "#16a34a",  # green-600
 ]
 
 MARKETPLACE_LABELS = {

@@ -548,3 +548,87 @@ products:
         url_produto: "https://www.google.com/search?q=Monitor+Samsung+Odyssey+G4+27+LS27BG400&udm=28"
         metodo_coleta: "scraping_html"
         ativo: true
+
+  - id: "rise-mode-prime-qhd-240"
+    nome: "Rise Mode Prime 27\" QHD 240Hz"
+    keywords:
+      - "RM-MOGL-27F2402K-B"
+      - "27F2402K"
+      - "Rise Mode 27 QHD 240Hz IPS"
+    preco_alvo: 1099.00
+    preco_maximo: 1499.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "QHD"
+      panel: "IPS"
+      refresh: 240
+      response: "1 ms"
+      has: "Ajuste de Altura (Lift, Pivô 90° e Inclinação)"
+      ports: "HDMI, DisplayPort, FreeSync, HDR400"
+      price_min_ref: 1199
+      price_max_ref: 1499
+      tag: "240Hz QHD Custo-Benefício"
+      use_case: "Gamer"
+      ppi: 109
+      desc: "Painel IPS Quad HD (2560x1440) operando a 240Hz com 1ms, HDR400 e base ergonômica completa (Lift + Pivô)."
+    sources:
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/produto/881102/monitor-gamer-rise-mode-prime-27-qhd-240hz-1ms-ips-freesync-hdr-400-hdmi-e-dp-altura-ajustavel-preto-rm-mogl-27f2402k-b"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Rise+Mode+RM-MOGL-27F2402K-B"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-rise-mode-rm-mogl-27f2402k-b"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Rise+Mode+Prime+27+QHD+240Hz+RM-MOGL-27F2402K-B&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true
+
+  - id: "rise-mode-prime-fhd-180"
+    nome: "Rise Mode Prime 27\" FHD 180Hz"
+    keywords:
+      - "RM-MOGL-27F180FH-B"
+      - "27F180FH"
+      - "Rise Mode Prime 27 FHD 180Hz IPS"
+    preco_alvo: 849.00
+    preco_maximo: 1099.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      res: "FHD"
+      panel: "IPS"
+      refresh: 180
+      response: "1 ms"
+      has: "Ajuste de Altura (Lift, Pivô 90° e Inclinação)"
+      ports: "HDMI, DisplayPort, FreeSync, HDR400"
+      price_min_ref: 899
+      price_max_ref: 1099
+      tag: "180Hz IPS FHD Ergonômico"
+      use_case: "eSports"
+      ppi: 82
+      desc: "Painel IPS Full HD de 180Hz com 1ms, FreeSync, HDR400 e base ergonômica com ajuste de altura (Lift) e rotação vertical."
+    sources:
+      - marketplace: "kabum"
+        url_produto: "https://www.kabum.com.br/produto/881099/monitor-gamer-rise-mode-prime-27-fhd-180hz-1ms-ips-freesync-hdr-400-hdmi-e-dp-altura-ajustavel-preto-rm-mogl-27f180fh-b"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "amazon"
+        url_produto: "https://www.amazon.com.br/s?k=Monitor+Rise+Mode+RM-MOGL-27F180FH-B"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "mercadolivre"
+        url_produto: "https://lista.mercadolivre.com.br/monitor-rise-mode-rm-mogl-27f180fh-b"
+        metodo_coleta: "scraping_html"
+        ativo: true
+      - marketplace: "google_shopping"
+        url_produto: "https://www.google.com/search?q=Monitor+Rise+Mode+Prime+27+FHD+180Hz+RM-MOGL-27F180FH-B&udm=28"
+        metodo_coleta: "scraping_html"
+        ativo: true

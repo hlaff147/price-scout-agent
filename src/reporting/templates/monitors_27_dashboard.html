@@ -88,7 +88,7 @@
                     </span>
                     <h2 class="text-2xl md:text-3xl font-extrabold text-stone-900">Painel Evolutivo de Monitores Ergonômicos de 27 Polegadas</h2>
                     <p class="mt-2 text-stone-600 text-sm leading-relaxed max-w-4xl">
-                        Acompanhamento automático de 6 em 6 horas dos 13 melhores monitores de 27" com ajuste de altura no Brasil (Amazon, KaBuM!, Mercado Livre e Google Shopping), combinando histórico incremental em SQLite, detecção de promoções reais e simuladores de ergonomia e densidade de pixels.
+                        Acompanhamento automático de 6 em 6 horas dos {{ kpis.total_monitors }} melhores monitores de 27" com ajuste de altura no Brasil (Amazon, KaBuM!, Mercado Livre e Google Shopping), combinando histórico incremental em SQLite, detecção de promoções reais e simuladores de ergonomia e densidade de pixels.
                     </p>
                 </div>
                 <div class="bg-stone-900 text-white rounded-xl p-4 min-w-[210px] text-center shadow-sm">
@@ -143,8 +143,8 @@
                             </div>
                             <select id="history-filter" class="bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
                                 <option value="TOP_DEALS">Destaques Custo-Benefício (Top 5)</option>
-                                <option value="ALL_QHD">Todos os Quad HD (8 modelos)</option>
-                                <option value="ALL_FHD">Todos os Full HD (5 modelos)</option>
+                                <option value="ALL_QHD">Todos os Quad HD (9 modelos)</option>
+                                <option value="ALL_FHD">Todos os Full HD (6 modelos)</option>
                                 {% for m in monitors %}
                                 <option value="SINGLE:{{ m.id }}">Individual: {{ m.name }} (Alvo {{ m.priceTargetFmt }})</option>
                                 {% endfor %}
@@ -215,7 +215,7 @@
             <div class="border-l-4 border-brand-600 pl-4">
                 <h2 class="text-2xl font-bold text-stone-900">Catálogo Interativo de Monitores (27")</h2>
                 <p class="text-stone-600 text-sm mt-1">
-                    Explore e filtre os 13 modelos de 27 polegadas com ajuste de altura. Clique em <strong>Detalhes & Lojas</strong> para inspecionar especificações ergonômicas e todas as cotações coletadas por marketplace.
+                    Explore e filtre os {{ kpis.total_monitors }} modelos de 27 polegadas com ajuste de altura. Clique em <strong>Detalhes & Lojas</strong> para inspecionar especificações ergonômicas e todas as cotações coletadas por marketplace.
                 </p>
             </div>
 

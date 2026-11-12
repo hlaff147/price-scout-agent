@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Black Friday 2026 • Smartphones 512 GB (Custo × Benefício na Faixa de R$ 3.000)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        warmbg: '#f8f7f4',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8f7f4;
+            color: #1f2937;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            max-height: 420px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-sm shadow">
+                    512GB
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-stone-900 leading-tight">Radar Black Friday 2026 • Smartphones 512 GB</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-emerald-100 text-emerald-900">Teto R$ 3.000</span>
+                    </div>
+                    <p class="text-xs text-stone-500">Atualizado em {{ kpis.last_updated }} • {{ kpis.total_cycles }} rodada(s) • {{ kpis.total_db_records }} cotações no SQLite</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-1.5 text-xs sm:text-sm font-medium text-stone-600">
+                <a href="#historico" class="px-3 py-1.5 rounded-md bg-brand-50 text-brand-800 hover:bg-brand-100 font-semibold transition">📈 Evolução & Custo×Benefício</a>
+                <a href="#catalogo" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">📱 Catálogo Interativo ({{ kpis.total_phones }})</a>
+                <a href="#tabela" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🏆 Ranking Custo-Benefício</a>
+                <a href="#bateria" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🔋 Bateria & Estresse 8h</a>
+                <a href="#estrategia" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🛡️ Arquitetura & Riscos BF</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-12">
+
+        <!-- Hero & KPIs -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 shadow-sm space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-brand-100 text-brand-800 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
+                        Panorama Estratégico Black Friday • Faltam {{ kpis.days_to_bf }} dias (27/11/2026)
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-stone-900">Smartphones com 512 GB na Faixa de R$ 3.000</h2>
+                    <p class="mt-2 text-stone-600 text-sm leading-relaxed max-w-4xl">
+                        Rastreamento em tempo real dos <strong>{{ kpis.total_phones }} smartphones de 512 GB</strong> de maior eficiência marginal no varejo brasileiro — cruzando <em>Topo de Linha Depreciados</em> (UFS 4.0 + LPDDR5X + Teleobjetiva OIS), <em>Intermediários Premium</em> e <em>Campeões de Bateria/Compactos</em> com o Índice de Benefício (0–100) e retorno técnico por cada R$ 1.000 investidos.
+                    </p>
+                </div>
+                <div class="bg-stone-900 text-white rounded-xl p-4 min-w-[220px] text-center shadow-sm">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">No Alvo BF / ≤ R$ 3.000</div>
+                    <div class="text-3xl font-extrabold text-emerald-400 mt-1">{{ kpis.deals_count }} / {{ kpis.under_budget_count }}</div>
+                    <div class="text-[11px] text-stone-300 mt-1">{{ kpis.live_tracked_count }} de {{ kpis.total_phones }} com cotação ao vivo</div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">🏆 Maior Custo-Benefício Atual</div>
+                    <div class="text-2xl font-bold text-brand-700 mt-1">{{ kpis.best_cb_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.best_cb_name }}">{{ kpis.best_cb_name }} • <span class="text-emerald-700 font-bold">{{ kpis.best_cb_index }} pts/R$1k</span></p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">👑 Melhor Topo de Linha ≤ R$ 3.000</div>
+                    <div class="text-2xl font-bold text-emerald-600 mt-1">{{ kpis.best_flagship_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.best_flagship_name }}">{{ kpis.best_flagship_name }}</p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">💰 Menor Preço 512 GB</div>
+                    <div class="text-2xl font-bold text-amber-600 mt-1">{{ kpis.cheapest_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.cheapest_name }}">{{ kpis.cheapest_name }}</p>
+                </div>
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">⚡ Assimetria UFS 4.0 vs 2.2</div>
+                    <div class="text-2xl font-bold text-purple-700 mt-1">2× Largura de Banda</div>
+                    <p class="text-xs text-stone-500 mt-1">UFS 4.0 + 12/16 GB LPDDR5X evita gargalos com +350 GB ocupados.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Evolution & Cost-Benefit Charts -->
+        <section id="historico" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Curva Evolutiva de Preços & Fronteira Custo × Benefício</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Acompanhe a queda em relação ao preço regular da pesquisa e compare o Índice de Benefício (0–100) com o preço efetivo atual.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1: Price Evolution Timeline -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex flex-wrap justify-between items-start gap-2">
+                        <div>
+                            <h3 class="font-bold text-stone-900 text-lg">Evolução Histórica de Preços (512 GB)</h3>
+                            <p class="text-xs text-stone-500">Ref. da Pesquisa vs. rodadas coletadas no SQLite</p>
+                        </div>
+                        <select id="history-filter" class="bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-700 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="TOP_CB">Top 6 Custo-Benefício</option>
+                            <option value="FLAGSHIPS">Topo de Linha Depreciados (5)</option>
+                            <option value="INTERMEDIARIOS">Intermediários Premium (5)</option>
+                            <option value="COMPACTOS">Custo-Benefício / Compactos / Bateria (5)</option>
+                            {% for p in phones %}
+                            <option value="SINGLE:{{ p.id }}">Individual: {{ p.name }} (Alvo {{ p.priceTargetFmt }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartHistory"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Dica:</strong> Selecione um aparelho individual para ver a linha tracejada do <strong>Preço Alvo Black Friday</strong> e do <strong>Piso Histórico da Pesquisa</strong>.
+                    </div>
+                </div>
+
+                <!-- Chart 2: Scatter Cost x Benefit -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-lg">Mapa Estratégico: Preço Atual (R$) × Índice de Benefício (0–100)</h3>
+                        <p class="text-xs text-stone-500">Quanto mais acima e à esquerda, maior a eficiência marginal por real investido</p>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartScatterCB"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Pesos do Índice (0–100):</strong> Desempenho (30) • Câmeras (25) • Bateria & Recarga (15) • Longevidade de Software (10) • Tela (10) • Construção/IP68/UFS 4.0 (10).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 3: Bar Chart CB Index -->
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-lg">Ranking de Eficiência: Pontos de Benefício por R$ 1.000 Gastos</h3>
+                        <p class="text-xs text-stone-500">Verde = Abaixo do Alvo BF • Índigo = Dentro do Teto R$ 3.000 • Âmbar = Acima de R$ 3.000 (aguardando cupom)</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartRankingCB"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Interactive Filterable Catalog -->
+        <section id="catalogo" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-stone-900">Catálogo Interativo • 15 Smartphones 512 GB</h2>
+                    <p class="text-stone-600 text-sm mt-1">Filtre por categoria, perfil prioritário de uso, barramento de memória (UFS 4.0) ou faixa de preço.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <select id="filter-category" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Todas as Categorias (15)</option>
+                        <option value="Topo de Linha Depreciado">Topo de Linha Depreciado</option>
+                        <option value="Intermediário Premium">Intermediário Premium</option>
+                        <option value="Custo-Benefício / Compacto">Custo-Benefício / Compacto</option>
+                    </select>
+                    <select id="filter-profile" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Todos os Perfis de Uso</option>
+                        <option value="geral">🏆 Melhor Escolha Geral</option>
+                        <option value="fotografia">📸 Fotografia Avançada (Tele OIS)</option>
+                        <option value="longevidade">🛡️ Longevidade de Software (5–7 anos)</option>
+                        <option value="gamer">🎮 Jogos Pesados / Desempenho Bruto</option>
+                        <option value="bateria">🔋 Bateria Extrema (6.000–7.000 mAh)</option>
+                        <option value="compacto">🪶 Ergonomia Compacta (171 g)</option>
+                        <option value="economia">💰 Economia (&lt; R$ 2.500)</option>
+                    </select>
+                    <select id="filter-budget" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Qualquer Preço</option>
+                        <option value="UNDER_3000">Até R$ 3.000</option>
+                        <option value="DEAL">🎯 Abaixo do Alvo BF</option>
+                        <option value="UFS4">⚡ Apenas UFS 4.0</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Section 3: Consolidated Ranking Table -->
+        <section id="tabela" class="space-y-4">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Tabela Comparativa Consolidada (Ordenada por Custo-Benefício)</h2>
+                <p class="text-stone-600 text-sm mt-1">Comparação direta de SoC, RAM/UFS, câmeras, bateria, preço atual ao vivo, alvo Black Friday e piso histórico da pesquisa.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-x-auto">
+                <table class="min-w-full divide-y divide-stone-200 text-xs">
+                    <thead class="bg-stone-50 text-stone-600 uppercase font-bold">
+                        <tr>
+                            <th class="px-3 py-3 text-left">#</th>
+                            <th class="px-3 py-3 text-left">Modelo (512 GB)</th>
+                            <th class="px-3 py-3 text-left">SoC / Memória</th>
+                            <th class="px-3 py-3 text-left">Tela & Câmeras</th>
+                            <th class="px-3 py-3 text-center">Bateria / Carga</th>
+                            <th class="px-3 py-3 text-right">Preço Atual</th>
+                            <th class="px-3 py-3 text-right">Alvo BF / Piso</th>
+                            <th class="px-3 py-3 text-center">Benefício</th>
+                            <th class="px-3 py-3 text-center">Pts/R$1k</th>
+                            <th class="px-3 py-3 text-center">Status / Loja</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-200">
+                        {% for p in phones %}
+                        <tr class="hover:bg-stone-50 transition">
+                            <td class="px-3 py-3 font-bold text-stone-500">{{ p.cbRank }}º</td>
+                            <td class="px-3 py-3">
+                                <div class="font-bold text-stone-900">{{ p.name }}{% if p.estimated %} <span title="Ficha técnica parcial na pesquisa">⚠️</span>{% endif %}</div>
+                                <div class="text-[11px] text-stone-500">{{ p.category }} • {{ p.ip }} • {{ p.updatesYears }}a updates</div>
+                            </td>
+                            <td class="px-3 py-3">
+                                <div class="font-semibold text-stone-800">{{ p.soc }}</div>
+                                <div class="text-[11px] text-stone-500">{{ p.ramGb }} GB {{ p.ramType }} • <span class="font-semibold {% if '4.0' in p.storageType %}text-emerald-700{% else %}text-amber-700{% endif %}">{{ p.storageType }}</span></div>
+                            </td>
+                            <td class="px-3 py-3">
+                                <div class="text-stone-800">{{ p.display }}</div>
+                                <div class="text-[11px] text-stone-500">{{ p.camera }}</div>
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <div class="font-semibold text-stone-800">{{ p.batteryMah }} mAh</div>
+                                <div class="text-[11px] text-stone-500">{{ p.chargeW }}W fio{% if p.wirelessW %} + {{ p.wirelessW }}W s/fio{% endif %}</div>
+                            </td>
+                            <td class="px-3 py-3 text-right font-extrabold text-sm {% if p.isBelowTarget %}text-emerald-700{% elif p.isUnderBudget %}text-brand-700{% else %}text-amber-700{% endif %}">
+                                {{ p.effectivePriceFmt }}
+                                {% if not p.hasLiveQuote %}<div class="text-[10px] font-normal text-stone-400">(ref. pesquisa)</div>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-right">
+                                <div class="font-semibold text-stone-700">{{ p.priceTargetFmt }}</div>
+                                <div class="text-[11px] text-stone-400">Piso: {{ p.priceFloorRefFmt }}</div>
+                            </td>
+                            <td class="px-3 py-3 text-center font-bold text-stone-800">{{ p.benefit.total }}/100</td>
+                            <td class="px-3 py-3 text-center">
+                                <span class="px-2 py-1 rounded-md font-extrabold bg-brand-50 text-brand-800">{{ p.cbIndex }}</span>
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <div class="font-semibold">{{ p.statusBadge }}</div>
+                                {% if p.bestUrl %}
+                                <a href="{{ p.bestUrl }}" target="_blank" rel="noopener" class="text-[11px] text-brand-600 hover:underline font-medium">{{ p.bestStore }} ↗</a>
+                                {% else %}
+                                <span class="text-[11px] text-stone-400">{{ p.bestStore }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Battery Density & Thermal Behavior -->
+        <section id="bateria" class="space-y-6">
+            <div class="border-l-4 border-brand-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Gestão Energética, Densidade de Bateria & Estresse Térmico (8h)</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Comparação entre as baterias convencionais de íons de lítio (4.310–5.000 mAh) e a nova safra de alta densidade (6.000–7.000 mAh) combinada com recarga ultrarrápida (67W a 125W).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                    <h3 class="font-bold text-stone-900 text-lg mb-2">Capacidade de Bateria (mAh) × Potência de Recarga (W)</h3>
+                    <div class="chart-container">
+                        <canvas id="chartBattery"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <span class="px-2.5 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-bold uppercase">Evidência Empírica da Pesquisa</span>
+                        <h3 class="font-bold text-stone-900 text-lg mt-2">Teste Padronizado de Estresse Contínuo (8 Horas)</h3>
+                        <p class="text-xs text-stone-500 mt-1">Chrome + YouTube + Reels + Jogos 3D + Gravação de Vídeo:</p>
+                        <div class="mt-4 space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-stone-800">
+                                    <span>POCO X7 Pro (6.000 mAh / 90W)</span>
+                                    <span class="text-emerald-700">34% restantes</span>
+                                </div>
+                                <div class="w-full bg-stone-200 h-2.5 rounded-full mt-1">
+                                    <div class="bg-emerald-600 h-2.5 rounded-full" style="width: 34%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-stone-800">
+                                    <span>Xiaomi 14T (5.000 mAh / 67W)</span>
+                                    <span class="text-blue-700">11% restantes</span>
+                                </div>
+                                <div class="w-full bg-stone-200 h-2.5 rounded-full mt-1">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 11%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-stone-800">
+                                    <span>Galaxy S24 FE (4.700 mAh / 25W)</span>
+                                    <span class="text-red-600">6% restantes</span>
+                                </div>
+                                <div class="w-full bg-stone-200 h-2.5 rounded-full mt-1">
+                                    <div class="bg-red-500 h-2.5 rounded-full" style="width: 6%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs text-stone-600 space-y-1.5">
+                        <div class="font-bold text-stone-900">🌡️ Comportamento Térmico Desmistificado</div>
+                        <p>O <strong>Galaxy S24 FE (Exynos 2400e)</strong> manteve <strong>40 °C</strong> (máx. 43 °C no 3DMark) e <strong>57 fps</strong> no <em>CarX Street</em> (vs. 25 fps do Edge 50 Pro), empatando com os 40 °C do POCO e 39 °C do Xiaomi 14T. O gargalo real é a recarga de 25W (1h09 vs. 30–45 min dos rivais).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Architecture & Risk Mitigation -->
+        <section id="estrategia" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-brand-700">1. Assimetria de Memória (512 GB)</div>
+                <h3 class="text-lg font-bold text-stone-900">UFS 4.0 + LPDDR5X vs. UFS 2.2</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    Ao preencher 300–400 GB com vídeos 4K, fotos RAW e jogos pesados, o barramento <strong>UFS 2.2</strong> (presente no Edge 50 Neo e Redmi Note 15 Pro) sofre gargalos na indexação de galeria e carregamento de texturas. Já o <strong>UFS 4.0</strong> (Edge 50 Ultra, Xiaomi 14T, S25+, S24 FE, POCO X7 Pro, GT 6) entrega o dobro de largura de banda. Além disso, a versão de 512 GB força o salto para <strong>12 GB ou 16 GB de RAM</strong> (exceto no S24 FE, restrito a 8 GB).
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-amber-700">2. Alavancagem Promocional</div>
+                <h3 class="text-lg font-bold text-stone-900">PIX (10–15%) + Cupom Relâmpago (5–20%)</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    Os pisos históricos da pesquisa (como <strong>Edge 50 Ultra por R$ 2.369</strong>, <strong>Xiaomi 14T por R$ 2.814</strong> e <strong>Galaxy S25+ por R$ 3.080</strong>) ocorrem quando o desconto à vista no PIX soma-se a cupons sazonais de poucas horas na Amazon, Mercado Livre, Magalu, KaBuM! e Shopee. Compare sempre com a coluna <em>Piso Pesquisa</em> antes de fechar a compra.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-red-700">3. Mitigação de Riscos Operacionais</div>
+                <h3 class="text-lg font-bold text-stone-900">Lojas de Operadoras & Importados</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    <strong>Cautela com vitrines de operadoras (ex.: Loja Vivo):</strong> alto índice de restrição por CEP, cancelamento unilateral por falta de estoque e demora no estorno. <strong>Xiaomi / POCO / Realme:</strong> verifique se o vendedor no Mercado Livre/Shopee possui estoque nacionalizado no Brasil e garantia local, evitando remessas internacionais sujeitas a tributação.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 py-6 text-center text-xs text-stone-500">
+        PromoRadar • Rastreador Black Friday 2026 de Smartphones 512 GB • Dados persistidos em <code>data/promoradar.db</code>
+    </footer>
+
+    <script>
+        const PHONES = {{ phones_json | safe }};
+        const TIMELINE_LABELS = {{ timeline_labels_json | safe }};
+        const PROFILES = {{ profiles_json | safe }};
+
+        // Render Cards
+        function renderCards() {
+            const cat = document.getElementById('filter-category').value;
+            const prof = document.getElementById('filter-profile').value;
+            const bud = document.getElementById('filter-budget').value;
+            const grid = document.getElementById('cards-grid');
+
+            const filtered = PHONES.slice().sort((a, b) => b.cbIndex - a.cbIndex).filter(p => {
+                if (cat !== 'ALL' && p.category !== cat) return false;
+                if (prof !== 'ALL' && !(p.profiles || []).includes(prof)) return false;
+                if (bud === 'UNDER_3000' && p.effectivePrice > 3000) return false;
+                if (bud === 'DEAL' && !p.isBelowTarget) return false;
+                if (bud === 'UFS4' && !(p.storageType || '').includes('4.0')) return false;
+                return true;
+            });
+
+            grid.innerHTML = filtered.map(p => {
+                const offersHtml = (p.storeOffers || []).map(o =>
+                    `<a href="${o.url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-stone-100 hover:bg-brand-50 text-stone-800 hover:text-brand-700 border border-stone-200 transition">
+                        <span>${o.marketplace}:</span> <span class="font-bold text-emerald-700">${o.preco_fmt}</span> ↗
+                    </a>`
+                ).join(' ');
+
+                const prosHtml = (p.pros || []).map(pr => `<li class="text-emerald-800">✓ ${pr}</li>`).join('');
+                const consHtml = (p.cons || []).map(co => `<li class="text-amber-800">⚠ ${co}</li>`).join('');
+
+                return `
+                <div class="bg-white rounded-2xl p-5 border ${p.isBelowTarget ? 'border-emerald-400 ring-1 ring-emerald-200' : 'border-stone-200'} shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-2.5">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-700">${p.category}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${p.isBelowTarget ? 'bg-emerald-100 text-emerald-900' : 'bg-brand-50 text-brand-800'}">${p.statusBadge}</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-stone-900">${p.cbRank}º • ${p.name}</h3>
+                            <p class="text-xs font-semibold text-brand-700">${p.tag}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 bg-stone-50 p-3 rounded-xl border border-stone-100 text-xs">
+                            <div>
+                                <div class="text-[10px] uppercase text-stone-400 font-bold">Preço Atual</div>
+                                <div class="text-lg font-extrabold text-stone-900">${p.effectivePriceFmt}</div>
+                                <div class="text-[10px] text-stone-500">${p.bestStore}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] uppercase text-stone-400 font-bold">Alvo BF / Piso</div>
+                                <div class="text-sm font-bold text-emerald-700">${p.priceTargetFmt}</div>
+                                <div class="text-[10px] text-stone-500">Piso: ${p.priceFloorRefFmt}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs space-y-1 text-stone-600">
+                            <div><strong>SoC:</strong> ${p.soc}</div>
+                            <div><strong>Memória:</strong> ${p.ramGb} GB ${p.ramType} • <span class="font-bold">${p.storageType}</span></div>
+                            <div><strong>Tela:</strong> ${p.display}</div>
+                            <div><strong>Câmeras:</strong> ${p.camera}</div>
+                            <div><strong>Bateria:</strong> ${p.batteryMah} mAh • ${p.chargeW}W fio${p.wirelessW ? ' + ' + p.wirelessW + 'W s/fio' : ''}</div>
+                            <div><strong>Proteção & Updates:</strong> ${p.ip} • ${p.updatesNote}</div>
+                        </div>
+                        <ul class="text-[11px] space-y-0.5 pt-1">${prosHtml}${consHtml}</ul>
+                    </div>
+                    <div class="pt-3 border-t border-stone-100 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-semibold text-stone-500">Benefício: <strong>${p.benefit.total}/100</strong></span>
+                            <span class="px-2 py-0.5 rounded bg-brand-100 text-brand-900 font-extrabold">${p.cbIndex} pts/R$1k</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">${offersHtml || '<span class="text-[11px] text-stone-400">Sem oferta HTTP direta — usando referência da pesquisa</span>'}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        ['filter-category', 'filter-profile', 'filter-budget'].forEach(id => {
+            document.getElementById(id).addEventListener('change', renderCards);
+        });
+        renderCards();
+
+        // Chart 1: History Line Chart
+        let historyChart = null;
+        function updateHistoryChart() {
+            const mode = document.getElementById('history-filter').value;
+            let selected = [];
+            const extraDatasets = [];
+
+            if (mode === 'TOP_CB') {
+                selected = PHONES.slice().sort((a, b) => b.cbIndex - a.cbIndex).slice(0, 6);
+            } else if (mode === 'FLAGSHIPS') {
+                selected = PHONES.filter(p => p.category === 'Topo de Linha Depreciado');
+            } else if (mode === 'INTERMEDIARIOS') {
+                selected = PHONES.filter(p => p.category === 'Intermediário Premium');
+            } else if (mode === 'COMPACTOS') {
+                selected = PHONES.filter(p => p.category === 'Custo-Benefício / Compacto');
+            } else if (mode.startsWith('SINGLE:')) {
+                const pid = mode.split(':')[1];
+                const ph = PHONES.find(p => p.id === pid);
+                if (ph) {
+                    selected = [ph];
+                    extraDatasets.push({
+                        label: 'Alvo Black Friday (' + ph.priceTargetFmt + ')',
+                        data: TIMELINE_LABELS.map(() => ph.priceTarget),
+                        borderColor: '#16a34a',
+                        borderDash: [6, 4],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    });
+                    extraDatasets.push({
+                        label: 'Piso Histórico Pesquisa (' + ph.priceFloorRefFmt + ')',
+                        data: TIMELINE_LABELS.map(() => ph.priceFloorRef),
+                        borderColor: '#d97706',
+                        borderDash: [3, 3],
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    });
+                }
+            }
+
+            const datasets = selected.map(p => ({
+                label: p.name,
+                data: p.timelineValues,
+                borderColor: p.color,
+                backgroundColor: p.color,
+                borderWidth: 2.5,
+                tension: 0.25,
+                spanGaps: true,
+                pointRadius: 4
+            })).concat(extraDatasets);
+
+            if (historyChart) historyChart.destroy();
+            historyChart = new Chart(document.getElementById('chartHistory'), {
+                type: 'line',
+                data: { labels: TIMELINE_LABELS, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+                        }
+                    }
+                }
+            });
+        }
+        document.getElementById('history-filter').addEventListener('change', updateHistoryChart);
+        updateHistoryChart();
+
+        // Chart 2: Scatter Cost vs Benefit
+        new Chart(document.getElementById('chartScatterCB'), {
+            type: 'scatter',
+            data: {
+                datasets: PHONES.map(p => ({
+                    label: p.name,
+                    data: [{ x: p.effectivePrice, y: p.benefit.total }],
+                    backgroundColor: p.color,
+                    borderColor: '#fff',
+                    borderWidth: 1.5,
+                    pointRadius: 7,
+                    pointHoverRadius: 9
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: R$ ${ctx.raw.x.toLocaleString('pt-BR')} • Benefício ${ctx.raw.y}/100`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Preço Efetivo Atual (R$)' },
+                        ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+                    },
+                    y: {
+                        title: { display: true, text: 'Índice de Benefício Técnico (0–100)' },
+                        min: 55,
+                        max: 95
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Ranking CB Bar Chart
+        const rankedPhones = PHONES.slice().sort((a, b) => b.cbIndex - a.cbIndex);
+        new Chart(document.getElementById('chartRankingCB'), {
+            type: 'bar',
+            data: {
+                labels: rankedPhones.map(p => p.name.replace(' 512GB', '')),
+                datasets: [{
+                    label: 'Pontos de Benefício por R$ 1.000',
+                    data: rankedPhones.map(p => p.cbIndex),
+                    backgroundColor: rankedPhones.map(p => p.isBelowTarget ? '#059669' : (p.isUnderBudget ? '#4f46e5' : '#d97706')),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { title: { display: true, text: 'Pontos de Benefício / R$ 1.000 (maior = melhor retorno por real)' } }
+                }
+            }
+        });
+
+        // Chart 4: Battery mAh vs Charging W
+        new Chart(document.getElementById('chartBattery'), {
+            type: 'bar',
+            data: {
+                labels: PHONES.map(p => p.name.replace(' 512GB', '')),
+                datasets: [
+                    {
+                        label: 'Bateria (mAh)',
+                        data: PHONES.map(p => p.batteryMah),
+                        backgroundColor: '#0d9488',
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Recarga com Fio (W)',
+                        data: PHONES.map(p => p.chargeW),
+                        backgroundColor: '#f59e0b',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { position: 'left', title: { display: true, text: 'Capacidade (mAh)' }, min: 3500 },
+                    y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Potência (W)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

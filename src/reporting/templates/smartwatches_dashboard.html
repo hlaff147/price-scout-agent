@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Black Friday 2026 • Smartwatches (R$ 800 a R$ 1.200 • Foco HUAWEI GT Runner 2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfeff',
+                            100: '#cffafe',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                            800: '#155e75',
+                            900: '#164e63',
+                        },
+                        runner: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8f7f4;
+            color: #1f2937;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            max-height: 420px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-runner-600 to-brand-600 text-white flex items-center justify-center font-extrabold text-sm shadow">
+                    🏃 ⌚
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-stone-900 leading-tight">Radar Black Friday 2026 • Smartwatches</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-cyan-100 text-cyan-900">R$ 800 – R$ 1.200</span>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-orange-100 text-orange-900">Foco GT Runner 2</span>
+                    </div>
+                    <p class="text-xs text-stone-500">Atualizado em {{ kpis.last_updated }} • {{ kpis.total_cycles }} rodada(s) • {{ kpis.total_db_records }} cotações no SQLite</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-1.5 text-xs sm:text-sm font-medium text-stone-600">
+                <a href="#historico" class="px-3 py-1.5 rounded-md bg-brand-50 text-brand-800 hover:bg-brand-100 font-semibold transition">📈 Evolução & Custo×Benefício</a>
+                <a href="#catalogo" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">⌚ Catálogo Interativo ({{ kpis.total_watches }})</a>
+                <a href="#tabela" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🏆 Ranking Custo-Benefício</a>
+                <a href="#bateria" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🔋 Bateria vs. GPS</a>
+                <a href="#analise" class="px-3 py-1.5 rounded-md hover:bg-stone-100 hover:text-brand-700 transition">🔬 Análise Técnica GT Runner 2</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-12">
+
+        <!-- Hero & KPIs -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 border border-stone-200 shadow-sm space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-cyan-100 text-cyan-800 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
+                        Panorama de Vestíveis • Faltam {{ kpis.days_to_bf }} dias para a Black Friday (27/11/2026)
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-stone-900">Os Melhores Smartwatches na Faixa de R$ 800 a R$ 1.200</h2>
+                    <p class="mt-2 text-stone-600 text-sm leading-relaxed max-w-4xl">
+                        Acompanhamento de preços em tempo real dos <strong>{{ kpis.total_watches }} principais smartwatches</strong> no mercado brasileiro. Confronto técnico direto entre relógios esportivos híbridos de alta precisão (destaque absoluto para o <strong>HUAWEI WATCH GT Runner 2</strong> com titânio, antena flutuante 3D e Strava nativo), mini-smartphones Wear OS (Galaxy Watch 7/8 LTE com Google Pay) e referências de corrida tradicional (Garmin Forerunner 55).
+                    </p>
+                </div>
+                <div class="bg-stone-900 text-white rounded-xl p-4 min-w-[220px] text-center shadow-sm">
+                    <div class="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">No Alvo BF / Na Faixa</div>
+                    <div class="text-3xl font-extrabold text-emerald-400 mt-1">{{ kpis.deals_count }} / {{ kpis.under_budget_count }}</div>
+                    <div class="text-[11px] text-stone-300 mt-1">{{ kpis.live_tracked_count }} de {{ kpis.total_watches }} com cotação ao vivo</div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <!-- Card 1: GT Runner 2 -->
+                <div class="bg-orange-50/60 rounded-xl p-4 border border-orange-200">
+                    <div class="text-xs font-semibold text-orange-700 uppercase">🏃 Destaque de Corrida: GT Runner 2</div>
+                    <div class="text-2xl font-bold text-orange-700 mt-1">{{ kpis.runner2_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium">Alvo: {{ kpis.runner2_target }} • <span class="text-orange-800 font-bold">Nota {{ kpis.runner2_benefit }}/100</span></p>
+                </div>
+                <!-- Card 2: Melhor Custo x Benefício -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">🏆 Maior Custo-Benefício Geral</div>
+                    <div class="text-2xl font-bold text-cyan-700 mt-1">{{ kpis.best_cb_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.best_cb_name }}">{{ kpis.best_cb_name }} • <span class="text-emerald-700 font-bold">{{ kpis.best_cb_index }} pts/R$1k</span></p>
+                </div>
+                <!-- Card 3: Melhor Wear OS -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">🤖 Melhor Wear OS / Pagamentos</div>
+                    <div class="text-2xl font-bold text-purple-700 mt-1">{{ kpis.best_wearos_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.best_wearos_name }}">{{ kpis.best_wearos_name }}</p>
+                </div>
+                <!-- Card 4: Menor Preço no Piso -->
+                <div class="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div class="text-xs font-semibold text-stone-500 uppercase">💰 Menor Preço no Piso (~R$ 800)</div>
+                    <div class="text-2xl font-bold text-emerald-600 mt-1">{{ kpis.cheapest_price }}</div>
+                    <p class="text-xs text-stone-600 mt-1 font-medium truncate" title="{{ kpis.cheapest_name }}">{{ kpis.cheapest_name }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Evolution & Cost-Benefit Charts -->
+        <section id="historico" class="space-y-6">
+            <div class="border-l-4 border-cyan-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Curva Evolutiva de Preços & Mapa Custo × Benefício Vestível</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Acompanhe as oscilações de preço em relação à referência da pesquisa e localize os aparelhos com maior densidade de recursos por real investido.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart 1: Price Evolution Timeline -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex flex-wrap justify-between items-start gap-2">
+                        <div>
+                            <h3 class="font-bold text-stone-900 text-lg">Evolução Histórica de Preços</h3>
+                            <p class="text-xs text-stone-500">Ref. da Pesquisa vs. rodadas coletadas no SQLite</p>
+                        </div>
+                        <select id="history-filter" class="bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-stone-700 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                            <option value="TOP_CB">Top 5 Custo-Benefício</option>
+                            <option value="CORRIDA">Foco Corrida & Performance</option>
+                            <option value="WEAROS">Wear OS (Galaxy Watch)</option>
+                            <option value="ALL">Todos os 11 Modelos</option>
+                            {% for w in watches %}
+                            <option value="SINGLE:{{ w.id }}">Individual: {{ w.name }} (Alvo {{ w.priceTargetFmt }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartHistory"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Dica:</strong> Selecione um modelo individual para exibir as linhas tracejadas do <strong>Preço Alvo Black Friday</strong> e do <strong>Piso Promocional da Pesquisa</strong>.
+                    </div>
+                </div>
+
+                <!-- Chart 2: Scatter Cost x Benefit -->
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-lg">Mapa de Eficiência: Preço Efetivo (R$) × Índice de Benefício (0–100)</h3>
+                        <p class="text-xs text-stone-500">Aparelhos mais acima e à esquerda entregam a maior densidade técnica por valor gasto</p>
+                    </div>
+                    <div class="chart-container my-4">
+                        <canvas id="chartScatterCB"></canvas>
+                    </div>
+                    <div class="text-xs text-stone-500 bg-stone-50 p-3 rounded-lg border border-stone-100">
+                        <strong>Ponderação do Índice:</strong> Precisão GPS & Corrida (30) • Sensores de Saúde & ECG (20) • Autonomia & Bateria (20) • Construção & Titânio/Safira (15) • Ecossistema, NFC & Strava (15).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 3: Bar Chart CB Index -->
+            <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-lg">Ranking de Retorno Técnico: Pontos de Benefício por R$ 1.000 Gastos</h3>
+                        <p class="text-xs text-stone-500">Verde = Abaixo do Alvo BF • Azul = Na faixa de R$ 800 a R$ 1.200 • Âmbar = Acima da faixa (aguardar cupom)</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartRankingCB"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Interactive Filterable Catalog -->
+        <section id="catalogo" class="space-y-6">
+            <div class="border-l-4 border-cyan-600 pl-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-stone-900">Catálogo Interativo • 11 Smartwatches Selecionados</h2>
+                    <p class="text-stone-600 text-sm mt-1">Filtre por perfil de uso, sistema operacional, construção (titânio/safira) ou faixa de preço.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <select id="filter-category" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Todas as Categorias</option>
+                        <option value="Relógio Esportivo Híbrido">Relógio Esportivo Híbrido (RTOS)</option>
+                        <option value="Wear OS / Smartwatch Puro">Wear OS / Smartwatch Puro</option>
+                        <option value="Corrida Tradicional Prescritiva">Corrida Tradicional (Garmin)</option>
+                        <option value="Custo-Benefício no Piso">Custo-Benefício no Piso</option>
+                    </select>
+                    <select id="filter-profile" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Todos os Perfis de Uso</option>
+                        <option value="corrida">🏃 Corrida & Performance</option>
+                        <option value="hibrido_lifestyle">⌚ Híbrido Esporte & Dia a Dia</option>
+                        <option value="smart_wearos">🤖 Wear OS & Mini-Smartphone</option>
+                        <option value="bateria_extrema">🔋 Bateria Extrema (14 a 21 dias)</option>
+                        <option value="custo_beneficio_piso">💰 Piso do Orçamento (~R$ 800)</option>
+                        <option value="pagamentos_nfc">💳 Pagamentos por Aproximação</option>
+                    </select>
+                    <select id="filter-budget" class="bg-white border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-700">
+                        <option value="ALL">Qualquer Preço</option>
+                        <option value="UNDER_1200">Até R$ 1.200 (Faixa Alvo)</option>
+                        <option value="DEAL">🎯 Abaixo do Alvo BF</option>
+                        <option value="TITANIUM_SAPPHIRE">🛡️ Titânio / Safira / Kunlun</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Section 3: Consolidated Ranking Table -->
+        <section id="tabela" class="space-y-4">
+            <div class="border-l-4 border-cyan-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Tabela Comparativa Consolidada (Ordenada por Custo-Benefício)</h2>
+                <p class="text-stone-600 text-sm mt-1">Confronto direto de tela, GNSS, sensores de saúde, bateria, preço atual ao vivo, alvo Black Friday e piso histórico.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-x-auto">
+                <table class="min-w-full divide-y divide-stone-200 text-xs">
+                    <thead class="bg-stone-50 text-stone-600 uppercase font-bold">
+                        <tr>
+                            <th class="px-3 py-3 text-left">#</th>
+                            <th class="px-3 py-3 text-left">Smartwatch</th>
+                            <th class="px-3 py-3 text-left">Construção & Tela</th>
+                            <th class="px-3 py-3 text-left">GNSS & Sensores</th>
+                            <th class="px-3 py-3 text-center">Bateria / GPS</th>
+                            <th class="px-3 py-3 text-right">Preço Atual</th>
+                            <th class="px-3 py-3 text-right">Alvo BF / Piso</th>
+                            <th class="px-3 py-3 text-center">Benefício</th>
+                            <th class="px-3 py-3 text-center">Pts/R$1k</th>
+                            <th class="px-3 py-3 text-center">Status / Loja</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-200">
+                        {% for w in watches %}
+                        <tr class="hover:bg-stone-50 transition {% if 'gt-runner-2' in w.id %}bg-orange-50/40{% endif %}">
+                            <td class="px-3 py-3 font-bold text-stone-500">{{ w.cbRank }}º</td>
+                            <td class="px-3 py-3">
+                                <div class="font-bold text-stone-900 flex items-center gap-1">
+                                    {{ w.name }}
+                                    {% if 'gt-runner-2' in w.id %}<span class="px-1.5 py-0.5 rounded text-[10px] bg-orange-100 text-orange-800 font-extrabold">Foco</span>{% endif %}
+                                </div>
+                                <div class="text-[11px] text-stone-500">{{ w.category }} • {{ w.waterResistance }}</div>
+                            </td>
+                            <td class="px-3 py-3">
+                                <div class="font-semibold text-stone-800">{{ w.display }}</div>
+                                <div class="text-[11px] text-stone-500">{{ w.materials }} ({{ w.weightG }}g)</div>
+                            </td>
+                            <td class="px-3 py-3">
+                                <div class="text-stone-800 font-medium">{{ w.gnss }}</div>
+                                <div class="text-[11px] text-stone-500">{{ w.sensors }}</div>
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <div class="font-semibold text-stone-800">{{ w.batteryDays }} dias uso</div>
+                                <div class="text-[11px] text-stone-500">{{ w.gpsHours }}h GPS contínuo</div>
+                            </td>
+                            <td class="px-3 py-3 text-right font-extrabold text-sm {% if w.isBelowTarget %}text-emerald-700{% elif w.isUnderBudget %}text-cyan-700{% else %}text-amber-700{% endif %}">
+                                {{ w.effectivePriceFmt }}
+                                {% if not w.hasLiveQuote %}<div class="text-[10px] font-normal text-stone-400">(ref. pesquisa)</div>{% endif %}
+                            </td>
+                            <td class="px-3 py-3 text-right">
+                                <div class="font-semibold text-stone-700">{{ w.priceTargetFmt }}</div>
+                                <div class="text-[11px] text-stone-400">Piso: {{ w.priceFloorRefFmt }}</div>
+                            </td>
+                            <td class="px-3 py-3 text-center font-bold text-stone-800">{{ w.benefit.total }}/100</td>
+                            <td class="px-3 py-3 text-center">
+                                <span class="px-2 py-1 rounded-md font-extrabold bg-cyan-50 text-cyan-800">{{ w.cbIndex }}</span>
+                            </td>
+                            <td class="px-3 py-3 text-center">
+                                <div class="font-semibold">{{ w.statusBadge }}</div>
+                                {% if w.bestUrl %}
+                                <a href="{{ w.bestUrl }}" target="_blank" rel="noopener" class="text-[11px] text-cyan-600 hover:underline font-medium">{{ w.bestStore }} ↗</a>
+                                {% else %}
+                                <span class="text-[11px] text-stone-400">{{ w.bestStore }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Battery vs. GPS Autonomy -->
+        <section id="bateria" class="space-y-6">
+            <div class="border-l-4 border-cyan-600 pl-4">
+                <h2 class="text-2xl font-bold text-stone-900">Autonomia de Bateria & Tempo de Rastreamento GPS Contínuo</h2>
+                <p class="text-stone-600 text-sm mt-1">
+                    Comparação do equilíbrio energético entre relógios RTOS híbridos (10 a 21 dias de bateria), relógios com tela MIP transflectiva e smartwatches Wear OS (recarga diária de 24h a 40h).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                    <h3 class="font-bold text-stone-900 text-lg mb-2">Dias de Uso Típico vs. Horas de GPS Contínuo</h3>
+                    <div class="chart-container">
+                        <canvas id="chartBattery"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <span class="px-2.5 py-1 bg-cyan-100 text-cyan-900 rounded-full text-xs font-bold uppercase">Paradigmas Energéticos</span>
+                        <h3 class="font-bold text-stone-900 text-lg mt-2">Diferença de Arquitetura de Processamento</h3>
+                        <p class="text-xs text-stone-600 mt-2 leading-relaxed">
+                            <strong>RTOS (Huawei HarmonyOS / Amazfit Zepp OS):</strong> Microcontroladores de ultrabaixo consumo. Entregam de <strong>10 a 21 dias</strong> de bateria e <strong>30h a 33h de GPS contínuo</strong>. Ideais para treinos longos e maratonas sem ansiedade de recarga.
+                        </p>
+                        <p class="text-xs text-stone-600 mt-2 leading-relaxed">
+                            <strong>Wear OS (Samsung Galaxy Watch 7/8 LTE):</strong> SoC Exynos W1000 com múltiplos núcleos de alta potência. Executa apps nativos e LTE, mas exige <strong>recarga diária (24h a 40h)</strong> e consome mais bateria em corridas longas de GPS.
+                        </p>
+                    </div>
+                    <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs text-stone-600 space-y-1.5">
+                        <div class="font-bold text-stone-900">⚡ HUAWEI GT Runner 2: Carregamento sem fio rápido</div>
+                        <p>Recupera <strong>100% em menos de 1 hora</strong> via indução magnética, entregando 32h de rastreamento com antena 3D de banda dupla ativa.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Technical Deep-Dive & Purchasing Strategy -->
+        <section id="analise" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-orange-700">1. Engenharia do HUAWEI GT Runner 2</div>
+                <h3 class="text-lg font-bold text-stone-900">Antena Flutuante 3D & Titânio (34,5g)</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    A antena suspensa na caixa externa isola o elemento radiante da atenuação causada pelo pulso e suor, gerando um sinal <strong>20% mais preciso em cânions urbanos</strong>. A caixa em titânio e compósito pesa apenas <strong>34,5 gramas</strong>, eliminando o efeito <em>cadence lock</em> (bloqueio de cadência no sensor óptico). Tela de <strong>3.004 nits</strong> garante visibilidade perfeita sob o sol do meio-dia.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-cyan-700">2. Integração com Strava & Áudio</div>
+                <h3 class="text-lg font-bold text-stone-900">Sincronização Nativa no Brasil</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    A vinculação oficial do <strong>Huawei Health com o Strava</strong> transfere rotas, ritmo e dados de FC automaticamente ao encerrar a atividade. O relógio armazena músicas localmente para fones Bluetooth e importa arquivos GPX de mapas offline. O Modo Maratona Inteligente com limiar de lactato é totalmente gratuito, sem assinaturas mensais.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
+                <div class="text-xs font-bold uppercase text-red-700">3. Prevenção de Armadilhas Black Friday</div>
+                <h3 class="text-lg font-bold text-stone-900">Recondicionados (Open Box) & Cupons Pix</h3>
+                <p class="text-xs text-stone-600 leading-relaxed">
+                    <strong>Atenção a relógios de R$ 799 a R$ 999 no Mercado Livre e OLX:</strong> muitos são unidades recondicionadas com vedação 5 ATM/IP69 comprometida por abertura prévia. Priorize produtos novos lacrados com NF. Para atingir os pisos da pesquisa (R$ 999 no GT Runner 2 ou R$ 1.159 no Galaxy Watch 8 LTE), combine desconto à vista no Pix com cupons de marketplace.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12 py-6 text-center text-xs text-stone-500">
+        PromoRadar • Rastreador Black Friday 2026 de Smartwatches (R$ 800 a R$ 1.200) • Dados persistidos em <code>data/promoradar.db</code>
+    </footer>
+
+    <script>
+        const WATCHES = {{ watches_json | safe }};
+        const TIMELINE_LABELS = {{ timeline_labels_json | safe }};
+        const PROFILES = {{ profiles_json | safe }};
+
+        // Render Cards
+        function renderCards() {
+            const cat = document.getElementById('filter-category').value;
+            const prof = document.getElementById('filter-profile').value;
+            const bud = document.getElementById('filter-budget').value;
+            const grid = document.getElementById('cards-grid');
+
+            const filtered = WATCHES.slice().sort((a, b) => b.cbIndex - a.cbIndex).filter(w => {
+                if (cat !== 'ALL' && w.category !== cat) return false;
+                if (prof !== 'ALL' && !(w.profiles || []).includes(prof)) return false;
+                if (bud === 'UNDER_1200' && w.effectivePrice > 1200) return false;
+                if (bud === 'DEAL' && !w.isBelowTarget) return false;
+                if (bud === 'TITANIUM_SAPPHIRE') {
+                    const mat = (w.materials + ' ' + w.display).toLowerCase();
+                    if (!mat.includes('titânio') && !mat.includes('titanio') && !mat.includes('safira') && !mat.includes('kunlun')) return false;
+                }
+                return true;
+            });
+
+            grid.innerHTML = filtered.map(w => {
+                const isRunner = w.id.includes('gt-runner-2');
+                const offersHtml = (w.storeOffers || []).map(o =>
+                    `<a href="${o.url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-stone-100 hover:bg-cyan-50 text-stone-800 hover:text-cyan-700 border border-stone-200 transition">
+                        <span>${o.marketplace}:</span> <span class="font-bold text-emerald-700">${o.preco_fmt}</span> ↗
+                    </a>`
+                ).join(' ');
+
+                const prosHtml = (w.pros || []).map(pr => `<li class="text-emerald-800">✓ ${pr}</li>`).join('');
+                const consHtml = (w.cons || []).map(co => `<li class="text-amber-800">⚠ ${co}</li>`).join('');
+
+                return `
+                <div class="bg-white rounded-2xl p-5 border ${isRunner ? 'border-orange-400 ring-2 ring-orange-200' : (w.isBelowTarget ? 'border-emerald-400 ring-1 ring-emerald-200' : 'border-stone-200')} shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-2.5">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-700">${w.category}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${w.isBelowTarget ? 'bg-emerald-100 text-emerald-900' : (isRunner ? 'bg-orange-100 text-orange-900' : 'bg-cyan-50 text-cyan-800')}">${w.statusBadge}</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <h3 class="text-lg font-extrabold text-stone-900">${w.cbRank}º • ${w.name}</h3>
+                                ${isRunner ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-orange-500 text-white">FOCO</span>' : ''}
+                            </div>
+                            <p class="text-xs font-semibold text-cyan-700">${w.tag}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 bg-stone-50 p-3 rounded-xl border border-stone-100 text-xs">
+                            <div>
+                                <div class="text-[10px] uppercase text-stone-400 font-bold">Preço Atual</div>
+                                <div class="text-lg font-extrabold text-stone-900">${w.effectivePriceFmt}</div>
+                                <div class="text-[10px] text-stone-500">${w.bestStore}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] uppercase text-stone-400 font-bold">Alvo BF / Piso</div>
+                                <div class="text-sm font-bold text-emerald-700">${w.priceTargetFmt}</div>
+                                <div class="text-[10px] text-stone-500">Piso: ${w.priceFloorRefFmt}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs space-y-1 text-stone-600">
+                            <div><strong>Construção:</strong> ${w.materials} (${w.weightG}g)</div>
+                            <div><strong>Tela:</strong> ${w.display}</div>
+                            <div><strong>GNSS:</strong> ${w.gnss}</div>
+                            <div><strong>Sensores:</strong> ${w.sensors}</div>
+                            <div><strong>Bateria:</strong> ${w.batteryDays} dias uso típico • ${w.gpsHours}h GPS contínuo</div>
+                            <div><strong>Resistência & Conexão:</strong> ${w.waterResistance} • ${w.nfc}</div>
+                        </div>
+                        <ul class="text-[11px] space-y-0.5 pt-1">${prosHtml}${consHtml}</ul>
+                    </div>
+                    <div class="pt-3 border-t border-stone-100 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-semibold text-stone-500">Benefício: <strong>${w.benefit.total}/100</strong></span>
+                            <span class="px-2 py-0.5 rounded bg-cyan-100 text-cyan-900 font-extrabold">${w.cbIndex} pts/R$1k</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">${offersHtml || '<span class="text-[11px] text-stone-400">Sem oferta HTTP direta — usando referência da pesquisa</span>'}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        ['filter-category', 'filter-profile', 'filter-budget'].forEach(id => {
+            document.getElementById(id).addEventListener('change', renderCards);
+        });
+        renderCards();
+
+        // Chart 1: History Line Chart
+        let historyChart = null;
+        function updateHistoryChart() {
+            const mode = document.getElementById('history-filter').value;
+            let selected = [];
+            const extraDatasets = [];
+
+            if (mode === 'TOP_CB') {
+                selected = WATCHES.slice().sort((a, b) => b.cbIndex - a.cbIndex).slice(0, 5);
+            } else if (mode === 'CORRIDA') {
+                selected = WATCHES.filter(w => (w.profiles || []).includes('corrida'));
+            } else if (mode === 'WEAROS') {
+                selected = WATCHES.filter(w => (w.profiles || []).includes('smart_wearos'));
+            } else if (mode === 'ALL') {
+                selected = WATCHES;
+            } else if (mode.startsWith('SINGLE:')) {
+                const pid = mode.split(':')[1];
+                const w = WATCHES.find(item => item.id === pid);
+                if (w) {
+                    selected = [w];
+                    extraDatasets.push({
+                        label: 'Alvo Black Friday (' + w.priceTargetFmt + ')',
+                        data: TIMELINE_LABELS.map(() => w.priceTarget),
+                        borderColor: '#10b981',
+                        borderDash: [6, 4],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    });
+                    extraDatasets.push({
+                        label: 'Piso Histórico Pesquisa (' + w.priceFloorRefFmt + ')',
+                        data: TIMELINE_LABELS.map(() => w.priceFloorRef),
+                        borderColor: '#f59e0b',
+                        borderDash: [3, 3],
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    });
+                }
+            }
+
+            const datasets = selected.map(w => ({
+                label: w.name,
+                data: w.timelineValues,
+                borderColor: w.color,
+                backgroundColor: w.color,
+                borderWidth: w.id.includes('gt-runner-2') ? 3.5 : 2.2,
+                tension: 0.25,
+                spanGaps: true,
+                pointRadius: w.id.includes('gt-runner-2') ? 5 : 3.5
+            })).concat(extraDatasets);
+
+            if (historyChart) historyChart.destroy();
+            historyChart = new Chart(document.getElementById('chartHistory'), {
+                type: 'line',
+                data: { labels: TIMELINE_LABELS, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+                        }
+                    }
+                }
+            });
+        }
+        document.getElementById('history-filter').addEventListener('change', updateHistoryChart);
+        updateHistoryChart();
+
+        // Chart 2: Scatter Cost vs Benefit
+        new Chart(document.getElementById('chartScatterCB'), {
+            type: 'scatter',
+            data: {
+                datasets: WATCHES.map(w => ({
+                    label: w.name,
+                    data: [{ x: w.effectivePrice, y: w.benefit.total }],
+                    backgroundColor: w.id.includes('gt-runner-2') ? '#ea580c' : w.color,
+                    borderColor: '#fff',
+                    borderWidth: 1.5,
+                    pointRadius: w.id.includes('gt-runner-2') ? 10 : 7,
+                    pointHoverRadius: 11
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: R$ ${ctx.raw.x.toLocaleString('pt-BR')} • Benefício ${ctx.raw.y}/100`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Preço Efetivo Atual (R$)' },
+                        ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+                    },
+                    y: {
+                        title: { display: true, text: 'Índice de Benefício Vestível (0–100)' },
+                        min: 55,
+                        max: 95
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Ranking CB Bar Chart
+        const rankedWatches = WATCHES.slice().sort((a, b) => b.cbIndex - a.cbIndex);
+        new Chart(document.getElementById('chartRankingCB'), {
+            type: 'bar',
+            data: {
+                labels: rankedWatches.map(w => w.name),
+                datasets: [{
+                    label: 'Pontos de Benefício por R$ 1.000',
+                    data: rankedWatches.map(w => w.cbIndex),
+                    backgroundColor: rankedWatches.map(w => w.isBelowTarget ? '#059669' : (w.isUnderBudget ? '#0891b2' : '#d97706')),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { title: { display: true, text: 'Pontos de Benefício / R$ 1.000 (maior = melhor retorno por real)' } }
+                }
+            }
+        });
+
+        // Chart 4: Battery Days vs GPS Hours
+        new Chart(document.getElementById('chartBattery'), {
+            type: 'bar',
+            data: {
+                labels: WATCHES.map(w => w.name.replace('HUAWEI WATCH ', '').replace('Samsung Galaxy ', '')),
+                datasets: [
+                    {
+                        label: 'Bateria em Uso Típico (Dias)',
+                        data: WATCHES.map(w => w.batteryDays),
+                        backgroundColor: '#0891b2',
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'GPS Contínuo (Horas)',
+                        data: WATCHES.map(w => w.gpsHours),
+                        backgroundColor: '#ea580c',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { position: 'left', title: { display: true, text: 'Dias de Autonomia' }, min: 0, max: 24 },
+                    y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Horas de GPS Contínuo' }, min: 0, max: 40 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

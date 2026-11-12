@@ -1,0 +1,671 @@
+# Catálogo de Monitoramento Black Friday 2026: Smartphones 512 GB na faixa de R$ 3.000 (custo x benefício)
+# Base: "Panorama Estratégico de Smartphones com 512 GB na Faixa de R$ 3.000 para a Black Friday" (pesquisa Gemini).
+# Sincronizado com o SQLite (data/promoradar.db) e com o painel (reports/celulares_512gb_black_friday.html).
+#
+# Convenções de keywords (src/skills/normalize_product/normalizer.py):
+#   - "512GB" casa com "512 GB", "512gb", "12/512GB" e "12GB RAM + 512GB".
+#   - "S25+" vira "s25 plus" (casa com "S25+" e "S25 Plus").
+#   - Tokens com "-" excluem variantes irmãs (ex.: "-max", "-ultra"). Usados/recondicionados são sempre descartados.
+#
+# specs.scores (0–10) são notas editoriais derivadas da pesquisa e alimentam o Índice de Benefício (0–100):
+#   Desempenho 30 | Câmeras 25 | Bateria+Recarga 15 | Software 10 | Tela 10 | Construção/Memória 10
+# specs.estimated = true sinaliza ficha técnica parcial na pesquisa (notas estimadas, conferir antes de comprar).
+
+products:
+  # ───────────────────────── Topo de linha depreciados ─────────────────────────
+  - id: "moto-edge-50-ultra-512"
+    nome: "Motorola Edge 50 Ultra 512GB"
+    keywords:
+      - "Edge 50 Ultra 512GB"
+    preco_alvo: 2499.00
+    preco_maximo: 3300.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Motorola"
+      category: "Topo de Linha Depreciado"
+      profiles: ["geral", "fotografia"]
+      soc: "Snapdragon 8s Gen 3 (4 nm)"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "pOLED 6,7\" 1.5K curva, 144 Hz, até 2.800 nits"
+      camera: "50 MP OIS + 50 MP UW/Macro AF + 64 MP Tele 3x OIS"
+      selfie: "50 MP com AF"
+      battery_mah: 4500
+      charge_w: 125
+      wireless_w: 50
+      ip: "IP68"
+      updates_years: 4
+      updates_note: "3 versões do Android / 4 anos de segurança"
+      weight_g: 197
+      price_regular_ref: 3300
+      price_floor_ref: 2369
+      tag: "Melhor Hardware Completo"
+      pros:
+        - "Trio de câmeras sem sensor descartável, tele 3x de 64 MP com OIS e 4K em todas as lentes"
+        - "UFS 4.0 + LPDDR5X: mantém fluidez mesmo com 400 GB ocupados"
+        - "125W com fio + 50W sem fio (TurboPower na caixa) e acabamento em madeira/couro vegano"
+      cons:
+        - "Tela curva: troca do display na autorizada ~R$ 2.200"
+        - "Bateria de 4.500 mAh e apenas 3 versões de Android"
+      scores: {performance: 8.5, camera: 9.0, display: 9.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Motorola+Edge+50+Ultra+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/edge-50-ultra-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/motorola-edge-50-ultra-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Motorola+Edge+50+Ultra+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "xiaomi-14t-512"
+    nome: "Xiaomi 14T 512GB"
+    keywords:
+      - "Xiaomi 14T 512GB -pro"
+    preco_alvo: 2899.00
+    preco_maximo: 3300.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Xiaomi"
+      category: "Topo de Linha Depreciado"
+      profiles: ["geral", "fotografia"]
+      soc: "Dimensity 8300-Ultra (4 nm)"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 6,67\" 1.5K plana, 144 Hz, 4.000 nits, Dolby Vision"
+      camera: "Leica 50 MP IMX906 OIS + 50 MP Tele 2.6x + 12 MP UW"
+      selfie: "32 MP"
+      battery_mah: 5000
+      charge_w: 67
+      wireless_w: 0
+      ip: "IP68"
+      updates_years: 5
+      updates_note: "4 grandes atualizações (até HyperOS 3/Android 16) / 5 anos de segurança"
+      weight_g: 195
+      price_launch: 5999.99
+      price_regular_ref: 3870
+      price_floor_ref: 2814
+      tag: "Fotografia Leica + Tela 4.000 nits"
+      pros:
+        - "Ciência de cores Leica (Authentic/Vibrant), vídeo 10 bits Rec.2020 e MasterCinema"
+        - "Tela plana de 4.000 nits (sem risco de quebra lateral da curva)"
+        - "Ciclo de software mais longo que o Edge 50 Ultra (5 anos de segurança)"
+      cons:
+        - "Laterais em plástico (traseira em vidro Panda X)"
+        - "Bloatware do HyperOS exige limpeza inicial; sem recarga sem fio"
+      scores: {performance: 7.8, camera: 9.0, display: 9.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Xiaomi+14T+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/xiaomi-14t-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/xiaomi-14t-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Xiaomi+14T+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "samsung-s25-plus-512"
+    nome: "Samsung Galaxy S25+ 512GB"
+    keywords:
+      - "Galaxy S25+ 512GB -ultra -edge -fe"
+    preco_alvo: 3199.00
+    preco_maximo: 3600.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Topo de Linha Depreciado"
+      profiles: ["longevidade", "geral"]
+      soc: "Snapdragon 8 Elite for Galaxy"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "Dynamic AMOLED 2X 6,7\" QHD+, 120 Hz"
+      camera: "50 MP OIS + 12 MP UW + 10 MP Tele 3x"
+      selfie: "12 MP"
+      battery_mah: 4900
+      charge_w: 45
+      wireless_w: 15
+      ip: "IP68"
+      updates_years: 7
+      updates_note: "7 anos de Android e segurança + Galaxy AI"
+      weight_g: 190
+      price_regular_ref: 3500
+      price_floor_ref: 3080
+      tag: "Imbatível em Vida Útil (só com cupom)"
+      pros:
+        - "Snapdragon 8 Elite: maior desempenho bruto da lista"
+        - "7 anos de atualizações e melhor liquidez de revenda"
+        - "Galaxy AI completo com 12 GB de RAM"
+      cons:
+        - "Só entra na faixa com PIX + cupom relâmpago (piso R$ 3.080)"
+        - "Recarga de 45W, abaixo dos chineses"
+      scores: {performance: 10.0, camera: 8.5, display: 9.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Samsung+Galaxy+S25%2B+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-s25-plus-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/samsung-galaxy-s25-plus-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Samsung+Galaxy+S25%2B+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "samsung-s24-fe-512"
+    nome: "Samsung Galaxy S24 FE 512GB"
+    keywords:
+      - "Galaxy S24 FE 512GB"
+    preco_alvo: 2499.00
+    preco_maximo: 3000.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Topo de Linha Depreciado"
+      profiles: ["longevidade"]
+      soc: "Exynos 2400e (4 nm)"
+      ram_gb: 8
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "Dynamic AMOLED 2X 6,7\" FHD+, 120 Hz, 1.900 nits"
+      camera: "50 MP OIS + 12 MP UW + 8 MP Tele 3x OIS"
+      selfie: "10 MP"
+      battery_mah: 4700
+      charge_w: 25
+      wireless_w: 15
+      ip: "IP68"
+      updates_years: 7
+      updates_note: "7 anos de Android e segurança + Galaxy AI"
+      weight_g: 213
+      price_regular_ref: 3899
+      price_floor_ref: 2278
+      tag: "Samsung com 7 Anos Abaixo de R$ 3 mil"
+      pros:
+        - "7 anos de atualizações, vidro Victus+, alumínio e IP68"
+        - "Exynos 2400e sem throttling severo (máx. 40 °C em jogo, 57 fps no CarX Street)"
+        - "Tele 3x com OIS"
+      cons:
+        - "Único da lista preso a 8 GB de RAM na versão 512 GB"
+        - "Bateria fraca (6% no teste de 8h) e 25W = 1h09 para carga completa; 213 g"
+      scores: {performance: 8.0, camera: 7.5, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Samsung+Galaxy+S24+FE+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-s24-fe-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/samsung-galaxy-s24-fe-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Samsung+Galaxy+S24+FE+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "realme-gt6-512"
+    nome: "Realme GT 6 512GB"
+    keywords:
+      - "Realme GT 6 512GB -6t"
+      - "Realme GT6 512GB -gt6t"
+    preco_alvo: 3199.00
+    preco_maximo: 3500.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Realme"
+      category: "Topo de Linha Depreciado"
+      profiles: ["gamer"]
+      soc: "Snapdragon 8s Gen 3 (4 nm)"
+      ram_gb: 16
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 6,78\" 1.5K, 120 Hz, altíssimo brilho"
+      camera: "50 MP Sony OIS + 50 MP Tele 2x + 8 MP UW (sem AF)"
+      selfie: "32 MP"
+      battery_mah: 5500
+      charge_w: 120
+      wireless_w: 0
+      ip: "IP65"
+      updates_years: 4
+      updates_note: "3 versões do Android / 4 anos de segurança"
+      weight_g: 199
+      price_regular_ref: 3999
+      price_floor_ref: 3200
+      tag: "16 GB de RAM + Recarga Relâmpago"
+      pros:
+        - "16 GB de RAM com Snapdragon 8s Gen 3"
+        - "5.500 mAh: 40% em 10 min e 60% em 15 min"
+        - "Tele 2x de 50 MP com ótima nitidez"
+      cons:
+        - "Ultrawide de 8 MP sem AF e selfie com alcance dinâmico limitado"
+        - "Precisa cair ~R$ 800 do preço regular para entrar na faixa"
+      scores: {performance: 8.5, camera: 7.5, display: 9.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Realme+GT+6+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/realme-gt-6-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/realme-gt-6-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Realme+GT+6+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ─────────────────── Intermediários premium / flagship killers ───────────────────
+  - id: "moto-edge-60-pro-512"
+    nome: "Motorola Edge 60 Pro 512GB"
+    keywords:
+      - "Edge 60 Pro 512GB"
+    preco_alvo: 2899.00
+    preco_maximo: 3300.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Motorola"
+      category: "Intermediário Premium"
+      profiles: ["geral", "fotografia"]
+      soc: "Dimensity 8350 Extreme"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "pOLED 6,7\" Quad-Curve 1.5K, 120 Hz"
+      camera: "50 MP Sony OIS + 50 MP UW + 10 MP Tele 3x"
+      selfie: "50 MP"
+      battery_mah: 6000
+      charge_w: 90
+      wireless_w: 15
+      ip: "IP68/IP69"
+      updates_years: 4
+      updates_note: "3 versões do Android / 4 anos de segurança"
+      weight_g: 186
+      price_regular_ref: 3500
+      price_floor_ref: 2900
+      tag: "Sucessor do Edge 50 Pro (bateria corrigida)"
+      pros:
+        - "Trio traseiro com tele + selfie de 50 MP"
+        - "Bateria grande e recarga rápida (corrige o Edge 50 Pro)"
+        - "Estoques pressionados pela chegada da família Edge 70"
+      cons:
+        - "512 GB ainda orbita R$ 3.500 sem PIX/cupom"
+        - "Tela Quad-Curve exige cuidado com quedas"
+      scores: {performance: 7.5, camera: 8.0, display: 8.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Motorola+Edge+60+Pro+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/edge-60-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/motorola-edge-60-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Motorola+Edge+60+Pro+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "realme-14-pro-plus-512"
+    nome: "Realme 14 Pro+ 512GB"
+    keywords:
+      - "Realme 14 Pro+ 512GB"
+    preco_alvo: 2699.00
+    preco_maximo: 3200.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Realme"
+      category: "Intermediário Premium"
+      profiles: ["bateria", "fotografia"]
+      soc: "Snapdragon 7s Gen 3"
+      ram_gb: 12
+      ram_type: "LPDDR4X"
+      storage_type: "UFS 3.1"
+      display: "OLED 6,83\" 1.5K, 120 Hz"
+      camera: "50 MP Sony OIS + 50 MP Periscópio 3x + 8 MP UW"
+      selfie: "32 MP"
+      battery_mah: 6000
+      charge_w: 80
+      wireless_w: 0
+      ip: "IP68/IP69"
+      updates_years: 3
+      updates_note: "2 versões do Android / 3 anos de segurança"
+      weight_g: null
+      price_regular_ref: 3029
+      price_floor_ref: 3029
+      tag: "Tela Gigante + Periscópio"
+      pros:
+        - "Tela de 6,83\" e excelente autonomia"
+        - "Conjunto fotográfico versátil para a categoria"
+      cons:
+        - "Snapdragon 7s é o chip mais fraco do grupo premium"
+        - "Política de atualizações curta"
+      scores: {performance: 5.5, camera: 7.5, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Realme+14+Pro%2B+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/realme-14-pro-plus-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/realme-14-pro-plus-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Realme+14+Pro%2B+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "poco-x8-pro-512"
+    nome: "POCO X8 Pro 512GB"
+    keywords:
+      - "POCO X8 Pro 512GB -max"
+    preco_alvo: 2299.00
+    preco_maximo: 2700.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "POCO (Xiaomi)"
+      category: "Intermediário Premium"
+      profiles: ["gamer", "bateria", "economia"]
+      soc: "Chipset 5G de alta potência (Dimensity série 8000)"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 1.5K, 120 Hz"
+      camera: "50 MP OIS + UW (sem tele)"
+      selfie: "—"
+      battery_mah: 6500
+      charge_w: 90
+      wireless_w: 0
+      ip: "IP68"
+      updates_years: 6
+      updates_note: "Política Xiaomi recente (estimado: 4 Android / 6 anos)"
+      weight_g: null
+      estimated: true
+      price_regular_ref: 2657
+      price_floor_ref: 2150
+      tag: "Potência Bruta por Menos"
+      pros:
+        - "Supera em desempenho bruto rivais mais caros como o Edge 60 Pro"
+        - "Chega a R$ 2.150 em compra coletiva"
+      cons:
+        - "Sem teleobjetiva; câmeras secundárias simples"
+        - "Ficha técnica parcial na pesquisa (conferir versão 12/512 nacional)"
+      scores: {performance: 8.5, camera: 6.0, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=POCO+X8+Pro+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/poco-x8-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/poco-x8-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=POCO+X8+Pro+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "poco-x8-pro-max-512"
+    nome: "POCO X8 Pro Max 512GB"
+    keywords:
+      - "POCO X8 Pro Max 512GB"
+    preco_alvo: 2799.00
+    preco_maximo: 3300.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "POCO (Xiaomi)"
+      category: "Intermediário Premium"
+      profiles: ["gamer", "bateria"]
+      soc: "Chipset 5G de alta potência"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 6,83\", 120 Hz"
+      camera: "Conjunto focado em uso misto/social (sem tele)"
+      selfie: "—"
+      battery_mah: 7000
+      charge_w: 90
+      wireless_w: 0
+      ip: "IP68"
+      updates_years: 6
+      updates_note: "Política Xiaomi recente (estimado)"
+      weight_g: null
+      estimated: true
+      price_regular_ref: 3287
+      price_floor_ref: 2700
+      tag: "Tela Grande + Autonomia Prolongada"
+      pros:
+        - "Tela de 6,83\" e bateria ainda maior que o X8 Pro"
+        - "Reconhecido pela estabilidade de conexão e fluidez"
+      cons:
+        - "Piso de R$ 2.700 dependeu de cupom Shopee"
+        - "Ficha técnica parcial na pesquisa"
+      scores: {performance: 8.5, camera: 6.0, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=POCO+X8+Pro+Max+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/poco-x8-pro-max-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/poco-x8-pro-max-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=POCO+X8+Pro+Max+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "poco-f6-512"
+    nome: "POCO F6 512GB"
+    keywords:
+      - "POCO F6 512GB -pro"
+    preco_alvo: 2399.00
+    preco_maximo: 2900.00
+    prioridade: "low"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "POCO (Xiaomi)"
+      category: "Intermediário Premium"
+      profiles: ["gamer"]
+      soc: "Snapdragon 8s Gen 3 (4 nm)"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 6,67\" 1.5K, 120 Hz"
+      camera: "50 MP OIS + 8 MP UW (sem tele)"
+      selfie: "20 MP"
+      battery_mah: 5000
+      charge_w: 90
+      wireless_w: 0
+      ip: "IP64"
+      updates_years: 4
+      updates_note: "3 versões do Android / 4 anos de segurança"
+      weight_g: 179
+      price_regular_ref: 2900
+      price_floor_ref: 2400
+      tag: "Foco Gamer Puro"
+      pros:
+        - "Mesmo chip do Edge 50 Ultra e do GT 6 por menos"
+        - "Recarga de 90W"
+      cons:
+        - "Sem tele e sem IP68"
+        - "Geração anterior: estoque nacional cada vez menor"
+      scores: {performance: 8.5, camera: 6.0, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=POCO+F6+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/poco-f6-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/poco-f6-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=POCO+F6+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ─────────────────── Custo-benefício extremo / compactos / ultra-autonomia ───────────────────
+  - id: "moto-edge-50-neo-512"
+    nome: "Motorola Edge 50 Neo 512GB"
+    keywords:
+      - "Edge 50 Neo 512GB"
+    preco_alvo: 2299.00
+    preco_maximo: 2600.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Motorola"
+      category: "Custo-Benefício / Compacto"
+      profiles: ["compacto", "economia"]
+      soc: "Dimensity 7300 (4 nm)"
+      ram_gb: 12
+      ram_type: "LPDDR4X"
+      storage_type: "UFS 2.2"
+      display: "LTPO pOLED 6,4\" 1.5K, 120 Hz, 3.000 nits"
+      camera: "50 MP LYT-700C OIS + 13 MP UW/Macro + 10 MP Tele 3x"
+      selfie: "32 MP"
+      battery_mah: 4310
+      charge_w: 68
+      wireless_w: 15
+      ip: "IP68 + MIL-STD-810H"
+      updates_years: 5
+      updates_note: "5 versões do Android / 5 anos de segurança"
+      weight_g: 171
+      price_regular_ref: 2600
+      price_floor_ref: 2349
+      tag: "Compacto Imbatível (171 g)"
+      pros:
+        - "171 g, 6,4\" LTPO e certificação militar + IP68"
+        - "Tele 3x e recarga sem fio em um corpo pequeno"
+      cons:
+        - "UFS 2.2 + LPDDR4X: gargalos com 300–400 GB ocupados"
+        - "Bateria de 4.310 mAh"
+      scores: {performance: 5.0, camera: 7.5, display: 8.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Motorola+Edge+50+Neo+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/edge-50-neo-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/motorola-edge-50-neo-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Motorola+Edge+50+Neo+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "poco-x7-pro-512"
+    nome: "POCO X7 Pro 512GB"
+    keywords:
+      - "POCO X7 Pro 512GB -max"
+    preco_alvo: 1999.00
+    preco_maximo: 2400.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "POCO (Xiaomi)"
+      category: "Custo-Benefício / Compacto"
+      profiles: ["gamer", "bateria", "economia"]
+      soc: "Dimensity 8400-Ultra (4 nm)"
+      ram_gb: 12
+      ram_type: "LPDDR5X"
+      storage_type: "UFS 4.0"
+      display: "AMOLED 6,67\" 1.5K CrystalRes, 120 Hz"
+      camera: "50 MP f/1.5 OIS + 8 MP UW"
+      selfie: "20 MP"
+      battery_mah: 6000
+      charge_w: 90
+      wireless_w: 0
+      ip: "IP68"
+      updates_years: 6
+      updates_note: "4 versões do Android / 6 anos de segurança"
+      weight_g: 198
+      price_regular_ref: 2243
+      price_floor_ref: 2150
+      tag: "Referência Abaixo de R$ 2.300"
+      pros:
+        - "Melhor bateria no teste de 8h (34% restantes) + 90W"
+        - "UFS 4.0 e tela 1.5K por preço de intermediário"
+      cons:
+        - "Sem tele; ultrawide de 8 MP"
+        - "Atenção a vendedores de importação (garantia)"
+      scores: {performance: 8.5, camera: 6.0, display: 8.0}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=POCO+X7+Pro+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/poco-x7-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/poco-x7-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=POCO+X7+Pro+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "redmi-note-15-pro-5g-512"
+    nome: "Redmi Note 15 Pro 5G 512GB"
+    keywords:
+      - "Redmi Note 15 Pro 512GB -plus -max"
+    preco_alvo: 1699.00
+    preco_maximo: 2000.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Xiaomi (Redmi)"
+      category: "Custo-Benefício / Compacto"
+      profiles: ["bateria", "economia"]
+      soc: "Plataforma intermediária 5G"
+      ram_gb: 12
+      ram_type: "LPDDR4X"
+      storage_type: "UFS 2.2"
+      display: "AMOLED 6,83\" (1280x2772), 120 Hz, Victus 2"
+      camera: "Principal de 200 MP"
+      selfie: "—"
+      battery_mah: 6580
+      charge_w: 45
+      wireless_w: 0
+      ip: "IP68 + IP69K"
+      updates_years: 6
+      updates_note: "Estimado (política Xiaomi recente)"
+      weight_g: null
+      estimated: true
+      price_regular_ref: 1800
+      price_floor_ref: 1699
+      tag: "512 GB Mais Barato + Ultra Resistente"
+      pros:
+        - "IP68 + IP69K e Gorilla Glass Victus 2"
+        - "6.580 mAh e câmera de 200 MP por menos de R$ 2 mil"
+      cons:
+        - "Desempenho de intermediário; ficha parcial na pesquisa"
+      scores: {performance: 5.0, camera: 6.5, display: 7.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Redmi+Note+15+Pro+5G+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/redmi-note-15-pro-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/redmi-note-15-pro-5g-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Redmi+Note+15+Pro+5G+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "samsung-a57-512"
+    nome: "Samsung Galaxy A57 512GB"
+    keywords:
+      - "Galaxy A57 512GB"
+    preco_alvo: 1899.00
+    preco_maximo: 2300.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Custo-Benefício / Compacto"
+      profiles: ["longevidade", "economia"]
+      soc: "Exynos intermediário"
+      ram_gb: 12
+      ram_type: "LPDDR5"
+      storage_type: "UFS 3.1"
+      display: "Super AMOLED 6,7\", 120 Hz"
+      camera: "50 MP OIS + UW + Macro"
+      selfie: "—"
+      battery_mah: 5000
+      charge_w: 45
+      wireless_w: 0
+      ip: "IP67"
+      updates_years: 6
+      updates_note: "Longo suporte Samsung (já com One UI 9 no Brasil)"
+      weight_g: null
+      estimated: true
+      price_regular_ref: 2000
+      price_floor_ref: 2000
+      tag: "Samsung Econômico de Longo Suporte"
+      pros:
+        - "Interface One UI 9 e longo suporte de atualizações"
+        - "Super AMOLED sem comprometer todo o orçamento"
+      cons:
+        - "Desempenho e câmeras de intermediário; ficha parcial na pesquisa"
+      scores: {performance: 5.5, camera: 6.5, display: 7.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Samsung+Galaxy+A57+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-a57-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/samsung-galaxy-a57-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Samsung+Galaxy+A57+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "jovi-v70-512"
+    nome: "Jovi V70 5G 512GB"
+    keywords:
+      - "Jovi V70 512GB"
+    preco_alvo: 2499.00
+    preco_maximo: 3059.00
+    prioridade: "low"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Jovi"
+      category: "Custo-Benefício / Compacto"
+      profiles: ["bateria"]
+      soc: "Plataforma intermediária 5G"
+      ram_gb: 12
+      ram_type: "—"
+      storage_type: "—"
+      display: "AMOLED 120 Hz"
+      camera: "Principal de 200 MP"
+      selfie: "—"
+      battery_mah: 7000
+      charge_w: 80
+      wireless_w: 0
+      ip: "—"
+      updates_years: 3
+      updates_note: "Política não informada na pesquisa"
+      weight_g: null
+      estimated: true
+      price_regular_ref: 3059
+      price_floor_ref: 2700
+      tag: "Superbateria de 7.000 mAh"
+      pros:
+        - "Maior bateria da lista (7.000 mAh) + 200 MP"
+      cons:
+        - "Marca nova no Brasil: rede de assistência e política de updates incertas"
+        - "Ficha parcial na pesquisa"
+      scores: {performance: 5.5, camera: 6.5, display: 7.5}
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Jovi+V70+512GB", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/jovi-v70-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/jovi-v70-512gb", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Jovi+V70+5G+512GB&udm=28", metodo_coleta: "scraping_html", ativo: true}

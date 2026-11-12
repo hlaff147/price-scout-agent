@@ -1,0 +1,575 @@
+# Catálogo de Monitoramento Black Friday 2026: Smartwatches na Faixa de R$ 800 a R$ 1.200 (Custo x Benefício)
+# Base: "Análise de Mercado e Ranking Estratégico: Smartwatches na Faixa de R$ 800 a R$ 1.200 para a Black Friday"
+# Destaque Principal: HUAWEI WATCH GT Runner 2 (Engenharia de corrida em parceria com Eliud Kipchoge)
+# Sincronizado com o SQLite (data/promoradar.db) e com o painel (reports/smartwatches_black_friday.html).
+#
+# Convenções de keywords (src/skills/normalize_product/normalizer.py):
+#   - Tokens com "-" excluem variantes ou gerações indesejadas (ex.: "-pulseira", "-pelicula").
+#   - Proteção estrita contra acessórios (pulseiras de reposição, capas de silicone, carregadores).
+#
+# specs.scores (0–10) alimentam o Índice de Benefício Vestível (0–100):
+#   Precisão GPS & Corrida: 30 | Sensores de Saúde & ECG/HRV: 20 | Bateria & Autonomia: 20
+#   Construção, Ergonomia & Proteção: 15 | Ecossistema, Conectividade & NFC/Strava: 15
+
+products:
+  # ────────────────────── 1º Lugar: HUAWEI WATCH GT Runner 2 ──────────────────────
+  - id: "huawei-gt-runner-2"
+    nome: "HUAWEI WATCH GT Runner 2"
+    keywords:
+      - "GT Runner 2 -pulseira -capa -pelicula -cabo"
+      - "HUAWEI WATCH GT Runner 2 -pulseira"
+    preco_alvo: 1199.00
+    preco_maximo: 1399.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Huawei"
+      category: "Relógio Esportivo Híbrido"
+      rank_position: 1
+      profiles: ["corrida", "performance", "geral"]
+      display: "AMOLED 1,32\" (466x466, 352 PPI, 3.004 nits), Kunlun Glass"
+      materials: "Caixa frontal em Liga de Titânio + Polímero reforçado com fibra, pulseira AirDry 22mm"
+      weight_g: 34.5
+      gnss: "Banda Dupla (L1 + L5), Antena Flutuante 3D, 6 constelações (GPS, GLONASS, BeiDou, Galileo, QZSS, NavIC)"
+      sensors: "TruSense óptico, ECG integrado, HRV, rigidez arterial, limiar de lactato em tempo real, barômetro, profundidade"
+      battery_days: 14
+      battery_real_days: 10
+      gps_hours: 32
+      charge_type: "Carregamento sem fio rápido (100% em < 1h)"
+      water_resistance: "5 ATM + IP69 (Mergulho livre até 40m)"
+      os_apps: "HarmonyOS com Modo Maratona Inteligente gratuito, áudio independente BT 6.0, chamadas no pulso"
+      strava: "Sincronização oficial e nativa com Strava via Huawei Health + GPX/mapas offline"
+      nfc: "NFC integrado (compatibilidade bancária restrita no Brasil)"
+      price_launch: 2599.00
+      price_regular_ref: 1699.00
+      price_floor_ref: 999.00
+      tag: "O Melhor para Corrida e Maratona (Titânio + 3.000 nits)"
+      pros:
+        - "Antena flutuante 3D de banda dupla: rastreamento 20% mais preciso em cânions urbanos e árvores"
+        - "Caixa frontal em titânio e vidro Kunlun Glass com apenas 34,5 g (elimina cadence lock)"
+        - "TruSense de alta fidelidade comparável à cinta Polar H10 + ECG + Limiar de Lactato dinâmico"
+        - "Integração oficial direta com Strava e 32 horas de GPS contínuo"
+        - "Tela AMOLED com 3.004 nits legível sob sol a pino e Modo Maratona sem assinatura paga"
+      cons:
+        - "NFC com suporte bancário limitado no Brasil (sem Google Pay / Apple Pay)"
+        - "Restrições de resposta a mensagens quando emparelhado com iPhone (iOS)"
+      scores:
+        gps_running: 10.0
+        health_sensors: 9.5
+        battery: 8.5
+        build_ergonomics: 9.5
+        ecosystem_smart: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=HUAWEI+WATCH+GT+Runner+2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/huawei-watch-gt-runner-2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/huawei-watch-gt-runner-2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=HUAWEI+WATCH+GT+Runner+2&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── 2º Lugar: Amazfit Balance 2 ──────────────────────
+  - id: "amazfit-balance-2"
+    nome: "Amazfit Balance 2"
+    keywords:
+      - "Amazfit Balance 2 -pulseira -capa -pelicula"
+    preco_alvo: 1215.00
+    preco_maximo: 1399.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Amazfit"
+      category: "Relógio Esportivo Híbrido"
+      rank_position: 2
+      profiles: ["hibrido_lifestyle", "bateria_extrema", "natacao"]
+      display: "AMOLED 1,5\" (2.000 nits), Vidro de Safira"
+      materials: "Caixa em Alumínio de alta resistência, acabamento premium"
+      weight_g: 35.0
+      gnss: "Banda Dupla polarizada circularmente (6 constelações)"
+      sensors: "BioTracker PPG, Bioimpedância (composição corporal), HRV, oxigenação, barômetro"
+      battery_days: 21
+      battery_real_days: 14
+      gps_hours: 33
+      charge_type: "Carregamento magnético"
+      water_resistance: "10 ATM (Natação em águas abertas e esportes aquáticos)"
+      os_apps: "Zepp OS (+400 mini-aplicativos, IA Zepp Flow, áudio estéreo, excelente com iOS)"
+      strava: "Sincronização nativa com Strava e Apple Health + Mapas offline"
+      nfc: "Zepp Pay (disponibilidade gradual)"
+      price_launch: 1899.00
+      price_regular_ref: 1899.00
+      price_floor_ref: 1215.24
+      tag: "Mais Versátil para Dia a Dia & iOS (21 dias de bateria)"
+      pros:
+        - "Até 21 dias de autonomia típica e 33 horas de GPS preciso"
+        - "Resistência à água superior de 10 ATM e vidro em cristal de safira"
+        - "Ecrã amplo de 1,5 polegadas e compatibilidade superior com iPhone"
+        - "Medição de bioimpedância e mapas offline coloridos"
+      cons:
+        - "Caixa maior, menos ergonômica para corredores de pulso fino que o GT Runner 2"
+        - "Antena GPS não possui a arquitetura 3D suspensa específica de maratona da Huawei"
+      scores:
+        gps_running: 8.5
+        health_sensors: 8.5
+        battery: 10.0
+        build_ergonomics: 8.5
+        ecosystem_smart: 8.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Amazfit+Balance+2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/amazfit-balance-2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/amazfit-balance-2", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Amazfit+Balance+2&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── Amazfit Balance (1ª Geração) ──────────────────────
+  - id: "amazfit-balance-1"
+    nome: "Amazfit Balance"
+    keywords:
+      - "Amazfit Balance -pulseira -capa -pelicula"
+    preco_alvo: 879.00
+    preco_maximo: 999.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Amazfit"
+      category: "Relógio Esportivo Híbrido"
+      rank_position: 2
+      profiles: ["hibrido_lifestyle", "custo_beneficio_piso"]
+      display: "AMOLED 1,5\" (1.500 nits)"
+      materials: "Liga de alumínio reforçada"
+      weight_g: 35.0
+      gnss: "Banda Dupla (6 constelações)"
+      sensors: "BioTracker 5.0, Bioimpedância BIA, sono, barômetro"
+      battery_days: 14
+      battery_real_days: 10
+      gps_hours: 26
+      charge_type: "Carregamento magnético"
+      water_resistance: "5 ATM"
+      os_apps: "Zepp OS com mini-aplicativos, microfone/alto-falante para chamadas"
+      strava: "Sincronização nativa Strava + Mapas offline"
+      nfc: "Zepp Pay"
+      price_launch: 1399.00
+      price_regular_ref: 1399.00
+      price_floor_ref: 835.24
+      tag: "Piso de R$ 850 com Mapas & Bioimpedância"
+      pros:
+        - "Excelente custo-benefício recuando para R$ 835–879 na Black Friday"
+        - "GPS banda dupla e mapas offline por menos de R$ 900"
+        - "Composição corporal e ótima bateria de 14 dias"
+      cons:
+        - "Geração anterior ao Balance 2 (tela 1.500 nits vs 2.000 nits)"
+      scores:
+        gps_running: 8.0
+        health_sensors: 8.0
+        battery: 8.5
+        build_ergonomics: 8.0
+        ecosystem_smart: 8.0
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Amazfit+Balance", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/amazfit-balance", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/amazfit-balance", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Amazfit+Balance&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── 3º Lugar: Samsung Galaxy Watch 7 (40mm / 44mm) ──────────────────────
+  - id: "samsung-galaxy-watch-7-40mm"
+    nome: "Samsung Galaxy Watch 7 40mm"
+    keywords:
+      - "Galaxy Watch 7 40mm -pulseira -capa -pelicula"
+      - "Galaxy Watch7 40mm -pulseira"
+    preco_alvo: 854.00
+    preco_maximo: 999.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Wear OS / Smartwatch Puro"
+      rank_position: 3
+      profiles: ["smart_wearos", "pagamentos_nfc"]
+      display: "Super AMOLED 1,3\" (2.000 nits), Cristal de Safira"
+      materials: "Caixa Armor Aluminum"
+      weight_g: 28.8
+      gnss: "Banda Dupla (L1 + L5)"
+      sensors: "BioActive (Bioimpedância BIA, ECG, Pressão Arterial, Apneia do Sono, Frequência Cardíaca)"
+      battery_days: 1.5
+      battery_real_days: 1.0
+      gps_hours: 10
+      charge_type: "Carregamento sem fio rápido"
+      water_resistance: "5 ATM + IP68 + MIL-STD-810H"
+      os_apps: "Wear OS 5 / One UI Watch (Google Play, WhatsApp nativo, Spotify offline, Strava nativo)"
+      strava: "Aplicativo Wear OS nativo independente"
+      nfc: "Google Pay e Samsung Wallet universais no Brasil"
+      price_launch: 2499.00
+      price_regular_ref: 1499.00
+      price_floor_ref: 837.00
+      tag: "O Mais Inteligente (Wear OS + Google Pay por R$ 850)"
+      pros:
+        - "Poder computacional do Exynos W1000 (3x mais rápido) e cristal de safira"
+        - "Pagamento por aproximação universal no Brasil (Google Wallet e Samsung Pay)"
+        - "Instalação nativa de WhatsApp, Spotify, Strava e apps da Play Store"
+        - "Bioimpedância completa e ECG clínico"
+      cons:
+        - "Bateria dura apenas 24 a 36 horas (exige recarga diária)"
+        - "Incompatível com iPhone (iOS); funções clínicas restritas à linha Galaxy"
+      scores:
+        gps_running: 7.5
+        health_sensors: 9.0
+        battery: 3.5
+        build_ergonomics: 8.5
+        ecosystem_smart: 10.0
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Galaxy+Watch+7+40mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-watch-7-40mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/galaxy-watch-7-40mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Galaxy+Watch+7+40mm&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "samsung-galaxy-watch-7-44mm"
+    nome: "Samsung Galaxy Watch 7 44mm"
+    keywords:
+      - "Galaxy Watch 7 44mm -pulseira -capa -pelicula"
+      - "Galaxy Watch7 44mm -pulseira"
+    preco_alvo: 1199.00
+    preco_maximo: 1299.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Wear OS / Smartwatch Puro"
+      rank_position: 3
+      profiles: ["smart_wearos", "pagamentos_nfc"]
+      display: "Super AMOLED 1,5\" (2.000 nits), Cristal de Safira"
+      materials: "Armor Aluminum"
+      weight_g: 33.8
+      gnss: "Banda Dupla (L1 + L5)"
+      sensors: "BioActive completo (Bioimpedância, ECG, Apneia do Sono)"
+      battery_days: 1.8
+      battery_real_days: 1.3
+      gps_hours: 12
+      charge_type: "Carregamento sem fio rápido"
+      water_resistance: "5 ATM + IP68"
+      os_apps: "Wear OS 5 / One UI Watch (Google Play completo)"
+      strava: "App Wear OS independente"
+      nfc: "Google Pay / Samsung Wallet"
+      price_launch: 2799.00
+      price_regular_ref: 1699.00
+      price_floor_ref: 1159.00
+      tag: "Wear OS com Tela Maior de 1,5\" e Bateria Reforçada"
+      pros:
+        - "Bateria de 425 mAh (melhor autonomia que a versão 40mm)"
+        - "Tela ampla de 1,5\" com 2.000 nits e safira"
+        - "Wear OS com pagamentos universais"
+      cons:
+        - "Ainda exige recarga diária ou a cada 36h"
+        - "Incompatível com iPhone"
+      scores:
+        gps_running: 7.5
+        health_sensors: 9.0
+        battery: 4.5
+        build_ergonomics: 8.5
+        ecosystem_smart: 10.0
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Galaxy+Watch+7+44mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-watch-7-44mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/galaxy-watch-7-44mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Galaxy+Watch+7+44mm&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "samsung-galaxy-watch-8-lte"
+    nome: "Samsung Galaxy Watch 8 LTE 44mm"
+    keywords:
+      - "Galaxy Watch 8 LTE -pulseira -capa"
+      - "Galaxy Watch8 LTE -pulseira"
+    preco_alvo: 1159.00
+    preco_maximo: 1359.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Samsung"
+      category: "Wear OS / Smartwatch Puro"
+      rank_position: 3
+      profiles: ["smart_wearos", "pagamentos_nfc"]
+      display: "Super AMOLED 1,5\", Cristal de Safira"
+      materials: "Armor Aluminum com vedação reforçada"
+      weight_g: 34.0
+      gnss: "Banda Dupla (L1 + L5)"
+      sensors: "BioActive de última geração, ECG, Bioimpedância"
+      battery_days: 1.8
+      battery_real_days: 1.2
+      gps_hours: 11
+      charge_type: "Carregamento sem fio"
+      water_resistance: "5 ATM + IP68"
+      os_apps: "Wear OS com 4G/LTE independente (eSIM para chamadas e dados sem smartphone)"
+      strava: "App Wear OS nativo com streaming de dados 4G"
+      nfc: "Google Pay / Samsung Wallet"
+      price_launch: 2999.00
+      price_regular_ref: 1359.00
+      price_floor_ref: 1159.10
+      tag: "Conexão 4G LTE Independente com Cupom NOV100"
+      pros:
+        - "Conexão 4G/LTE nativa: corre e atende chamadas sem levar o celular"
+        - "Wear OS moderno com Google Play e pagamentos universais"
+        - "Piso de R$ 1.159 no Pix com cupom sazonal"
+      cons:
+        - "Consumo energético acentuado com 4G ativo; recarga diária necessária"
+      scores:
+        gps_running: 7.5
+        health_sensors: 9.0
+        battery: 4.0
+        build_ergonomics: 8.5
+        ecosystem_smart: 10.0
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Galaxy+Watch+8+LTE+44mm", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/galaxy-watch-8-lte", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/galaxy-watch-8-lte", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Galaxy+Watch+8+LTE+44mm&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── 4º Lugar: HUAWEI WATCH Fit 5 Pro & GT 6 ──────────────────────
+  - id: "huawei-watch-fit-5-pro"
+    nome: "HUAWEI WATCH Fit 5 Pro"
+    keywords:
+      - "Watch Fit 5 Pro -pulseira -capa -pelicula"
+      - "HUAWEI Fit 5 Pro -pulseira"
+    preco_alvo: 999.00
+    preco_maximo: 1169.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Huawei"
+      category: "Relógio Esportivo Híbrido"
+      rank_position: 4
+      profiles: ["performance", "corrida", "hibrido_lifestyle"]
+      display: "AMOLED Retangular (3.000 nits), Design Ultrafino"
+      materials: "Caixa em Liga de Titânio aeroespacial"
+      weight_g: 27.0
+      gnss: "Banda Dupla com antena otimizada"
+      sensors: "TruSense, ECG, SpO2 contínuo, barômetro"
+      battery_days: 10
+      battery_real_days: 7
+      gps_hours: 24
+      charge_type: "Carregamento magnético rápido"
+      water_resistance: "5 ATM + IP69"
+      os_apps: "HarmonyOS com suporte a mais de 100 modos esportivos (padel, musculação, corrida)"
+      strava: "Sincronização oficial Strava"
+      nfc: "NFC integrado (restrito)"
+      price_launch: 1499.00
+      price_regular_ref: 1169.99
+      price_floor_ref: 950.00
+      tag: "Retangular Ultrafino de Titânio (3.000 nits)"
+      pros:
+        - "Extremamente leve (27g) em titânio e tela retangular brilhante de 3.000 nits"
+        - "Trilha GPS muito estável que rivaliza com o GT Runner 2"
+        - "Ideal para multiesportes (academia, padel e corrida leve)"
+      cons:
+        - "Formato retangular menos tradicional que a caixa redonda do Runner 2"
+      scores:
+        gps_running: 8.5
+        health_sensors: 8.5
+        battery: 7.5
+        build_ergonomics: 9.0
+        ecosystem_smart: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=HUAWEI+WATCH+Fit+5+Pro", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/huawei-watch-fit-5-pro", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/huawei-watch-fit-5-pro", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=HUAWEI+WATCH+Fit+5+Pro&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "huawei-watch-gt-6"
+    nome: "HUAWEI WATCH GT 6"
+    keywords:
+      - "Huawei Watch GT 6 -pro -pulseira -capa"
+      - "Watch GT6 -pro -pulseira"
+    preco_alvo: 1184.00
+    preco_maximo: 1399.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Huawei"
+      category: "Relógio Esportivo Híbrido"
+      rank_position: 4
+      profiles: ["hibrido_lifestyle", "bateria_extrema"]
+      display: "AMOLED 1,43\" (46mm) ou 1,32\" (41mm)"
+      materials: "Aço inoxidável e cerâmica"
+      weight_g: 48.0
+      gnss: "Banda Dupla com sistema girassol Sunflower"
+      sensors: "TruSense de última geração, sensor de potência de pedalada virtual"
+      battery_days: 21
+      battery_real_days: 14
+      gps_hours: 30
+      charge_type: "Carregamento sem fio"
+      water_resistance: "5 ATM + IP69"
+      os_apps: "HarmonyOS com algoritmos dedicados ao ciclismo e paradas em semáforos"
+      strava: "Sincronização oficial Strava"
+      nfc: "NFC integrado (restrito)"
+      price_launch: 1999.00
+      price_regular_ref: 1399.00
+      price_floor_ref: 1184.90
+      tag: "Estética Clássica com até 21 Dias de Bateria"
+      pros:
+        - "Até 21 dias de bateria e acabamento refinado clássico"
+        - "Algoritmos excelentes para ciclismo e corrida recreativa"
+      cons:
+        - "Mais pesado (48g) que o GT Runner 2 (34,5g), maior tendência a oscilação em sprints"
+      scores:
+        gps_running: 8.5
+        health_sensors: 8.5
+        battery: 9.5
+        build_ergonomics: 8.0
+        ecosystem_smart: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Huawei+Watch+GT+6", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/huawei-watch-gt-6", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/huawei-watch-gt-6", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Huawei+Watch+GT+6&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── 5º Lugar: Garmin Forerunner 55 ──────────────────────
+  - id: "garmin-forerunner-55"
+    nome: "Garmin Forerunner 55"
+    keywords:
+      - "Forerunner 55 -pulseira -capa -pelicula"
+      - "Garmin Forerunner 55 -pulseira"
+    preco_alvo: 1023.00
+    preco_maximo: 1199.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Garmin"
+      category: "Corrida Tradicional Prescritiva"
+      rank_position: 5
+      profiles: ["corrida", "performance"]
+      display: "MIP Transflectivo 1,04\" (208x208, sem toque, visível sob sol extremo)"
+      materials: "Polímero reforçado com fibra, botões físicos em aço"
+      weight_g: 37.0
+      gnss: "GPS, GLONASS e Galileo (Frequência Única)"
+      sensors: "Garmin Elevate óptico, acelerômetro"
+      battery_days: 14
+      battery_real_days: 10
+      gps_hours: 20
+      charge_type: "Cabo proprietário Garmin"
+      water_resistance: "5 ATM (Natação em piscina)"
+      os_apps: "Garmin OS com Garmin Coach gratuito, PacePro, tempo de recuperação e sugestões de treino"
+      strava: "Sincronização imediata e referência global Garmin Connect -> Strava"
+      nfc: "Sem NFC"
+      price_launch: 2149.00
+      price_regular_ref: 1899.00
+      price_floor_ref: 1023.00
+      tag: "O Treinador Prescritivo no Pulso (Garmin Coach & PacePro)"
+      pros:
+        - "Ecossistema Garmin Connect: Garmin Coach adaptativo para 5k/10k/21k e PacePro"
+        - "Visibilidade passiva perfeita sob sol intenso sem gastar bateria (tela transflectiva)"
+        - "Altíssima liquidez de revenda no mercado esportivo brasileiro"
+      cons:
+        - "Hardware defasado: tela pequena de baixa resolução, sem touch, sem música e sem barômetro"
+        - "GPS de frequência única (inferior em precisão urbana frente à antena 3D do GT Runner 2)"
+      scores:
+        gps_running: 8.0
+        health_sensors: 7.0
+        battery: 7.5
+        build_ergonomics: 7.0
+        ecosystem_smart: 8.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Garmin+Forerunner+55", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/garmin-forerunner-55", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/garmin-forerunner-55", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Garmin+Forerunner+55&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ────────────────────── 6º Lugar: Amazfit Active 3 Premium & Cheetah Square ──────────────────────
+  - id: "amazfit-active-3-premium"
+    nome: "Amazfit Active 3 Premium"
+    keywords:
+      - "Amazfit Active 3 Premium -pulseira -capa"
+      - "Active 3 Premium -pulseira"
+    preco_alvo: 799.00
+    preco_maximo: 899.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Amazfit"
+      category: "Custo-Benefício no Piso"
+      rank_position: 6
+      profiles: ["custo_beneficio_piso", "hibrido_lifestyle"]
+      display: "AMOLED HD, Vidro de Safira"
+      materials: "Caixa em liga metálica com pulseira ergonômica"
+      weight_g: 32.0
+      gnss: "Banda Dupla (6 constelações de satélites)"
+      sensors: "BioTracker PPG, oxigenação, sono, prontidão física"
+      battery_days: 12
+      battery_real_days: 8
+      gps_hours: 24
+      charge_type: "Magnético"
+      water_resistance: "5 ATM"
+      os_apps: "Zepp OS com mini-aplicativos e planos de corrida Zepp Coach"
+      strava: "Sincronização nativa Strava"
+      nfc: "Sem NFC universal"
+      price_launch: 1099.00
+      price_regular_ref: 1099.00
+      price_floor_ref: 799.99
+      tag: "Safira + GPS Banda Dupla no Piso de R$ 800"
+      pros:
+        - "Entrega tela em safira e GPS de banda dupla custando cerca de R$ 800"
+        - "Excelente custo por recurso técnico para orçamentos restritos"
+      cons:
+        - "Construção e sensores mais simples que o Balance 2 e o GT Runner 2"
+      scores:
+        gps_running: 7.5
+        health_sensors: 7.5
+        battery: 7.5
+        build_ergonomics: 8.0
+        ecosystem_smart: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Amazfit+Active+3+Premium", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/amazfit-active-3", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/amazfit-active-3-premium", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Amazfit+Active+3+Premium&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "amazfit-cheetah-square"
+    nome: "Amazfit Cheetah Square"
+    keywords:
+      - "Amazfit Cheetah Square -pulseira -capa"
+      - "Cheetah Square -pulseira"
+    preco_alvo: 719.00
+    preco_maximo: 849.00
+    prioridade: "low"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Amazfit"
+      category: "Custo-Benefício no Piso"
+      rank_position: 6
+      profiles: ["custo_beneficio_piso", "corrida"]
+      display: "AMOLED 1,75\" (1.000 nits, 341 PPI)"
+      materials: "Polímero reforçado com fibra ultraleve"
+      weight_g: 25.0
+      gnss: "MaxTrack Banda Dupla polarizada circularmente"
+      sensors: "BioTracker PPG, barômetro"
+      battery_days: 8
+      battery_real_days: 5
+      gps_hours: 20
+      charge_type: "Magnético"
+      water_resistance: "5 ATM"
+      os_apps: "Zepp OS com armazenamento de música (2,3 GB) e Alexa integrada"
+      strava: "Sincronização nativa Strava"
+      nfc: "Sem NFC"
+      price_launch: 899.00
+      price_regular_ref: 899.00
+      price_floor_ref: 719.10
+      tag: "Ultraleve de 25g com Música Integrada (< R$ 750)"
+      pros:
+        - "Apenas 25g sem pulseira e formato retangular compacto"
+        - "2,3 GB para armazenar músicas e ouvir via fone Bluetooth"
+      cons:
+        - "Autonomia de bateria mais restrita (5 a 8 dias)"
+        - "Estrutura totalmente plástica sem acabamento em metal nobre"
+      scores:
+        gps_running: 7.5
+        health_sensors: 7.0
+        battery: 6.0
+        build_ergonomics: 8.0
+        ecosystem_smart: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Amazfit+Cheetah+Square", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/amazfit-cheetah-square", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/amazfit-cheetah-square", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Amazfit+Cheetah+Square&udm=28", metodo_coleta: "scraping_html", ativo: true}

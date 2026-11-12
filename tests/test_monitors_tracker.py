@@ -93,7 +93,7 @@ def test_incremental_monitors_dashboard_generation(tmp_path: Path):
     repo = Repository(db)
     orch = Orchestrator(repository=repo)
     products = orch.load_products_from_yaml("src/config/monitors_27.yaml")
-    assert len(products) == 13
+    assert len(products) == 15
 
     aoc_sources = repo.get_sources_for_product("aoc-q27g4f")
     kabum_src = next(s for s in aoc_sources if s.marketplace == "kabum")

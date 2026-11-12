@@ -7,6 +7,7 @@ from loguru import logger
 
 from src.core.ports.matcher_port import IProductMatcher
 from src.data.models import MatchResult, Product
+from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
 
 def normalize_text(text: str) -> str:
@@ -27,7 +28,8 @@ class HybridProductMatcher(IProductMatcher):
     # Palavras-chave indicativas de acessórios não desejados
     ACCESSORY_KEYWORDS = (
         "capa", "capinha", "case", "pelicula", "protecao", "cabo", "carregador para",
-        "suporte para", "bracadeira", "cordao", "alca", "adaptador para", "protetor"
+        "suporte para", "bracadeira", "cordao", "alca", "adaptador para", "protetor",
+        "pulseira", "bracelete", "strap", "bezel", "dock"
     )
 
     # Cores conhecidas
@@ -106,21 +108,23 @@ class HybridProductMatcher(IProductMatcher):
             )
 
         # 3. Capacidade de Memória / Armazenamento (ex.: 16GB, 128GB, 256GB)
+        # Celulares costumam listar RAM + armazenamento ("12GB RAM 512GB" / "12/512GB"):
+        # o anúncio só diverge se a capacidade-alvo não aparecer em nenhuma posição.
         target_capacity_match = re.findall(r"\b(\d+)\s*(?:gb|tb)\b", norm_target_name)
         candidate_capacity_match = re.findall(r"\b(\d+)\s*(?:gb|tb)\b", norm_title)
 
         if (
             target_capacity_match
             and candidate_capacity_match
-            and target_capacity_match[0] != candidate_capacity_match[0]
+            and target_capacity_match[-1] not in candidate_capacity_match
         ):
             return MatchResult(
                     is_match=False,
                     confidence=0.98,
-                    detected_variant=f"{candidate_capacity_match[0]}GB",
+                    detected_variant=f"{candidate_capacity_match[-1]}GB",
                     divergence_reason=(
-                        f"Capacidade do anúncio ({candidate_capacity_match[0]}GB) difere "
-                        f"do alvo ({target_capacity_match[0]}GB)"
+                        f"Capacidade do anúncio ({candidate_capacity_match[-1]}GB) difere "
+                        f"do alvo ({target_capacity_match[-1]}GB)"
                     ),
                     method_used="heuristic",
                 )
@@ -162,6 +166,22 @@ class HybridProductMatcher(IProductMatcher):
 
         # Verifica se alguma keyword inteira está contida no título
         keyword_matched = any(kw in norm_title for kw in norm_keywords if len(kw) >= 4)
+        # Mesma regra de tokens/exclusões usada pelos parsers dos marketplaces (512gb, 'S25+', '-max')
+        if not keyword_matched and target.keywords:
+            keyword_matched = NormalizeProductSkill.matches_keywords(candidate_title, target.keywords)
+
+        # Catálogos com exclusões explícitas ('-max', '-ultra') exigem a regra estrita de keywords,
+        # evitando que o overlap de tokens aceite variantes irmãs (ex.: X8 Pro x X8 Pro Max).
+        has_exclusions = any(
+            part.startswith("-") and len(part) > 1 for kw in target.keywords for part in kw.split()
+        )
+        if has_exclusions and not NormalizeProductSkill.matches_keywords(candidate_title, target.keywords):
+            return MatchResult(
+                is_match=False,
+                confidence=0.9,
+                divergence_reason="Anúncio corresponde a uma variante excluída ou não atende às keywords estritas",
+                method_used="heuristic",
+            )
 
         if overlap_ratio >= 0.70 or keyword_matched:
             variant_desc = f"Cor: {detected_color}" if detected_color else None

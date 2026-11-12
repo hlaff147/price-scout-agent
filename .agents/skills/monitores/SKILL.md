@@ -1,7 +1,7 @@
 ---
 name: monitores
 description: >-
-  Busca preços ao vivo dos 13 monitores ergonômicos de 27 polegadas com ajuste de altura,
+  Busca preços ao vivo dos 15 monitores ergonômicos de 27 polegadas com ajuste de altura,
   incrementa o histórico temporal no SQLite e no log de ciclos, recompila o dashboard
   interativo Chart.js (reports/monitores_27_black_friday.html) e apresenta análise
   comparativa de ofertas Black Friday. Use esta skill quando o usuário invocar /monitores
@@ -10,7 +10,7 @@ description: >-
 
 # Skill `/monitores` — Busca Incremental e Dashboard Black Friday (27" Ergonômicos)
 
-Executa uma nova rodada completa de coleta de preços dos 13 monitores de 27" com ajuste de altura (`src/config/monitors_27.yaml`), grava os novos pontos na série histórica do SQLite (`data/promoradar.db`) e no log de ciclos (`data/monitors_27_cycles.jsonl`), atualiza os gráficos evolutivos do painel único `Chart.js` (`reports/monitores_27_black_friday.html`) e entrega um comparativo executivo da rodada.
+Executa uma nova rodada completa de coleta de preços dos 15 monitores de 27" com ajuste de altura (`src/config/monitors_27.yaml`), grava os novos pontos na série histórica do SQLite (`data/promoradar.db`) e no log de ciclos (`data/monitors_27_cycles.jsonl`), atualiza os gráficos evolutivos do painel único `Chart.js` (`reports/monitores_27_black_friday.html`) e entrega um comparativo executivo da rodada.
 
 ## Passo a Passo de Execução
 
