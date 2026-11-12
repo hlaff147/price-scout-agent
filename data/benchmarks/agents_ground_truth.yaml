@@ -1,0 +1,284 @@
+# Golden Dataset de Benchmark para Avaliação de Machine Learning e Agentes do PromoRadar
+# Cobre as 3 verticais do projeto: Smartphones 512GB, Smartwatches R$ 800-1.200 e Monitores 27" Ergonômicos.
+
+matcher_cases:
+  # =========================================================================
+  # VERTICAL 1: SMARTPHONES 512 GB (Faixa R$ 3.000)
+  # =========================================================================
+  - target_id: moto-edge-50-ultra-512
+    target_name: "Motorola Edge 50 Ultra 512GB"
+    target_keywords: ["Edge 50 Ultra", "512GB", "Motorola Edge 50 Ultra"]
+    candidate_title: "Smartphone Motorola Edge 50 Ultra 512GB 12GB RAM 5G Madeira"
+    expected_match: true
+    category: smartphones_512
+    description: "Anúncio autêntico completo de 512GB com RAM e cor legítima"
+
+  - target_id: moto-edge-50-ultra-512
+    target_name: "Motorola Edge 50 Ultra 512GB"
+    target_keywords: ["Edge 50 Ultra", "512GB"]
+    candidate_title: "Capa Capinha Anti-impacto Transparente Para Motorola Edge 50 Ultra"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de acessório (capa para celular)"
+
+  - target_id: moto-edge-50-ultra-512
+    target_name: "Motorola Edge 50 Ultra 512GB"
+    target_keywords: ["Edge 50 Ultra", "512GB"]
+    candidate_title: "Película de Vidro 3D Cerâmica Fosca Edge 50 Ultra"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de acessório (película para celular)"
+
+  - target_id: xiaomi-14t-512
+    target_name: "Xiaomi 14T 512GB"
+    target_keywords: ["Xiaomi 14T", "512GB"]
+    candidate_title: "Smartphone Xiaomi 14T 5G 512GB Titan Black 12GB RAM Versão Global"
+    expected_match: true
+    category: smartphones_512
+    description: "Anúncio autêntico de 512GB da Xiaomi"
+
+  - target_id: xiaomi-14t-512
+    target_name: "Xiaomi 14T 512GB"
+    target_keywords: ["Xiaomi 14T", "512GB"]
+    candidate_title: "Smartphone Xiaomi 14T 256GB 12GB RAM Preto"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de memória: variante 256GB em vez de 512GB"
+
+  - target_id: poco-x8-pro-512
+    target_name: "POCO X8 Pro 512GB"
+    target_keywords: ["POCO X8 Pro 512GB -max", "POCO X8 Pro 512GB -ultra"]
+    candidate_title: "Smartphone Xiaomi POCO X8 Pro 512GB 12GB RAM Preto"
+    expected_match: true
+    category: smartphones_512
+    description: "Anúncio legítimo POCO X8 Pro"
+
+  - target_id: poco-x8-pro-512
+    target_name: "POCO X8 Pro 512GB"
+    target_keywords: ["POCO X8 Pro 512GB -max", "POCO X8 Pro 512GB -ultra"]
+    candidate_title: "Smartphone Xiaomi POCO X8 Pro Max 512GB 16GB RAM Titânio"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de variante excluída (-max): POCO X8 Pro Max vs POCO X8 Pro"
+
+  - target_id: galaxy-s25-plus-512
+    target_name: "Samsung Galaxy S25+ 512GB"
+    target_keywords: ["Galaxy S25+", "S25 Plus 512GB", "Galaxy S25 Plus"]
+    candidate_title: "Smartphone Samsung Galaxy S25+ 5G 512GB 12GB RAM Cinza"
+    expected_match: true
+    category: smartphones_512
+    description: "Anúncio autêntico Galaxy S25+ 512GB com notação Plus e S25+"
+
+  - target_id: galaxy-s25-plus-512
+    target_name: "Samsung Galaxy S25+ 512GB"
+    target_keywords: ["Galaxy S25+", "512GB"]
+    candidate_title: "Samsung Galaxy S25+ 512GB Seminovo Excelente Vitrine Mostruário"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de produto usado/vitrine/recondicionado"
+
+  - target_id: galaxy-s24-fe-512
+    target_name: "Samsung Galaxy S24 FE 512GB"
+    target_keywords: ["Galaxy S24 FE", "512GB"]
+    candidate_title: "Samsung Galaxy S24 FE 512GB Azul 8GB RAM 5G"
+    expected_match: true
+    category: smartphones_512
+    description: "Anúncio autêntico Galaxy S24 FE 512GB"
+
+  - target_id: galaxy-s24-fe-512
+    target_name: "Samsung Galaxy S24 FE 512GB"
+    target_keywords: ["Galaxy S24 FE", "512GB"]
+    candidate_title: "Samsung Galaxy S24 FE 128GB Grafite"
+    expected_match: false
+    category: smartphones_512
+    description: "Armadilha de memória: variante 128GB em vez de 512GB"
+
+  # =========================================================================
+  # VERTICAL 2: SMARTWATCHES R$ 800 - R$ 1.200 (Foco GT Runner 2 & Esportivos)
+  # =========================================================================
+  - target_id: huawei-watch-gt-runner-2
+    target_name: "HUAWEI WATCH GT Runner 2"
+    target_keywords: ["HUAWEI WATCH GT Runner 2", "GT Runner 2", "Watch GT Runner 2"]
+    candidate_title: "Smartwatch HUAWEI WATCH GT Runner 2 GPS Dupla Frequência Preto"
+    expected_match: true
+    category: smartwatches
+    description: "Anúncio oficial do relógio HUAWEI GT Runner 2"
+
+  - target_id: huawei-watch-gt-runner-2
+    target_name: "HUAWEI WATCH GT Runner 2"
+    target_keywords: ["HUAWEI WATCH GT Runner 2", "GT Runner 2"]
+    candidate_title: "Pulseira de Silicone Esportiva 22mm Para HUAWEI WATCH GT Runner 2"
+    expected_match: false
+    category: smartwatches
+    description: "Armadilha de pulseira avulsa de relógio"
+
+  - target_id: huawei-watch-gt-runner-2
+    target_name: "HUAWEI WATCH GT Runner 2"
+    target_keywords: ["HUAWEI WATCH GT Runner 2", "GT Runner 2"]
+    candidate_title: "Dock Base de Carregador Magnético USB Para HUAWEI WATCH GT Runner 2"
+    expected_match: false
+    category: smartwatches
+    description: "Armadilha de cabo/dock carregador de relógio"
+
+  - target_id: amazfit-balance-2
+    target_name: "Amazfit Balance 2"
+    target_keywords: ["Amazfit Balance 2", "Balance 2"]
+    candidate_title: "Relógio Inteligente Amazfit Balance 2 NFC Strava Preto Sunset"
+    expected_match: true
+    category: smartwatches
+    description: "Anúncio legítimo Amazfit Balance 2"
+
+  - target_id: amazfit-balance-2
+    target_name: "Amazfit Balance 2"
+    target_keywords: ["Amazfit Balance 2", "Balance 2"]
+    candidate_title: "Bracelete de Nylon Loop Strap Para Amazfit Balance 2"
+    expected_match: false
+    category: smartwatches
+    description: "Armadilha de bracelete de nylon de relógio"
+
+  - target_id: galaxy-watch-7-44mm
+    target_name: "Samsung Galaxy Watch 7 44mm"
+    target_keywords: ["Galaxy Watch 7 44mm", "Watch 7 44mm"]
+    candidate_title: "Smartwatch Samsung Galaxy Watch 7 44mm Bluetooth Prata"
+    expected_match: true
+    category: smartwatches
+    description: "Anúncio legítimo Galaxy Watch 7 44mm"
+
+  - target_id: galaxy-watch-7-44mm
+    target_name: "Samsung Galaxy Watch 7 44mm"
+    target_keywords: ["Galaxy Watch 7 44mm", "Watch 7 44mm"]
+    candidate_title: "Smartwatch Samsung Galaxy Watch 7 40mm Verde"
+    expected_match: false
+    category: smartwatches
+    description: "Armadilha de diâmetro de caixa: 40mm vs 44mm"
+
+  - target_id: garmin-forerunner-55
+    target_name: "Garmin Forerunner 55"
+    target_keywords: ["Garmin Forerunner 55", "Forerunner 55"]
+    candidate_title: "Relógio Monitor Cardíaco Garmin Forerunner 55 GPS Preto"
+    expected_match: true
+    category: smartwatches
+    description: "Anúncio legítimo Garmin Forerunner 55"
+
+  - target_id: garmin-forerunner-55
+    target_name: "Garmin Forerunner 55"
+    target_keywords: ["Garmin Forerunner 55", "Forerunner 55"]
+    candidate_title: "Kit 3 Películas de Vidro Temperado Para Garmin Forerunner 55"
+    expected_match: false
+    category: smartwatches
+    description: "Armadilha de películas para smartwatch"
+
+  # =========================================================================
+  # VERTICAL 3: MONITORES ERGONÔMICOS 27" (Ajuste de Altura / Black Friday)
+  # =========================================================================
+  - target_id: dell-s2721ds
+    target_name: "Dell S2721DS 27 QHD"
+    target_keywords: ["Dell S2721DS", "S2721DS"]
+    candidate_title: "Monitor Dell S2721DS 27 polegadas QHD IPS Ajuste de Altura Pivot"
+    expected_match: true
+    category: monitores_27
+    description: "Anúncio autêntico monitor Dell 27 QHD"
+
+  - target_id: dell-s2721ds
+    target_name: "Dell S2721DS 27 QHD"
+    target_keywords: ["Dell S2721DS", "S2721DS"]
+    candidate_title: "Suporte Articulado de Mesa Pistão a Gás Para Monitor Dell S2721DS"
+    expected_match: false
+    category: monitores_27
+    description: "Armadilha de suporte articulado no lugar do monitor"
+
+  - target_id: lg-27qn600
+    target_name: "LG 27QN600 27 QHD"
+    target_keywords: ["LG 27QN600", "27QN600"]
+    candidate_title: "Monitor Gamer LG 27QN600 27 IPS QHD sRGB 99% HDR10"
+    expected_match: true
+    category: monitores_27
+    description: "Anúncio autêntico monitor LG 27 QHD"
+
+  - target_id: lg-27qn600
+    target_name: "LG 27QN600 27 QHD"
+    target_keywords: ["LG 27QN600", "27QN600"]
+    candidate_title: "Fonte Carregador 19V Para Monitor LG 27QN600 Original"
+    expected_match: false
+    category: monitores_27
+    description: "Armadilha de fonte/carregador de monitor"
+
+  - target_id: aoc-q27g4f
+    target_name: "AOC Q27G4F 27 QHD 180Hz"
+    target_keywords: ["AOC Q27G4F", "Q27G4F"]
+    candidate_title: "Monitor Gamer AOC Q27G4F 27 Fast IPS QHD 180Hz 0.5ms Base Ergonômica"
+    expected_match: true
+    category: monitores_27
+    description: "Anúncio autêntico monitor AOC gamer 180Hz"
+
+  - target_id: aoc-q27g4f
+    target_name: "AOC Q27G4F 27 QHD 180Hz"
+    target_keywords: ["AOC Q27G4F", "Q27G4F"]
+    candidate_title: "Cabo DisplayPort 1.4 8K 144Hz 180Hz Para Monitor AOC Q27G4F 2 Metros"
+    expected_match: false
+    category: monitores_27
+    description: "Armadilha de cabo de vídeo avulso"
+
+fake_discount_cases:
+  - description: "Promoção legítima de Black Friday consistente com histórico"
+    current_price: 2499.0
+    original_price_announced: 2899.0
+    historical_avg: 2790.0
+    user_max_price: 3000.0
+    expected_is_fake: false
+
+  - description: "Metade do dobro: preço original anunciado inflado 50% acima da média histórica"
+    current_price: 2699.0
+    original_price_announced: 4500.0
+    historical_avg: 2800.0
+    user_max_price: 3000.0
+    expected_is_fake: true
+
+  - description: "Sem histórico prévio (Dia 1), mas preço 'De' excede 45% o teto do usuário"
+    current_price: 2890.0
+    original_price_announced: 4900.0
+    historical_avg: null
+    user_max_price: 3000.0
+    expected_is_fake: true
+
+  - description: "Desconto autêntico moderado sem inflação do preço original"
+    current_price: 999.0
+    original_price_announced: 1199.0
+    historical_avg: 1150.0
+    user_max_price: 1200.0
+    expected_is_fake: false
+
+  - description: "Inflação mascarada de smartwatch: anunciado De 2.200 por 950 com média de 1.050"
+    current_price: 950.0
+    original_price_announced: 2200.0
+    historical_avg: 1050.0
+    user_max_price: 1200.0
+    expected_is_fake: true
+
+deal_cases:
+  - description: "Queda brusca abaixo do alvo e abaixo da mínima anterior"
+    product_id: "test-phone"
+    target_price: 2600.0
+    max_price: 3000.0
+    historical_prices: [2800.0, 2850.0, 2790.0, 2820.0, 2780.0]
+    scraped_price: 2450.0
+    expected_is_deal: true
+    expected_motivo: "minimo_historico"
+
+  - description: "Preço estável dentro da faixa normal sem desconto real"
+    product_id: "test-phone"
+    target_price: 2600.0
+    max_price: 3000.0
+    historical_prices: [2850.0, 2870.0, 2840.0, 2860.0]
+    scraped_price: 2855.0
+    expected_is_deal: false
+    expected_motivo: null
+
+  - description: "Queda estatisticamente anômala detectada via Z-Score Robusto"
+    product_id: "test-watch"
+    target_price: 850.0
+    max_price: 1100.0
+    historical_prices: [1050.0, 1060.0, 1045.0, 1055.0, 1050.0, 1048.0]
+    scraped_price: 920.0
+    expected_is_deal: true
+    expected_motivo: "queda_anomala_estatistica"
