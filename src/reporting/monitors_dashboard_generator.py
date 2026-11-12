@@ -17,6 +17,7 @@ from loguru import logger
 from src.data.database import default_db
 from src.data.models import PriceRecord
 from src.data.repository import Repository
+from src.skills.price_statistics.analyzer import PriceStatisticsSkill
 
 RECIFE_TZ = ZoneInfo("America/Recife")
 
@@ -69,6 +70,7 @@ class MonitorsDashboardGenerator:
         cycles_log_path: str | Path = "data/monitors_27_cycles.jsonl",
     ):
         self.repository = repository or Repository(default_db)
+        self.statistics_skill = PriceStatisticsSkill()
         self.config_path = Path(config_path)
         self.cycles_log_path = Path(cycles_log_path)
         template_dir = Path(__file__).parent / "templates"
@@ -206,9 +208,19 @@ class MonitorsDashboardGenerator:
 
             hist_min = self.repository.get_historical_min_price(pid)
             hist_avg = self.repository.get_historical_average_price(pid, days=60)
+            hist_prices = [r.preco for r in history_asc if r.preco is not None and r.preco > 0]
+            hist_dates = [r.coletado_em for r in history_asc if r.preco is not None and r.preco > 0]
 
             live_price = best_offer["preco"] if best_offer else None
             effective_price = live_price if live_price is not None else price_min_ref
+
+            stat_profile = self.statistics_skill.execute(
+                historical_prices=hist_prices,
+                current_price=effective_price,
+                historical_dates=hist_dates,
+                target_price=preco_alvo,
+                user_max_price=preco_maximo,
+            )
 
             diff_vs_ref_pct = (
                 round(((live_price - price_min_ref) / price_min_ref) * 100.0, 1)
@@ -275,6 +287,12 @@ class MonitorsDashboardGenerator:
                 "ppi": int(specs.get("ppi", 109)),
                 "desc": specs.get("desc", ""),
                 "color": color,
+                "dealScore": stat_profile.deal_confidence_score,
+                "robustZScore": stat_profile.robust_z_score,
+                "percentileRank": stat_profile.percentile_rank,
+                "cvPercent": stat_profile.cv_percent,
+                "trendSlope": stat_profile.trend_slope_brl_per_day,
+                "priceRegime": stat_profile.regime_preco,
             })
 
         # Construir eixo X incremental da linha do tempo:
@@ -380,13 +398,12 @@ class MonitorsDashboardGenerator:
             "",
             "## 🏆 Tabela Consolidada de Preços (Ordenada por Menor Valor Atual)",
             "",
-            "| Monitor | Res / Hz | Preço Atual | Loja | Alvo BF | Mín. Histórica | Var. vs Ref. | Status |",
-            "| :--- | :---: | :---: | :--- | :---: | :---: | :---: | :--- |",
+            "| Monitor | Res / Hz | Preço Atual | Loja | Alvo BF | Mín. Histórica | Deal Score | Z-Score (MAD) | Status |",
+            "| :--- | :---: | :---: | :--- | :---: | :---: | :---: | :---: | :--- |",
         ]
 
         sorted_mons = sorted(monitors, key=lambda x: x["effectivePrice"])
         for m in sorted_mons:
-            var_str = f"{m['diffVsRefPct']:+.1f}%" if m["diffVsRefPct"] is not None else "0.0%"
             store_cell = (
                 f"[{m['bestStore']}]({m['bestUrl']})"
                 if m["bestUrl"]
@@ -397,9 +414,11 @@ class MonitorsDashboardGenerator:
                 if m["isBelowTarget"]
                 else ("✅ Ao Vivo" if m["hasLiveQuote"] else "⏳ Ref. Base")
             )
+            z_fmt = f"{m['robustZScore']:+.2f}" if m.get("robustZScore") is not None else "0.00"
+            score_fmt = f"{m['dealScore']:.0f}/100" if m.get("dealScore") is not None else "—"
             lines.append(
                 f"| **{m['name']}** | {m['res']} {m['refresh']}Hz | **{m['effectivePriceFmt']}** | "
-                f"{store_cell} | {m['priceTargetFmt']} | {m['histMinFmt']} | {var_str} | {status_icon} |"
+                f"{store_cell} | {m['priceTargetFmt']} | {m['histMinFmt']} | `{score_fmt}` | `{z_fmt}` | {status_icon} |"
             )
 
         lines.extend([

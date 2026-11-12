@@ -163,6 +163,17 @@ class SmartwatchesDashboardGenerator(MonitorsDashboardGenerator):
             benefit = compute_smartwatch_benefit_score(specs)
             cb_index = round(benefit["total"] / (effective_price / 1000.0), 1) if effective_price else 0.0
 
+            hist_prices = [r.preco for r in history_asc if r.preco is not None and r.preco > 0]
+            hist_dates = [r.coletado_em for r in history_asc if r.preco is not None and r.preco > 0]
+            stat_profile = self.statistics_skill.execute(
+                historical_prices=hist_prices,
+                current_price=effective_price,
+                historical_dates=hist_dates,
+                target_price=preco_alvo,
+                user_max_price=preco_maximo,
+            )
+            bf_opp_score = round((0.55 * benefit["total"]) + (0.45 * stat_profile.deal_confidence_score), 1)
+
             is_below_target = bool(live_price is not None and live_price <= preco_alvo)
             is_under_budget = bool(effective_price <= BUDGET_CEILING)
             is_all_time_low = bool(
@@ -229,6 +240,11 @@ class SmartwatchesDashboardGenerator(MonitorsDashboardGenerator):
                 "recordsCount": len(history_asc),
                 "benefit": benefit,
                 "cbIndex": cb_index,
+                "dealScore": stat_profile.deal_confidence_score,
+                "robustZScore": stat_profile.robust_z_score,
+                "percentileRank": stat_profile.percentile_rank,
+                "bfOpportunityScore": bf_opp_score,
+                "priceRegime": stat_profile.regime_preco,
                 "color": MONITOR_PALETTE[idx % len(MONITOR_PALETTE)],
             })
 
@@ -332,19 +348,21 @@ class SmartwatchesDashboardGenerator(MonitorsDashboardGenerator):
             f"- **🤖 Melhor Wear OS (Smart/Google Pay):** {kpis['best_wearos_name']} — {kpis['best_wearos_price']}",
             f"- **💰 Menor preço no piso:** {kpis['cheapest_name']} — {kpis['cheapest_price']}",
             "",
-            "## 🏆 Ranking Custo-Benefício Vestível (Benefício 0–100 ÷ Preço)",
+            "## 🏆 Ranking Custo-Benefício Vestível e Oportunidade Black Friday",
             "",
-            "| # | Smartwatch | Categoria | Preço Atual | Loja | Alvo BF | Piso Pesquisa | Benefício | Pts/R$1k | Status |",
-            "| :---: | :--- | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :--- |",
+            "| # | Smartwatch | Preço Atual | Loja | Benefício | Deal Score | Oportunidade BF | Z-Score (MAD) | Pts/R$1k | Status |",
+            "| :---: | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |",
         ]
         for w in ranked:
             store = f"[{w['bestStore']}]({w['bestUrl']})" if w["bestUrl"] else w["bestStore"]
             price = f"**{w['effectivePriceFmt']}**" if w["hasLiveQuote"] else f"_{w['effectivePriceFmt']} (ref.)_"
             highlight = " 🏃" if "gt-runner-2" in w["id"] else ""
+            deal_s = f"{w['dealScore']:.0f}/100" if w.get("dealScore") is not None else "—"
+            bf_opp = f"{w['bfOpportunityScore']:.1f}" if w.get("bfOpportunityScore") is not None else "—"
+            z_val = f"{w['robustZScore']:+.2f}" if w.get("robustZScore") is not None else "0.00"
             lines.append(
-                f"| {w['cbRank']} | **{w['name']}**{highlight} | {w['category']} | {price} | {store} | "
-                f"{w['priceTargetFmt']} | {w['priceFloorRefFmt']} | {w['benefit']['total']} | "
-                f"{w['cbIndex']} | {w['statusBadge']} |"
+                f"| {w['cbRank']} | **{w['name']}**{highlight} | {price} | {store} | {w['benefit']['total']} | "
+                f"`{deal_s}` | **`{bf_opp}`** | `{z_val}` | {w['cbIndex']} | {w['statusBadge']} |"
             )
         lines.extend([
             "",

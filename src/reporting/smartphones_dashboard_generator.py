@@ -187,6 +187,17 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
             benefit = compute_benefit_score(specs)
             cb_index = round(benefit["total"] / (effective_price / 1000.0), 1) if effective_price else 0.0
 
+            hist_prices = [r.preco for r in history_asc if r.preco is not None and r.preco > 0]
+            hist_dates = [r.coletado_em for r in history_asc if r.preco is not None and r.preco > 0]
+            stat_profile = self.statistics_skill.execute(
+                historical_prices=hist_prices,
+                current_price=effective_price,
+                historical_dates=hist_dates,
+                target_price=preco_alvo,
+                user_max_price=preco_maximo,
+            )
+            bf_opp_score = round((0.55 * benefit["total"]) + (0.45 * stat_profile.deal_confidence_score), 1)
+
             is_below_target = bool(live_price is not None and live_price <= preco_alvo)
             is_under_budget = bool(effective_price <= BUDGET_CEILING)
             is_all_time_low = bool(
@@ -251,6 +262,11 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
                 "recordsCount": len(history_asc),
                 "benefit": benefit,
                 "cbIndex": cb_index,
+                "dealScore": stat_profile.deal_confidence_score,
+                "robustZScore": stat_profile.robust_z_score,
+                "percentileRank": stat_profile.percentile_rank,
+                "bfOpportunityScore": bf_opp_score,
+                "priceRegime": stat_profile.regime_preco,
                 "color": MONITOR_PALETTE[idx % len(MONITOR_PALETTE)],
             })
 
@@ -350,19 +366,21 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
             f"- **💰 Menor preço 512 GB:** {kpis['cheapest_name']} — {kpis['cheapest_price']}",
             f"- **👑 Melhor topo de linha ≤ R$ 3.000:** {kpis['best_flagship_name']} {kpis['best_flagship_price']}",
             "",
-            "## 🏆 Ranking Custo-Benefício (Índice de Benefício ÷ preço)",
+            "## 🏆 Ranking Custo-Benefício e Oportunidade Black Friday",
             "",
-            "| # | Aparelho | Categoria | Preço Atual | Loja | Alvo BF | Piso Pesquisa | Benefício | Pts/R$1k | Status |",
-            "| :---: | :--- | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :--- |",
+            "| # | Aparelho | Preço Atual | Loja | Benefício | Deal Score | Oportunidade BF | Z-Score (MAD) | Pts/R$1k | Status |",
+            "| :---: | :--- | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |",
         ]
         for ph in ranked:
             store = f"[{ph['bestStore']}]({ph['bestUrl']})" if ph["bestUrl"] else ph["bestStore"]
             price = f"**{ph['effectivePriceFmt']}**" if ph["hasLiveQuote"] else f"_{ph['effectivePriceFmt']} (ref.)_"
             est = " ⚠️" if ph["estimated"] else ""
+            deal_s = f"{ph['dealScore']:.0f}/100" if ph.get("dealScore") is not None else "—"
+            bf_opp = f"{ph['bfOpportunityScore']:.1f}" if ph.get("bfOpportunityScore") is not None else "—"
+            z_val = f"{ph['robustZScore']:+.2f}" if ph.get("robustZScore") is not None else "0.00"
             lines.append(
-                f"| {ph['cbRank']} | **{ph['name']}**{est} | {ph['category']} | {price} | {store} | "
-                f"{ph['priceTargetFmt']} | {ph['priceFloorRefFmt']} | {ph['benefit']['total']} | "
-                f"{ph['cbIndex']} | {ph['statusBadge']} |"
+                f"| {ph['cbRank']} | **{ph['name']}**{est} | {price} | {store} | {ph['benefit']['total']} | "
+                f"`{deal_s}` | **`{bf_opp}`** | `{z_val}` | {ph['cbIndex']} | {ph['statusBadge']} |"
             )
         lines.extend([
             "",
