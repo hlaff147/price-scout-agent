@@ -1,0 +1,468 @@
+# Catálogo de Monitoramento Black Friday 2026: Suportes Articulados para 1 e 2 Monitores (Mesa 5 cm Sem Furos)
+# Foco: Compatibilidade com borda de 5 cm (50 mm) via morsa (C-clamp) sem furos na mesa ou parede.
+# Sincronizado com o SQLite (data/promoradar.db) e com o painel (reports/suportes_monitor_black_friday.html).
+#
+# specs.scores (0–10) alimentam o Índice de Benefício Ergonômico (0–100):
+#   Mecanismo & Durabilidade: 30 | Compatibilidade Morsa 5cm: 25 | Ergonomia & Alcance: 20
+#   Capacidade de Carga & Telas: 15 | Garantia & Acabamento: 10
+
+products:
+  # ───────────────────────── 1 MONITOR (TOP 5) ─────────────────────────
+  - id: "elg-f80n"
+    nome: "ELG F80N (ou F80W Branco)"
+    keywords:
+      - "ELG F80N -duplo -f160"
+      - "Suporte ELG F80N"
+    preco_alvo: 155.00
+    preco_maximo: 220.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "ELG"
+      monitors_count: 1
+      category: "1 Monitor — Pistão a Gás"
+      profiles: ["1_monitor", "custo_beneficio", "mesa_5cm_confirmada"]
+      mechanism: "Pistão a gás"
+      screen_range: "17\" a 35\""
+      weight_min_kg: 2.0
+      weight_max_kg: 9.0
+      clamp_range_mm: "10 a 70 mm"
+      clamp_max_mm: 70
+      clearance_5cm_mm: 20
+      clamp_5cm_status: "Confirmado (20 mm de folga)"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "2 anos (cobre o pistão)"
+      price_regular_ref: 189.90
+      price_floor_ref: 114.00
+      tag: "Campeão Geral 1 Monitor (37,7 mil avaliações 4,9★)"
+      pros:
+        - "Morsa de 10 a 70 mm encaixa na borda de 5 cm (50 mm) com 2 cm de folga"
+        - "Aço carbono e alumínio com certificação NR-17 e 2 anos de garantia no pistão"
+        - "Mais de 100 mil unidades vendidas e histórico de 3+ anos sem perda de pressão"
+      cons:
+        - "Peso mínimo de 2 kg (telas ultraleves podem subir sozinhas)"
+      scores:
+        mechanism_durability: 9.5
+        clamp_5cm: 9.5
+        ergonomics_reach: 9.0
+        load_capacity: 8.5
+        warranty_build: 9.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Suporte+ELG+F80N", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/elg-f80n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/suporte-elg-f80n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Suporte+ELG+F80N&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "nb-f80"
+    nome: "North Bayou NB F80"
+    keywords:
+      - "North Bayou NB F80 -f160"
+      - "Suporte NB F80"
+    preco_alvo: 160.00
+    preco_maximo: 220.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "North Bayou"
+      monitors_count: 1
+      category: "1 Monitor — Pistão a Gás"
+      profiles: ["1_monitor", "mesa_5cm_confirmada", "borda_larga"]
+      mechanism: "Pistão a gás"
+      screen_range: "17\" a 30\""
+      weight_min_kg: 2.0
+      weight_max_kg: 9.0
+      clamp_range_mm: "~12 a 95 mm"
+      clamp_max_mm: 95
+      clearance_5cm_mm: 45
+      clamp_5cm_status: "Confirmado (~45 mm de folga)"
+      vesa: "75x75 e 100x100 mm (chapa 118-119 mm)"
+      warranty: "1 ano"
+      price_regular_ref: 177.77
+      price_floor_ref: 149.00
+      tag: "Maior Folga na Morsa (~4,5 cm extras em mesa de 5 cm)"
+      pros:
+        - "Morsa ampla (~12 a 95 mm) garante ~4,5 cm de folga na borda de 5 cm"
+        - "Estrutura equivalente ao ELG F80N testada para mais de 50.000 ciclos"
+        - "Aceita carga mínima próxima de 1,6 kg a 2 kg"
+      cons:
+        - "Chapa VESA de 118–119 mm pode exigir espaçadores em monitores com encaixe fundo"
+        - "Braço vem rígido de fábrica: ajustar somente após pendurar o monitor"
+      scores:
+        mechanism_durability: 9.0
+        clamp_5cm: 10.0
+        ergonomics_reach: 9.0
+        load_capacity: 8.5
+        warranty_build: 8.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=North+Bayou+NB+F80", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/north-bayou-f80", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/north-bayou-nb-f80", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=North+Bayou+NB+F80&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "zinnia-nimbo-110"
+    nome: "Zinnia Nimbo 110 (V2)"
+    keywords:
+      - "Zinnia Nimbo 110 -210 -usb"
+      - "Nimbo 110 V2"
+    preco_alvo: 99.00
+    preco_maximo: 145.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Zinnia"
+      monitors_count: 1
+      category: "1 Monitor — Pistão a Gás Econômico"
+      profiles: ["1_monitor", "economico"]
+      mechanism: "Pistão a gás"
+      screen_range: "13\" a 32\""
+      weight_min_kg: 2.0
+      weight_max_kg: 10.0
+      clamp_range_mm: "Confirmar antes (não informada em mm)"
+      clamp_max_mm: 0
+      clearance_5cm_mm: null
+      clamp_5cm_status: "Confirmar medida com vendedor"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "12 meses (Pichau)"
+      price_regular_ref: 110.00
+      price_floor_ref: 80.07
+      tag: "Pistão a Gás Mais Barato (Setup Econômico)"
+      pros:
+        - "Preço imbatível na faixa de R$ 80 a R$ 110 à vista"
+        - "Suporta até 10 kg na versão padrão V2 sem USB"
+      cons:
+        - "Abertura exata da morsa em mm não consta nas fichas públicas (confirmar para 50 mm)"
+        - "Pistão chega muito travado de fábrica e não baixa a tela até encostar na mesa"
+      scores:
+        mechanism_durability: 7.5
+        clamp_5cm: 5.5
+        ergonomics_reach: 7.5
+        load_capacity: 8.5
+        warranty_build: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Zinnia+Nimbo+110", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/zinnia-nimbo-110", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/zinnia-nimbo-110", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Zinnia+Nimbo+110&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "elg-fh80n"
+    nome: "ELG FH80N (Torre + Gás)"
+    keywords:
+      - "ELG FH80N -fh160"
+      - "Suporte ELG FH80N"
+    preco_alvo: 269.00
+    preco_maximo: 320.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "ELG"
+      monitors_count: 1
+      category: "1 Monitor — Torre + Pistão a Gás"
+      profiles: ["1_monitor", "telas_pesadas", "mesa_5cm_confirmada"]
+      mechanism: "Torre + pistão a gás"
+      screen_range: "22\" a 35\""
+      weight_min_kg: 2.0
+      weight_max_kg: 12.0
+      clamp_range_mm: "10 a 75 mm"
+      clamp_max_mm: 75
+      clearance_5cm_mm: 25
+      clamp_5cm_status: "Confirmado (25 mm de folga)"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "2 anos (ELG)"
+      price_regular_ref: 289.00
+      price_floor_ref: 260.00
+      tag: "Ideal para Monitores Pesados (7–12 kg) ou Posição Alta"
+      pros:
+        - "Capacidade elevada de 2 a 12 kg e avanço de até 55 cm"
+        - "Morsa de 10 a 75 mm garante 2,5 cm de folga na mesa de 5 cm"
+        - "Coluna vertical tipo torre permite altura maior que o F80N"
+      cons:
+        - "Preço mais elevado (faixa de R$ 278 a R$ 310)"
+      scores:
+        mechanism_durability: 9.0
+        clamp_5cm: 9.5
+        ergonomics_reach: 9.5
+        load_capacity: 10.0
+        warranty_build: 9.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Suporte+ELG+FH80N", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/elg-fh80n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/suporte-elg-fh80n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Suporte+ELG+FH80N&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "coibeu-dn01"
+    nome: "Coibeu DN01 (Mola Mecânica)"
+    keywords:
+      - "Coibeu DN01"
+      - "Suporte Coibeu DN01"
+    preco_alvo: 145.00
+    preco_maximo: 190.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Coibeu"
+      monitors_count: 1
+      category: "1 Monitor — Mola Mecânica"
+      profiles: ["1_monitor", "mola_mecanica"]
+      mechanism: "Mola mecânica"
+      screen_range: "17\" a 34\""
+      weight_min_kg: 2.0
+      weight_max_kg: 10.0
+      clamp_range_mm: "Confirmar antes (não informada em mm)"
+      clamp_max_mm: 0
+      clearance_5cm_mm: null
+      clamp_5cm_status: "Confirmar medida com vendedor"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "90 dias"
+      price_regular_ref: 159.90
+      price_floor_ref: 139.00
+      tag: "Sem Cilindro a Gás (Mola Mecânica 30 mil ciclos)"
+      pros:
+        - "Evita risco de perda de pressão de pistão a gás ao longo dos anos"
+        - "Bem avaliado (4,5★ em 375 avaliações) e suporta até 10 kg"
+      cons:
+        - "Garantia curta (90 dias) frente aos 2 anos da ELG"
+        - "Exige mais força manual e confirmar abertura da morsa para 50 mm"
+      scores:
+        mechanism_durability: 8.5
+        clamp_5cm: 5.5
+        ergonomics_reach: 7.5
+        load_capacity: 8.5
+        warranty_build: 6.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Coibeu+DN01", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/coibeu-dn01", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Coibeu+DN01&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  # ───────────────────────── 2 MONITORES (TOP 5) ─────────────────────────
+  - id: "elg-f160n"
+    nome: "ELG F160N (Duplo)"
+    keywords:
+      - "ELG F160N -fh160"
+      - "Suporte ELG F160N"
+    preco_alvo: 279.00
+    preco_maximo: 420.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "ELG"
+      monitors_count: 2
+      category: "2 Monitores — Pistão a Gás Duplo"
+      profiles: ["2_monitores", "custo_beneficio", "mesa_5cm_confirmada"]
+      mechanism: "Pistão a gás duplo"
+      screen_range: "17\" a 35\" (ideal até 27\")"
+      weight_min_kg: 2.0
+      weight_max_kg: 9.0
+      clamp_range_mm: "10 a 70 mm"
+      clamp_max_mm: 70
+      clearance_5cm_mm: 20
+      clamp_5cm_status: "Confirmado (20 mm de folga)"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "2 anos (ELG)"
+      price_regular_ref: 319.00
+      price_floor_ref: 260.10
+      tag: "Referência Geral para 2 Monitores até 27\""
+      pros:
+        - "Pistões de 6ª geração independentes, NR-17 e 2 anos de garantia"
+        - "Morsa de 10 a 70 mm compatível com mesa de 5 cm (2 cm de folga)"
+      cons:
+        - "Dois ultrawides de 34\" podem superar a folga lateral e o peso seguro na borda"
+      scores:
+        mechanism_durability: 9.5
+        clamp_5cm: 9.5
+        ergonomics_reach: 9.0
+        load_capacity: 8.5
+        warranty_build: 9.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Suporte+ELG+F160N", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/elg-f160n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/suporte-elg-f160n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Suporte+ELG+F160N&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "nb-f160"
+    nome: "North Bayou NB F160 (Duplo)"
+    keywords:
+      - "North Bayou NB F160 -f80"
+      - "Suporte NB F160"
+    preco_alvo: 229.00
+    preco_maximo: 290.00
+    prioridade: "high"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "North Bayou"
+      monitors_count: 2
+      category: "2 Monitores — Pistão a Gás Duplo"
+      profiles: ["2_monitores", "mesa_5cm_confirmada", "borda_larga"]
+      mechanism: "Pistão a gás duplo"
+      screen_range: "17\" a 27\""
+      weight_min_kg: 2.0
+      weight_max_kg: 9.0
+      clamp_range_mm: "Até 90 mm (manual F160-W)"
+      clamp_max_mm: 90
+      clearance_5cm_mm: 40
+      clamp_5cm_status: "Confirmado (40 mm de folga)"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "1 ano"
+      price_regular_ref: 245.00
+      price_floor_ref: 220.00
+      tag: "Melhor Folga para 2 Telas até 27\" (4 cm livres em 5 cm)"
+      pros:
+        - "Morsa até 90 mm oferece 4 cm de folga na mesa de 5 cm"
+        - "Braços em liga de alumínio de grau aeronáutico e preço abaixo do ELG F160N"
+      cons:
+        - "Limite oficial de tela é 17\" a 27\" (menor que os 35\" da ELG)"
+      scores:
+        mechanism_durability: 9.0
+        clamp_5cm: 10.0
+        ergonomics_reach: 8.5
+        load_capacity: 8.0
+        warranty_build: 8.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=North+Bayou+NB+F160", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/north-bayou-f160", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/north-bayou-nb-f160", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=North+Bayou+NB+F160&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "elg-fh160n"
+    nome: "ELG FH160N (Torre Duplo)"
+    keywords:
+      - "ELG FH160N"
+      - "Suporte ELG FH160N"
+    preco_alvo: 329.00
+    preco_maximo: 420.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "ELG"
+      monitors_count: 2
+      category: "2 Monitores — Torre + Pistões a Gás"
+      profiles: ["2_monitores", "telas_pesadas", "mesa_5cm_confirmada"]
+      mechanism: "Torre + pistões a gás"
+      screen_range: "22\" a 32\""
+      weight_min_kg: 2.0
+      weight_max_kg: 12.0
+      clamp_range_mm: "10 a 75 mm"
+      clamp_max_mm: 75
+      clearance_5cm_mm: 25
+      clamp_5cm_status: "Confirmado (25 mm de folga)"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "2 anos (ELG)"
+      price_regular_ref: 346.90
+      price_floor_ref: 319.00
+      tag: "Até 24 kg Totais + Coluna de 43 cm (Altura Extra)"
+      pros:
+        - "Suporta 2 a 12 kg por braço (até 24 kg totais) e alcança até 63 cm de altura"
+        - "Morsa de 10 a 75 mm encaixa com 2,5 cm de folga na borda de 5 cm"
+      cons:
+        - "Atenção à revisão antiga em algumas lojas (coluna 36 cm e limite de 9 kg)"
+        - "Menor liberdade lateral por compartilhar a mesma torre central"
+      scores:
+        mechanism_durability: 9.0
+        clamp_5cm: 9.5
+        ergonomics_reach: 8.5
+        load_capacity: 10.0
+        warranty_build: 9.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Suporte+ELG+FH160N", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/elg-fh160n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/suporte-elg-fh160n", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Suporte+ELG+FH160N&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "zinnia-nimbo-210"
+    nome: "Zinnia Nimbo 210 (Duplo)"
+    keywords:
+      - "Zinnia Nimbo 210 -110"
+      - "Nimbo 210"
+    preco_alvo: 199.00
+    preco_maximo: 260.00
+    prioridade: "medium"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Zinnia"
+      monitors_count: 2
+      category: "2 Monitores — Pistão a Gás Econômico"
+      profiles: ["2_monitores", "economico"]
+      mechanism: "Pistão a gás duplo"
+      screen_range: "13\" a 32\""
+      weight_min_kg: 2.0
+      weight_max_kg: 8.0
+      clamp_range_mm: "Confirmar antes (não informada em mm)"
+      clamp_max_mm: 0
+      clearance_5cm_mm: null
+      clamp_5cm_status: "Confirmar medida com vendedor"
+      vesa: "75x75 e 100x100 mm"
+      warranty: "12 meses (Pichau)"
+      price_regular_ref: 229.00
+      price_floor_ref: 189.00
+      tag: "Setup Duplo a Gás de Menor Custo"
+      pros:
+        - "Opção dupla a gás mais acessível em promoções"
+        - "Versão com USB 3.0 na base facilita conexões na mesa"
+      cons:
+        - "Confirmar abertura da morsa em mm para borda de 5 cm"
+        - "Versão USB reduz carga máxima para 8 kg por braço"
+      scores:
+        mechanism_durability: 7.5
+        clamp_5cm: 5.5
+        ergonomics_reach: 8.0
+        load_capacity: 7.5
+        warranty_build: 7.5
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Zinnia+Nimbo+210", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/zinnia-nimbo-210", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/zinnia-nimbo-210", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Zinnia+Nimbo+210&udm=28", metodo_coleta: "scraping_html", ativo: true}
+
+  - id: "vinik-sm310c"
+    nome: "Vinik SM310C (Fricção Duplo)"
+    keywords:
+      - "Vinik SM310C"
+      - "Suporte Vinik SM310C"
+    preco_alvo: 159.00
+    preco_maximo: 200.00
+    prioridade: "low"
+    intervalo_customizado_min: 360
+    ativo: true
+    specs:
+      brand: "Vinik"
+      monitors_count: 2
+      category: "2 Monitores — Fricção (Coluna Central)"
+      profiles: ["2_monitores", "economico"]
+      mechanism: "Fricção (coluna central)"
+      screen_range: "13\" a 32\""
+      weight_min_kg: 0.0
+      weight_max_kg: 10.0
+      clamp_range_mm: "Confirmar sistema e abertura em mm"
+      clamp_max_mm: 0
+      clearance_5cm_mm: null
+      clamp_5cm_status: "Confirmar fixação e medida"
+      vesa: "50x50, 75x75 e 100x100 mm"
+      warranty: "12 meses"
+      price_regular_ref: 162.94
+      price_floor_ref: 149.00
+      tag: "Orçamento Abaixo de R$ 200 (Altura Fixa)"
+      pros:
+        - "Menor preço para 2 monitores (< R$ 170) e padrão VESA amplo (inclui 50x50)"
+        - "Não exige peso mínimo por não usar pistão a gás"
+      cons:
+        - "Sem pistão a gás: as duas telas sobem e descem juntas no eixo"
+        - "Fichas não confirmam fixação/abertura da morsa para 5 cm"
+      scores:
+        mechanism_durability: 7.0
+        clamp_5cm: 4.0
+        ergonomics_reach: 5.5
+        load_capacity: 8.5
+        warranty_build: 7.0
+    sources:
+      - {marketplace: "amazon", url_produto: "https://www.amazon.com.br/s?k=Vinik+SM310C", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "kabum", url_produto: "https://www.kabum.com.br/busca/vinik-sm310c", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "mercadolivre", url_produto: "https://lista.mercadolivre.com.br/vinik-sm310c", metodo_coleta: "scraping_html", ativo: true}
+      - {marketplace: "google_shopping", url_produto: "https://www.google.com/search?q=Vinik+SM310C&udm=28", metodo_coleta: "scraping_html", ativo: true}
