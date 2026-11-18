@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from src.data.models import PriorityLevel, Product
+from src.core.models import PriorityLevel, Product
 
 
 class IProductManagementPort(ABC):

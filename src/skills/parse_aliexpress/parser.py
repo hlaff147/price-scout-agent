@@ -1,9 +1,12 @@
 """AliExpress parsing skill."""
 
+from __future__ import annotations
+
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 
-from src.data.models import ScrapedData
+from src.core.models import ScrapedData
 from src.skills.base import BaseSkill
 from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
@@ -14,6 +17,14 @@ class ParseAliExpressSkill(BaseSkill):
     name = "parse_aliexpress"
     description = "Parser HTML para AliExpress (produtos e listagens de busca em BRL)."
 
+    SELECTORS: ClassVar[dict[str, str]] = {
+        "container": "div.search-item-card, div[class*='multi--container--']",
+        "titulo": "h1[data-pl='product-title'], div[class*='multi--title--'], h3",
+        "preco": "span.product-price-value, div[class*='multi--price-sale--']",
+    }
+
+    SEARCH_ITEM_SELECTOR = "div.search-item-card, div[class*='multi--container--'], div.list--gallery--item"
+
     def execute(
         self,
         html: str,
@@ -21,16 +32,19 @@ class ParseAliExpressSkill(BaseSkill):
         keywords: list[str] | None = None,
     ) -> ScrapedData:
         soup = BeautifulSoup(html, "html.parser")
+        kw_list = keywords or []
 
-        # 1. Página de produto individual
-        product_data = self._parse_product_page(soup, url)
-        if product_data and product_data.preco:
-            return product_data
-
-        # 2. Listagem de busca
-        search_data = self._parse_search_listing(soup, url, keywords or [])
-        if search_data and search_data.preco:
-            return search_data
+        if soup.select_one(self.SEARCH_ITEM_SELECTOR):
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
+        else:
+            product_data = self._parse_product_page(soup, url, kw_list)
+            if product_data and product_data.preco:
+                return product_data
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
 
         return ScrapedData(
             marketplace="aliexpress",
@@ -39,14 +53,16 @@ class ParseAliExpressSkill(BaseSkill):
             error_message="Nenhum produto ou preço correspondente encontrado no AliExpress.",
         )
 
-    def _parse_product_page(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
-        title_tag = soup.select_one(
-            "h1[data-pl='product-title'], h1.product-title-text, h1"
-        )
+    def _parse_product_page(
+        self, soup: BeautifulSoup, url: str, keywords: list[str]
+    ) -> ScrapedData | None:
+        title_tag = soup.select_one("h1[data-pl='product-title'], h1.product-title-text, h1")
         if not title_tag:
             return None
 
         title = title_tag.get_text(strip=True)
+        if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+            return None
 
         price_tag = soup.select_one(
             "span.product-price-value, div.product-price-current, span.notranslate"
@@ -88,13 +104,11 @@ class ParseAliExpressSkill(BaseSkill):
         url: str,
         keywords: list[str],
     ) -> ScrapedData | None:
-        items = soup.select(
-            "div.search-item-card, div[class*='multi--container--'], div.list--gallery--item"
-        )
+        items = soup.select(self.SEARCH_ITEM_SELECTOR)
         if not items:
             return None
 
-        candidates = []
+        candidates: list[ScrapedData] = []
         for item in items:
             title_tag = item.select_one(
                 "h3, div[class*='multi--title--'], a[class*='multi--title--']"
@@ -107,10 +121,11 @@ class ParseAliExpressSkill(BaseSkill):
                 continue
 
             link_tag = item.select_one("a")
+            raw_href = str(link_tag.get("href", "")) if link_tag else ""
             item_url = (
-                f"https:{link_tag.get('href')}"
-                if link_tag and link_tag.get("href", "").startswith("//")
-                else (link_tag.get("href") if link_tag else url)
+                f"https:{raw_href}"
+                if raw_href.startswith("//")
+                else (raw_href or url)
             )
 
             price_tag = item.select_one(

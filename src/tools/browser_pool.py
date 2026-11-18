@@ -6,6 +6,8 @@ import random
 from loguru import logger
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 
+from src.config.settings import settings
+from src.core.domain import validate_external_http_url
 from src.tools.http_client import USER_AGENTS
 
 
@@ -71,6 +73,7 @@ class PlaywrightBrowserPool:
         Returns:
             HTML completo renderizado após execução de scripts.
         """
+        validated_url = validate_external_http_url(url, allow_private=settings.ALLOW_PRIVATE_URLS)
         timeout = timeout_ms or self.timeout_ms
         user_agent = random.choice(USER_AGENTS)
 
@@ -85,8 +88,8 @@ class PlaywrightBrowserPool:
 
             try:
                 page = await self._configure_page(context)
-                logger.debug(f"[Playwright] Navegando para {url} (timeout: {timeout}ms)...")
-                await page.goto(url, wait_until=wait_until, timeout=timeout)
+                logger.debug(f"[Playwright] Navegando para {validated_url} (timeout: {timeout}ms)...")
+                await page.goto(validated_url, wait_until=wait_until, timeout=timeout)
 
                 if wait_selector:
                     try:

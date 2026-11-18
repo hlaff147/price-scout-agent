@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import Coupon
+from src.core.models import Coupon
 
 
 class ICouponRepositoryPort(ABC):

@@ -148,7 +148,9 @@
   </div>
 
   <script>
-    const DATA = __MONITOR_ARMS_DATA_JSON__;
+    const DATA = {{ data_json | safe }};
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
+    const safeHref = (u) => (/^https?:\/\//i.test(String(u ?? "")) ? esc(u) : "#");
     const fmtBRL = (v) => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     document.getElementById("meta-subtitle").textContent =
@@ -199,24 +201,24 @@
 
       document.getElementById("table-body").innerHTML = cards.map((c, idx) => {
         const morsaBadge = (c.clamp_max_mm >= 50)
-          ? `<span class="pill pill-ok">${c.clamp_range_mm} (+${c.clearance_5cm_mm}mm)</span>`
-          : `<span class="pill pill-warn">${c.clamp_5cm_status}</span>`;
+          ? `<span class="pill pill-ok">${esc(c.clamp_range_mm)} (+${esc(c.clearance_5cm_mm)}mm)</span>`
+          : `<span class="pill pill-warn">${esc(c.clamp_5cm_status)}</span>`;
         const statusBadge = c.below_target
           ? `<span class="pill pill-target">🎯 Abaixo do Alvo</span>`
-          : (c.has_live ? `<span class="pill pill-ok">✅ ${c.marketplace}</span>` : `<span class="pill pill-warn">⏳ Ref. Pesquisa</span>`);
-        const priceHtml = `<a href="${c.url}" target="_blank" rel="noopener"><strong>${fmtBRL(c.current_price)}</strong></a>`;
+          : (c.has_live ? `<span class="pill pill-ok">✅ ${esc(c.marketplace)}</span>` : `<span class="pill pill-warn">⏳ Ref. Pesquisa</span>`);
+        const priceHtml = `<a href="${safeHref(c.url)}" target="_blank" rel="noopener"><strong>${fmtBRL(c.current_price)}</strong></a>`;
         return `
           <tr>
             <td>${idx + 1}</td>
-            <td><strong>${c.nome}</strong><br><span style="color:var(--muted);font-size:0.78rem">${c.tag}</span></td>
-            <td>${c.monitors_count}x</td>
-            <td>${c.mechanism}</td>
-            <td>${c.weight_min_kg}–${c.weight_max_kg} kg<br><span style="color:var(--muted);font-size:0.78rem">${c.screen_range}</span></td>
+            <td><strong>${esc(c.nome)}</strong><br><span style="color:var(--muted);font-size:0.78rem">${esc(c.tag)}</span></td>
+            <td>${Number(c.monitors_count)}x</td>
+            <td>${esc(c.mechanism)}</td>
+            <td>${esc(c.weight_min_kg)}–${esc(c.weight_max_kg)} kg<br><span style="color:var(--muted);font-size:0.78rem">${esc(c.screen_range)}</span></td>
             <td>${morsaBadge}</td>
             <td>${priceHtml}</td>
             <td>${fmtBRL(c.target_price)}</td>
-            <td><strong>${c.benefit_score}</strong>/100</td>
-            <td><strong>${c.pts_per_100}</strong></td>
+            <td><strong>${esc(c.benefit_score)}</strong>/100</td>
+            <td><strong>${esc(c.pts_per_100)}</strong></td>
             <td>${statusBadge}</td>
           </tr>
         `;

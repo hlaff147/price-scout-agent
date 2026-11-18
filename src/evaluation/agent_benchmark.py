@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,7 @@ class AgentBenchmarkRunner:
         self.benchmark_path = Path(benchmark_yaml_path)
         if not self.benchmark_path.exists():
             raise FileNotFoundError(f"Dataset de benchmark não encontrado: {self.benchmark_path}")
-        with open(self.benchmark_path, "r", encoding="utf-8") as f:
+        with open(self.benchmark_path, encoding="utf-8") as f:
             self.data = yaml.safe_load(f) or {}
 
     async def evaluate_matcher(self) -> dict[str, Any]:
@@ -60,7 +61,11 @@ class AgentBenchmarkRunner:
 
             yt = 1 if item["expected_match"] else 0
             yp = 1 if res.is_match else 0
-            prob = res.confidence if res.is_match else (1.0 - res.confidence)
+            prob = (
+                res.match_probability
+                if hasattr(res, "match_probability")
+                else (res.confidence if res.is_match else (1.0 - res.confidence))
+            )
 
             y_true_all.append(yt)
             y_pred_all.append(yp)
@@ -95,9 +100,17 @@ class AgentBenchmarkRunner:
         for item in cases:
             _, _, is_fake = skill.execute(
                 current_price=float(item["current_price"]),
-                original_price_announced=float(item["original_price_announced"]) if item.get("original_price_announced") else None,
-                historical_avg=float(item["historical_avg"]) if item.get("historical_avg") else None,
-                user_max_price=float(item["user_max_price"]) if item.get("user_max_price") else None,
+                original_price_announced=(
+                    float(item["original_price_announced"])
+                    if item.get("original_price_announced")
+                    else None
+                ),
+                historical_avg=(
+                    float(item["historical_avg"]) if item.get("historical_avg") else None
+                ),
+                user_max_price=(
+                    float(item["user_max_price"]) if item.get("user_max_price") else None
+                ),
             )
             y_true.append(1 if item["expected_is_fake"] else 0)
             y_pred.append(1 if is_fake else 0)
@@ -127,11 +140,23 @@ class AgentBenchmarkRunner:
             )
             repo.upsert_product(product)
             source = repo.upsert_source(
-                Source(product_id=product.id, marketplace="mercadolivre", url_produto="http://ml.com")
+                Source(
+                    product_id=product.id,
+                    marketplace="mercadolivre",
+                    url_produto="https://lista.mercadolivre.com.br/item",
+                )
             )
 
-            for hp in item.get("historical_prices", []):
-                repo.save_price_record(PriceRecord(source_id=source.id, preco=float(hp)))
+            hist_list = item.get("historical_prices", [])
+            base_dt = datetime.now(timezone.utc) - timedelta(days=len(hist_list))
+            for idx, hp in enumerate(hist_list):
+                repo.save_price_record(
+                    PriceRecord(
+                        source_id=source.id or 1,
+                        preco=float(hp),
+                        coletado_em=base_dt + timedelta(days=idx),
+                    )
+                )
 
             analyst = PriceAnalystSubagent(repository=repo)
             scraped = ScrapedData(
@@ -139,7 +164,8 @@ class AgentBenchmarkRunner:
                 success=True,
                 preco=float(item["scraped_price"]),
                 titulo=product.nome,
-                url="http://ml.com/oferta",
+                cupom=item.get("scraped_coupon"),
+                url="https://produto.mercadolivre.com.br/oferta",
             )
             analyses = await analyst.run(product, [(source, scraped)])
 
@@ -173,37 +199,37 @@ class AgentBenchmarkRunner:
         fd_m: BinaryClassificationMetrics = results["fake_discount"]["metrics"]
         an_m: BinaryClassificationMetrics = results["analyst"]["metrics"]
 
-        md = []
-        md.append("# Relatório Executivo de Avaliação de Machine Learning & Data Science — PromoRadar\n")
-        md.append("> Avaliação automatizada de acurácia, precisão, revocação, F1-score e calibração estatística dos agentes contra o Golden Dataset Multi-Vertical.\n")
-
-        md.append("## 1. Desempenho Global dos Agentes\n")
-        md.append("| Agente / Componente | Casos | Accuracy | Precision | Recall | $F_1$-Score | $F_{0.5}$-Score | MCC | Brier Score |")
-        md.append("|---|---|---|---|---|---|---|---|---|")
-        md.append(
-            f"| **HybridProductMatcher** | {results['matcher']['total_cases']} | "
-            f"`{m_glob.accuracy:.1%}` | `{m_glob.precision:.1%}` | `{m_glob.recall:.1%}` | "
-            f"`{m_glob.f1_score:.3f}` | `{m_glob.f05_score:.3f}` | `{m_glob.mcc:.3f}` | `{m_glob.brier_score or 0.0:.3f}` |"
-        )
-        md.append(
-            f"| **DetectFakeDiscountSkill** | {results['fake_discount']['total_cases']} | "
-            f"`{fd_m.accuracy:.1%}` | `{fd_m.precision:.1%}` | `{fd_m.recall:.1%}` | "
-            f"`{fd_m.f1_score:.3f}` | `{fd_m.f05_score:.3f}` | `{fd_m.mcc:.3f}` | — |"
-        )
-        md.append(
-            f"| **PriceAnalystSubagent** | {results['analyst']['total_cases']} | "
-            f"`{an_m.accuracy:.1%}` | `{an_m.precision:.1%}` | `{an_m.recall:.1%}` | "
-            f"`{an_m.f1_score:.3f}` | `{an_m.f05_score:.3f}` | `{an_m.mcc:.3f}` | — |\n"
-        )
-
-        md.append("## 2. Detalhamento do HybridProductMatcher por Vertical\n")
-        md.append("| Categoria Vertical | Casos | TP | FP | TN | FN | Precision | Recall | $F_{0.5}$-Score | MCC |")
-        md.append("|---|---|---|---|---|---|---|---|---|---|")
+        md = [
+            "# Relatório Executivo de Avaliação de Machine Learning & Data Science — PromoRadar\n",
+            "> Avaliação automatizada de acurácia, precisão, revocação, F1-score e calibração estatística dos agentes contra o Golden Dataset Multi-Vertical.\n",
+            "## 1. Desempenho Global dos Agentes\n",
+            "| Agente / Componente | Casos | Accuracy | Precision | Recall | $F_1$-Score | $F_{0.5}$-Score | MCC | Brier Score |",
+            "|---|---|---|---|---|---|---|---|---|",
+            (
+                f"| **HybridProductMatcher** | {results['matcher']['total_cases']} | "
+                f"`{m_glob.accuracy:.1%}` | `{m_glob.precision:.1%}` | `{m_glob.recall:.1%}` | "
+                f"`{m_glob.f1_score:.3f}` | `{m_glob.f05_score:.3f}` | `{m_glob.mcc:.3f}` | `{m_glob.brier_score or 0.0:.3f}` |"
+            ),
+            (
+                f"| **DetectFakeDiscountSkill** | {results['fake_discount']['total_cases']} | "
+                f"`{fd_m.accuracy:.1%}` | `{fd_m.precision:.1%}` | `{fd_m.recall:.1%}` | "
+                f"`{fd_m.f1_score:.3f}` | `{fd_m.f05_score:.3f}` | `{fd_m.mcc:.3f}` | — |"
+            ),
+            (
+                f"| **PriceAnalystSubagent** | {results['analyst']['total_cases']} | "
+                f"`{an_m.accuracy:.1%}` | `{an_m.precision:.1%}` | `{an_m.recall:.1%}` | "
+                f"`{an_m.f1_score:.3f}` | `{an_m.f05_score:.3f}` | `{an_m.mcc:.3f}` | — |\n"
+            ),
+            "## 2. Detalhamento do HybridProductMatcher por Vertical\n",
+            "| Categoria Vertical | Casos | TP | FP | TN | FN | Precision | Recall | $F_{0.5}$-Score | MCC |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
         for cat, cm in results["matcher"]["by_category"].items():
             label = {
                 "smartphones_512": "Smartphones 512GB (R$ 3.000)",
                 "smartwatches": "Smartwatches (R$ 800 - R$ 1.200)",
                 "monitores_27": "Monitores 27 Ergonômicos",
+                "suportes_monitor": "Suportes Articulados (Mesa 5 cm)",
             }.get(cat, cat.upper())
             md.append(
                 f"| **{label}** | {cm.total_samples} | {cm.tp} | {cm.fp} | {cm.tn} | {cm.fn} | "
@@ -228,7 +254,7 @@ class AgentBenchmarkRunner:
         if m_glob.precision >= 0.95 and m_glob.f05_score >= 0.90:
             md.append(
                 "- ✅ **Alta Precisão do Matcher**: A métrica $F_{0.5}$ está acima da meta de 0.90, "
-                "garantindo que o SQLite permaneça livre de acessórios (pulseiras, docks, capas) e variantes incorretas (256GB).\n"
+                "garantindo que o SQLite permaneça livre de acessórios e variantes incorretas.\n"
             )
         if fd_m.accuracy >= 0.90:
             md.append(
@@ -238,7 +264,7 @@ class AgentBenchmarkRunner:
         if an_m.recall >= 0.90:
             md.append(
                 "- ✅ **Analista de Oportunidades**: O detector de anomalias temporais via Z-Score Robusto "
-                "capturou quedas expressivas e respeitou a linha de base histórica.\n"
+                "capturou quedas expressivas e rejeitou falsos gatilhos de parcelamento.\n"
             )
 
         return "\n".join(md)

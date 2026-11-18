@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import Coupon, DealAnalysis, Product
+from src.core.models import Coupon, DealAnalysis, Product
 
 
 class INotifier(ABC):

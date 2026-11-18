@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import HealingResult, Product, SelectorOverride
+from src.core.models import HealingResult, Product, SelectorOverride
 
 
 class ISelectorRepositoryPort(ABC):
@@ -17,6 +17,12 @@ class ISelectorRepositoryPort(ABC):
     def save_override(self, override: SelectorOverride) -> SelectorOverride:
         """Salva ou atualiza um seletor reparado."""
         ...
+
+    def record_override_outcome(
+        self, marketplace: str, *, success: bool, max_consecutive_failures: int = 3
+    ) -> None:
+        """Atualiza contadores de saúde dos seletores aprendidos com rollback automático."""
+        return
 
     @abstractmethod
     def has_exceeded_healing_attempts(

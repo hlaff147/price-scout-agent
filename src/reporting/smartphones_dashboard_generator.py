@@ -1,33 +1,23 @@
-"""Gerador do Dashboard Interativo e Relatório Incremental de Smartphones 512 GB (Black Friday).
-
-Reaproveita o log incremental de ciclos do gerador de monitores e acrescenta o
-Índice de Benefício (0–100) e o Custo-Benefício (pontos por R$ 1.000) de cada aparelho.
-"""
+"""Gerador do Dashboard Interativo e Relatório Incremental de Smartphones 512 GB (Black Friday)."""
 
 from __future__ import annotations
 
-import json
-import webbrowser
-from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from loguru import logger
-
-from src.data.models import PriceRecord
 from src.data.repository import Repository
-from src.reporting.monitors_dashboard_generator import (
-    MARKETPLACE_LABELS,
-    MONITOR_PALETTE,
+from src.reporting.category_base import (
+    BLACK_FRIDAY_2026,
+    CATEGORY_PALETTE,
+    DEFAULT_FRESHNESS_HOURS,
     RECIFE_TZ,
-    MonitorsDashboardGenerator,
+    BaseCategoryDashboardGenerator,
     fmt_brl,
 )
 
-BLACK_FRIDAY_2026 = datetime(2026, 11, 27, 0, 0, tzinfo=RECIFE_TZ)
 BUDGET_CEILING = 3000.0
-FRESHNESS_WINDOW_HOURS = 96
+FRESHNESS_WINDOW_HOURS = DEFAULT_FRESHNESS_HOURS
 
 PROFILE_LABELS = {
     "geral": "Melhor Escolha Geral",
@@ -41,10 +31,7 @@ PROFILE_LABELS = {
 
 
 def compute_benefit_score(specs: dict[str, Any]) -> dict[str, float]:
-    """Calcula o Índice de Benefício (0–100) a partir das notas editoriais e da ficha técnica.
-
-    Pesos: Desempenho 30 | Câmeras 25 | Bateria+Recarga 15 | Software 10 | Tela 10 | Construção/Memória 10.
-    """
+    """Calcula o Índice de Benefício (0–100) a partir das notas editoriais e da ficha técnica."""
     scores = specs.get("scores", {}) or {}
     perf = float(scores.get("performance", 5.0)) * 3.0
     camera = float(scores.get("camera", 5.0)) * 2.5
@@ -65,6 +52,7 @@ def compute_benefit_score(specs: dict[str, Any]) -> dict[str, float]:
         ip_pts = 1.5
     else:
         ip_pts = 0.0
+
     ram = int(specs.get("ram_gb") or 0)
     ram_pts = 2.5 if ram >= 12 else (1.25 if ram >= 8 else 0.0)
     storage = str(specs.get("storage_type") or "")
@@ -76,8 +64,8 @@ def compute_benefit_score(specs: dict[str, Any]) -> dict[str, float]:
         ufs_pts = 0.5
     else:
         ufs_pts = 1.0
-    build = ip_pts + ram_pts + ufs_pts
 
+    build = ip_pts + ram_pts + ufs_pts
     breakdown = {
         "desempenho": round(perf, 1),
         "cameras": round(camera, 1),
@@ -90,7 +78,7 @@ def compute_benefit_score(specs: dict[str, Any]) -> dict[str, float]:
     return breakdown
 
 
-class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
+class SmartphonesDashboardGenerator(BaseCategoryDashboardGenerator):
     """Compila o painel HTML evolutivo e o relatório Markdown de smartphones 512 GB."""
 
     def __init__(
@@ -124,84 +112,43 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
         for idx, item in enumerate(catalog):
             pid = item["id"]
             specs = item.get("specs", {}) or {}
-            sources = self.repository.get_sources_for_product(pid)
-            source_map = {s.id: s for s in sources if s.id is not None}
-
-            history: list[PriceRecord] = self.repository.get_price_history(pid, days=120)
-            history_asc = sorted(history, key=lambda r: r.coletado_em)
-            total_db_records += len(history_asc)
-
-            preco_alvo = float(item["preco_alvo"])
-            preco_maximo = float(item["preco_maximo"])
-            scalper_ceiling = preco_maximo * 1.65
-
-            latest_by_mkt: dict[str, dict[str, Any]] = {}
-            mkt_bucket_min: dict[str, dict[str, float]] = defaultdict(dict)
-            for rec in history_asc:
-                if rec.preco > scalper_ceiling:
-                    continue
-                src = source_map.get(rec.source_id)
-                mkt_key = src.marketplace if src else "desconhecido"
-                local_dt = (
-                    rec.coletado_em.astimezone(RECIFE_TZ)
-                    if rec.coletado_em.tzinfo
-                    else rec.coletado_em.replace(tzinfo=timezone.utc).astimezone(RECIFE_TZ)
-                )
-                bucket = local_dt.strftime("%Y-%m-%d %H:00")
-                all_buckets.add(bucket)
-                prev = mkt_bucket_min[bucket].get(mkt_key)
-                if prev is None or rec.preco < prev:
-                    mkt_bucket_min[bucket][mkt_key] = rec.preco
-                latest_by_mkt[mkt_key] = {
-                    "marketplace": MARKETPLACE_LABELS.get(mkt_key, mkt_key.upper()),
-                    "preco": round(rec.preco, 2),
-                    "preco_fmt": fmt_brl(rec.preco),
-                    "url": rec.url_encontrada or (src.url_produto if src else ""),
-                    "titulo": rec.titulo_coletado or item["nome"],
-                    "coletado_em": local_dt.strftime("%d/%m %H:%M"),
-                    "seen_at": local_dt,
-                }
-            per_phone_buckets[pid] = dict(mkt_bucket_min)
-
-            # Só considera ofertas "vivas" (vistas na janela de frescor) para o preço atual
-            fresh_offers = [
-                o for o in latest_by_mkt.values()
-                if (now_local - o["seen_at"]).total_seconds() <= FRESHNESS_WINDOW_HOURS * 3600
-            ]
-            store_offers = sorted(
-                ({k: v for k, v in o.items() if k != "seen_at"} for o in fresh_offers),
-                key=lambda x: x["preco"],
-            )
-            best = store_offers[0] if store_offers else None
-
             preco_alvo = float(item["preco_alvo"])
             preco_maximo = float(item["preco_maximo"])
             floor_ref = float(specs.get("price_floor_ref") or preco_alvo)
             regular_ref = float(specs.get("price_regular_ref") or preco_maximo)
-            hist_min = self.repository.get_historical_min_price(pid)
 
-            live_price = best["preco"] if best else None
-            # Sem cotação viva, usa o preço regular da pesquisa (conservador) para o custo-benefício
-            effective_price = live_price if live_price is not None else regular_ref
+            bundle = self.collect_product_history(
+                item,
+                now_local=now_local,
+                fallback_ref_price=regular_ref,
+                freshness_hours=FRESHNESS_WINDOW_HOURS,
+            )
+            total_db_records += len(bundle.records_asc)
+            all_buckets.update(bundle.mkt_bucket_min.keys())
+            per_phone_buckets[pid] = bundle.mkt_bucket_min
+
+            live_price = bundle.live_price
+            effective_price = bundle.effective_price
+            best = bundle.best_offer
+            stat_profile = bundle.stat_profile
 
             benefit = compute_benefit_score(specs)
-            cb_index = round(benefit["total"] / (effective_price / 1000.0), 1) if effective_price else 0.0
-
-            hist_prices = [r.preco for r in history_asc if r.preco is not None and r.preco > 0]
-            hist_dates = [r.coletado_em for r in history_asc if r.preco is not None and r.preco > 0]
-            stat_profile = self.statistics_skill.execute(
-                historical_prices=hist_prices,
-                current_price=effective_price,
-                historical_dates=hist_dates,
-                target_price=preco_alvo,
-                user_max_price=preco_maximo,
+            cb_index = (
+                round(benefit["total"] / (effective_price / 1000.0), 1)
+                if effective_price
+                else 0.0
             )
-            bf_opp_score = round((0.55 * benefit["total"]) + (0.45 * stat_profile.deal_confidence_score), 1)
+            bf_opp_score = round(
+                (0.55 * benefit["total"]) + (0.45 * stat_profile.deal_confidence_score), 1
+            )
 
             is_below_target = bool(live_price is not None and live_price <= preco_alvo)
             is_under_budget = bool(effective_price <= BUDGET_CEILING)
             is_all_time_low = bool(
-                live_price is not None and hist_min is not None and len(history_asc) > 1 and live_price <= hist_min
+                live_price is not None
+                and bundle.hist_min is not None
+                and len(bundle.records_asc) > 1
+                and live_price <= bundle.hist_min
             )
             if is_below_target:
                 status_key, status_badge = "deal", "🎯 Abaixo do Alvo"
@@ -247,8 +194,8 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
                 "priceTargetFmt": fmt_brl(preco_alvo),
                 "priceFloorRefFmt": fmt_brl(floor_ref),
                 "priceRegularRefFmt": fmt_brl(regular_ref),
-                "histMin": round(hist_min, 2) if hist_min is not None else None,
-                "histMinFmt": fmt_brl(hist_min),
+                "histMin": round(bundle.hist_min, 2) if bundle.hist_min is not None else None,
+                "histMinFmt": fmt_brl(bundle.hist_min),
                 "hasLiveQuote": live_price is not None,
                 "isBelowTarget": is_below_target,
                 "isUnderBudget": is_under_budget,
@@ -258,8 +205,8 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
                 "bestStore": best["marketplace"] if best else "Ref. da pesquisa",
                 "bestUrl": best["url"] if best else "",
                 "bestUpdated": best["coletado_em"] if best else "—",
-                "storeOffers": store_offers,
-                "recordsCount": len(history_asc),
+                "storeOffers": bundle.store_offers,
+                "recordsCount": len(bundle.records_asc),
                 "benefit": benefit,
                 "cbIndex": cb_index,
                 "dealScore": stat_profile.deal_confidence_score,
@@ -267,31 +214,18 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
                 "percentileRank": stat_profile.percentile_rank,
                 "bfOpportunityScore": bf_opp_score,
                 "priceRegime": stat_profile.regime_preco,
-                "color": MONITOR_PALETTE[idx % len(MONITOR_PALETTE)],
+                "color": CATEGORY_PALETTE[idx % len(CATEGORY_PALETTE)],
             })
 
-        # Linha do tempo: "Ref. Pesquisa" (preço regular) + uma coluna por janela horária coletada
-        sorted_buckets = sorted(all_buckets)
-        bucket_dts = [datetime.strptime(b, "%Y-%m-%d %H:00").replace(tzinfo=RECIFE_TZ) for b in sorted_buckets]
-        timeline_labels = ["Ref. Pesquisa"] + [dt.strftime("%d/%m %Hh") for dt in bucket_dts]
-        for ph in phones:
-            buckets = per_phone_buckets.get(ph["id"], {})
-            values: list[float | None] = [ph["priceRegularRef"]]
-            active: dict[str, tuple[datetime, float]] = {}
-            last_known: float | None = None
-            for b, b_dt in zip(sorted_buckets, bucket_dts, strict=True):
-                for mkt_key, price in buckets.get(b, {}).items():
-                    active[mkt_key] = (b_dt, price)
-                fresh = [
-                    p for seen, p in active.values()
-                    if (b_dt - seen).total_seconds() <= FRESHNESS_WINDOW_HOURS * 3600
-                ]
-                if fresh:
-                    last_known = round(min(fresh), 2)
-                values.append(last_known)
-            ph["timelineValues"] = values
+        timeline_labels = self.build_timeline_series(
+            all_buckets,
+            per_phone_buckets,
+            phones,
+            baseline_label="Ref. Pesquisa",
+            baseline_key="priceRegularRef",
+            freshness_hours=FRESHNESS_WINDOW_HOURS,
+        )
 
-        # Rankings e KPIs
         ranked = sorted(phones, key=lambda p: p["cbIndex"], reverse=True)
         for pos, ph in enumerate(ranked, start=1):
             ph["cbRank"] = pos
@@ -299,10 +233,14 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
         cheapest = min(live or phones, key=lambda p: p["effectivePrice"]) if phones else None
         best_cb = ranked[0] if ranked else None
         flagships_under = [
-            p for p in live
-            if p["category"] == "Topo de Linha Depreciado" and p["effectivePrice"] <= BUDGET_CEILING
+            p
+            for p in live
+            if p["category"] == "Topo de Linha Depreciado"
+            and p["effectivePrice"] <= BUDGET_CEILING
         ]
-        best_flagship = max(flagships_under, key=lambda p: p["benefit"]["total"]) if flagships_under else None
+        best_flagship = (
+            max(flagships_under, key=lambda p: p["benefit"]["total"]) if flagships_under else None
+        )
 
         kpis = {
             "best_cb_name": best_cb["name"] if best_cb else "—",
@@ -310,41 +248,42 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
             "best_cb_price": best_cb["effectivePriceFmt"] if best_cb else "—",
             "cheapest_name": cheapest["name"] if cheapest else "—",
             "cheapest_price": cheapest["effectivePriceFmt"] if cheapest else "—",
-            "best_flagship_name": best_flagship["name"] if best_flagship else "Nenhum topo de linha ≤ R$ 3.000 agora",
+            "best_flagship_name": (
+                best_flagship["name"]
+                if best_flagship
+                else "Nenhum topo de linha ≤ R$ 3.000 agora"
+            ),
             "best_flagship_price": best_flagship["effectivePriceFmt"] if best_flagship else "—",
             "deals_count": sum(1 for p in phones if p["isBelowTarget"]),
             "under_budget_count": sum(1 for p in live if p["effectivePrice"] <= BUDGET_CEILING),
             "live_tracked_count": len(live),
             "total_phones": len(phones),
-            "total_cycles": max(len(cycle_logs), len(sorted_buckets)),
+            "total_cycles": max(len(cycle_logs), len(all_buckets)),
             "total_db_records": total_db_records,
             "days_to_bf": max(0, (BLACK_FRIDAY_2026.date() - now_local.date()).days),
             "last_updated": now_local.strftime("%d/%m/%Y às %H:%M (America/Recife)"),
         }
 
         template = self.env.get_template("smartphones_512_dashboard.html")
-        html = template.render(
+        html_content = template.render(
             kpis=kpis,
             phones=ranked,
-            phones_json=json.dumps(phones, ensure_ascii=False),
-            timeline_labels_json=json.dumps(timeline_labels, ensure_ascii=False),
-            profiles_json=json.dumps(PROFILE_LABELS, ensure_ascii=False),
+            phones_json=self.safe_script_json(phones),
+            timeline_labels_json=self.safe_script_json(timeline_labels),
+            profiles_json=self.safe_script_json(PROFILE_LABELS),
             cycle_logs=cycle_logs[-10:][::-1],
             budget=BUDGET_CEILING,
         )
-        out_html = Path(output_html_path)
-        out_html.parent.mkdir(parents=True, exist_ok=True)
-        out_html.write_text(html, encoding="utf-8")
+        md_content = self._build_phone_markdown(kpis, ranked, cycle_logs)
 
-        out_md = Path(output_md_path)
-        out_md.parent.mkdir(parents=True, exist_ok=True)
-        out_md.write_text(self._build_phone_markdown(kpis, ranked, cycle_logs), encoding="utf-8")
-
-        logger.success(f"📱 Painel de celulares 512 GB atualizado: {out_html}")
-        logger.info(f"📝 Relatório resumo atualizado: {out_md}")
-        if open_browser:
-            webbrowser.open(f"file://{out_html.resolve()}")
-        return out_html
+        return self.write_outputs(
+            html_content=html_content,
+            md_content=md_content,
+            output_html_path=output_html_path,
+            output_md_path=output_md_path,
+            open_browser=open_browser,
+            banner_label="📱 Painel de celulares 512 GB",
+        )
 
     @staticmethod
     def _build_phone_markdown(
@@ -352,17 +291,20 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
         ranked: list[dict[str, Any]],
         cycle_logs: list[dict[str, Any]],
     ) -> str:
-        """Relatório executivo em Markdown ordenado por custo-benefício."""
         lines = [
             "# 📱 Relatório Incremental Black Friday 2026 — Smartphones 512 GB (faixa R$ 3.000)",
             "",
             f"- **Última atualização:** {kpis['last_updated']}",
             f"- **Contagem regressiva Black Friday (27/11/2026):** {kpis['days_to_bf']} dias",
             f"- **Rodadas acumuladas:** {kpis['total_cycles']} | **Cotações no SQLite:** {kpis['total_db_records']}",
-            f"- **Aparelhos com cotação ao vivo:** {kpis['live_tracked_count']}/{kpis['total_phones']} | "
-            f"**Abaixo do Alvo:** {kpis['deals_count']} | **≤ R$ 3.000 agora:** {kpis['under_budget_count']}",
-            f"- **🏆 Melhor custo-benefício:** {kpis['best_cb_name']} — {kpis['best_cb_price']} "
-            f"({kpis['best_cb_index']} pts/R$ 1.000)",
+            (
+                f"- **Aparelhos com cotação ao vivo:** {kpis['live_tracked_count']}/{kpis['total_phones']} | "
+                f"**Abaixo do Alvo:** {kpis['deals_count']} | **≤ R$ 3.000 agora:** {kpis['under_budget_count']}"
+            ),
+            (
+                f"- **🏆 Melhor custo-benefício:** {kpis['best_cb_name']} — {kpis['best_cb_price']} "
+                f"({kpis['best_cb_index']} pts/R$ 1.000)"
+            ),
             f"- **💰 Menor preço 512 GB:** {kpis['cheapest_name']} — {kpis['cheapest_price']}",
             f"- **👑 Melhor topo de linha ≤ R$ 3.000:** {kpis['best_flagship_name']} {kpis['best_flagship_price']}",
             "",
@@ -373,7 +315,11 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
         ]
         for ph in ranked:
             store = f"[{ph['bestStore']}]({ph['bestUrl']})" if ph["bestUrl"] else ph["bestStore"]
-            price = f"**{ph['effectivePriceFmt']}**" if ph["hasLiveQuote"] else f"_{ph['effectivePriceFmt']} (ref.)_"
+            price = (
+                f"**{ph['effectivePriceFmt']}**"
+                if ph["hasLiveQuote"]
+                else f"_{ph['effectivePriceFmt']} (ref.)_"
+            )
             est = " ⚠️" if ph["estimated"] else ""
             deal_s = f"{ph['dealScore']:.0f}/100" if ph.get("dealScore") is not None else "—"
             bf_opp = f"{ph['bfOpportunityScore']:.1f}" if ph.get("bfOpportunityScore") is not None else "—"
@@ -384,8 +330,10 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
             )
         lines.extend([
             "",
-            "> ⚠️ = ficha técnica parcial na pesquisa (notas estimadas). Sem cotação ao vivo, usa-se o preço "
-            "regular da pesquisa (conservador).",
+            (
+                "> ⚠️ = ficha técnica parcial na pesquisa (notas estimadas). Sem cotação ao vivo, usa-se o preço "
+                "regular da pesquisa (conservador)."
+            ),
             "",
             "## ⏱️ Histórico Recente de Execuções",
             "",
@@ -393,9 +341,10 @@ class SmartphonesDashboardGenerator(MonitorsDashboardGenerator):
             "| :---: | :---: | :---: | :---: | :---: | :---: |",
         ])
         for log in cycle_logs[-15:][::-1]:
+            checked = log.get("items_checked", log.get("monitors_checked", 0))
             lines.append(
                 f"| #{log.get('run_number', '?')} | {log.get('timestamp_local', '—')} | "
-                f"{log.get('monitors_checked', 0)} | {log.get('sources_checked', 0)} | "
+                f"{checked} | {log.get('sources_checked', 0)} | "
                 f"{log.get('quotes_collected', 0)} | {log.get('deals_found', 0)} |"
             )
         if not cycle_logs:

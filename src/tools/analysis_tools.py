@@ -2,7 +2,10 @@ from src.core.ports.repository_port import IRepository
 from src.data.database import default_db
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
-from src.skills.price_statistics.analyzer import PriceStatisticalProfile, PriceStatisticsSkill
+from src.skills.price_statistics.analyzer import (
+    PriceStatisticalProfile,
+    PriceStatisticsSkill,
+)
 
 
 def evaluate_fake_discount(

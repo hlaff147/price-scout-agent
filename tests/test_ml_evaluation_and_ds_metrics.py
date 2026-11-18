@@ -11,10 +11,7 @@ from src.evaluation.ml_metrics import (
     confusion_matrix_dict,
     threshold_tuning_curve,
 )
-from src.skills.price_statistics.analyzer import (
-    PriceStatisticalProfile,
-    PriceStatisticsSkill,
-)
+from src.skills.price_statistics.analyzer import PriceStatisticsSkill
 
 
 class TestBinaryClassificationMetrics:

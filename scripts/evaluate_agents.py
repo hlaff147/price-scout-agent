@@ -77,16 +77,17 @@ async def main() -> None:
     if args.json:
         out_json = Path(args.json)
         out_json.parent.mkdir(parents=True, exist_ok=True)
-        # Serializar modelos Pydantic
-        clean_dict = {
-            k: {
-                sub_k: (sub_v.model_dump() if hasattr(sub_v, "model_dump") else sub_v)
-                for sub_k, sub_v in v.items()
-            }
-            if isinstance(v, dict)
-            else v
-            for k, v in results.items()
-        }
+
+        def _serialize_obj(obj: object) -> object:
+            if hasattr(obj, "model_dump"):
+                return obj.model_dump()  # type: ignore[no-any-return]
+            if isinstance(obj, dict):
+                return {str(k): _serialize_obj(v) for k, v in obj.items()}
+            if isinstance(obj, (list, tuple)):
+                return [_serialize_obj(i) for i in obj]
+            return obj
+
+        clean_dict = _serialize_obj(results)
         out_json.write_text(json.dumps(clean_dict, indent=2, ensure_ascii=False), encoding="utf-8")
         if not args.quiet:
             print(f"📊 Métricas brutas JSON exportadas em: {out_json}")

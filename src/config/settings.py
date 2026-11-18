@@ -11,12 +11,19 @@ class Settings(BaseSettings):
     TELEGRAM_CHAT_ID: str | None = None
     ALLOWED_TELEGRAM_CHAT_IDS: str | None = None
 
+    # IA / Self-Healing (Google Gemini)
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_TIMEOUT_SEC: float = 20.0
+    GEMINI_MAX_HTML_CHARS: int = 35000
+
     # Banco de Dados
     DATABASE_PATH: str = "data/promoradar.db"
 
     # Scraping & Rede
     REQUEST_TIMEOUT: int = 15
     MAX_RETRIES: int = 3
+    ALLOW_PRIVATE_URLS: bool = False
     USER_AGENT: str = (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"

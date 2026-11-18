@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import MatchResult, Product
+from src.core.models import MatchResult, Product
 
 
 class IProductMatcher(ABC):

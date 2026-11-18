@@ -1,9 +1,12 @@
 """Shopee Brasil parsing skill."""
 
+from __future__ import annotations
+
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 
-from src.data.models import ScrapedData
+from src.core.models import ScrapedData
 from src.skills.base import BaseSkill
 from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
@@ -14,6 +17,14 @@ class ParseShopeeSkill(BaseSkill):
     name = "parse_shopee"
     description = "Parser HTML para Shopee Brasil (produtos e listagens de busca)."
 
+    SELECTORS: ClassVar[dict[str, str]] = {
+        "container": "div[data-sqe='item'], li.shopee-search-item-result__item",
+        "titulo": "div[data-sqe='name'], div.vR6vdF, div._44qnta",
+        "preco": "span.vioxXd, div.G27ShZ, div.pmmxKx, div[class*='text-shopee-primary']",
+    }
+
+    SEARCH_ITEM_SELECTOR = "div[data-sqe='item'], li.shopee-search-item-result__item, div.col-xs-2-4"
+
     def execute(
         self,
         html: str,
@@ -21,18 +32,23 @@ class ParseShopeeSkill(BaseSkill):
         keywords: list[str] | None = None,
     ) -> ScrapedData:
         soup = BeautifulSoup(html, "html.parser")
+        kw_list = keywords or []
 
-        # 1. Página de produto individual
-        product_data = self._parse_product_page(soup, url)
-        if product_data and product_data.preco:
-            return product_data
+        if soup.select_one(self.SEARCH_ITEM_SELECTOR):
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
+        else:
+            product_data = self._parse_product_page(soup, url, kw_list)
+            if product_data and product_data.preco:
+                return product_data
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
 
-        # 2. Listagem de busca
-        search_data = self._parse_search_listing(soup, url, keywords or [])
-        if search_data and search_data.preco:
-            return search_data
-
-        if soup.select_one("div#main, div.shopee-search-page-root") and not soup.select("div[data-sqe='item']"):
+        if soup.select_one("div#main, div.shopee-search-page-root") and not soup.select(
+            "div[data-sqe='item']"
+        ):
             return ScrapedData(
                 marketplace="shopee",
                 success=False,
@@ -47,12 +63,16 @@ class ParseShopeeSkill(BaseSkill):
             error_message="Nenhum produto ou preço correspondente encontrado na Shopee.",
         )
 
-    def _parse_product_page(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
-        title_tag = soup.select_one("h1, div.vR6vdF, div._44qnta")
+    def _parse_product_page(
+        self, soup: BeautifulSoup, url: str, keywords: list[str]
+    ) -> ScrapedData | None:
+        title_tag = soup.select_one("div.vR6vdF, div._44qnta, h1")
         if not title_tag:
             return None
 
         title = title_tag.get_text(strip=True)
+        if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+            return None
 
         price_tag = soup.select_one(
             "div.G27ShZ, div.pmmxKx, div[class*='text-shopee-primary'], div.font-medium.text-lg"
@@ -95,13 +115,11 @@ class ParseShopeeSkill(BaseSkill):
         url: str,
         keywords: list[str],
     ) -> ScrapedData | None:
-        items = soup.select(
-            "div[data-sqe='item'], li.shopee-search-item-result__item, div.col-xs-2-4"
-        )
+        items = soup.select(self.SEARCH_ITEM_SELECTOR)
         if not items:
             return None
 
-        candidates = []
+        candidates: list[ScrapedData] = []
         for item in items:
             title_tag = item.select_one("div[data-sqe='name'], div.line-clamp-2, div.Cve6sh")
             if not title_tag:
@@ -112,10 +130,11 @@ class ParseShopeeSkill(BaseSkill):
                 continue
 
             link_tag = item.select_one("a")
+            raw_href = str(link_tag.get("href", "")) if link_tag else ""
             item_url = (
-                f"https://shopee.com.br{link_tag.get('href')}"
-                if link_tag and link_tag.get("href", "").startswith("/")
-                else (link_tag.get("href") if link_tag else url)
+                f"https://shopee.com.br{raw_href}"
+                if raw_href.startswith("/")
+                else (raw_href or url)
             )
 
             price_tag = item.select_one(

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from src.data.database import Database
-from src.data.models import PriceRecord, Product, Source
+from src.data.models import PriceRecord, Product
 from src.data.repository import Repository
 from src.orchestrator.orchestrator import Orchestrator
 from src.reporting.smartwatches_dashboard_generator import (

@@ -1,9 +1,11 @@
 """Google Shopping and Sponsored Products parsing skill."""
 
+from typing import ClassVar
+
 from bs4 import BeautifulSoup
 from loguru import logger
 
-from src.data.models import ScrapedData
+from src.core.models import ScrapedData
 from src.skills.base import BaseSkill
 from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
@@ -13,6 +15,12 @@ class ParseGoogleShoppingSkill(BaseSkill):
 
     name = "parse_google_shopping"
     description = "Meta-agregador de ofertas a partir de Sponsored Products e Google Shopping."
+
+    SELECTORS: ClassVar[dict[str, str]] = {
+        "container": "div[data-flt-ve='pla_unit'], div.sh-dgr__grid-result, div.pla-unit",
+        "titulo": "div.pla-unit-title, h3.sh-np__product-title, h3",
+        "preco": "span.pla-unit-price, span.a8Pemb, span.T149du",
+    }
 
     def execute(
         self,

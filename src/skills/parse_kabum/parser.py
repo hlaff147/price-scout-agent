@@ -1,10 +1,13 @@
 """KaBuM! parsing skill."""
 
+from __future__ import annotations
+
 import json
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 
-from src.data.models import ScrapedData
+from src.core.models import ScrapedData
 from src.skills.base import BaseSkill
 from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
@@ -15,6 +18,12 @@ class ParseKabumSkill(BaseSkill):
     name = "parse_kabum"
     description = "Parser HTML para KaBuM! (produtos e listagens de busca)."
 
+    SELECTORS: ClassVar[dict[str, str]] = {
+        "container": "article.productCard, div.productCard",
+        "titulo": "span.nameCard, h1",
+        "preco": "span.priceCard, h4.finalPrice, .finalPrice",
+    }
+
     def execute(
         self,
         html: str,
@@ -22,26 +31,28 @@ class ParseKabumSkill(BaseSkill):
         keywords: list[str] | None = None,
     ) -> ScrapedData:
         soup = BeautifulSoup(html, "html.parser")
+        kw_list = keywords or []
 
-        # 1. Tentar extrair de dados estruturados JSON-LD primeiro (mais estável)
-        json_ld_data = self._parse_json_ld(soup, url)
+        json_ld_data = self._parse_json_ld(soup, url, kw_list)
         if json_ld_data and json_ld_data.preco:
             return json_ld_data
 
-        # 2. Tentar extrair de __NEXT_DATA__ (Next.js SSR usado em buscas e páginas do KaBuM!)
-        next_data = self._parse_next_data(soup, url, keywords or [])
+        next_data = self._parse_next_data(soup, url, kw_list)
         if next_data and next_data.preco:
             return next_data
 
-        # 3. Tentar página de produto individual via seletores
-        product_data = self._parse_product_page(soup, url)
-        if product_data and product_data.preco:
-            return product_data
-
-        # 4. Listagem de busca
-        search_data = self._parse_search_listing(soup, url, keywords or [])
-        if search_data and search_data.preco:
-            return search_data
+        # Se existirem cards de listagem de busca, avalia a listagem ANTES de h1 genérico
+        if soup.select_one("article.productCard, div.productCard"):
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
+        else:
+            product_data = self._parse_product_page(soup, url, kw_list)
+            if product_data and product_data.preco:
+                return product_data
+            search_data = self._parse_search_listing(soup, url, kw_list)
+            if search_data and search_data.preco:
+                return search_data
 
         return ScrapedData(
             marketplace="kabum",
@@ -71,7 +82,6 @@ class ParseKabumSkill(BaseSkill):
         except (json.JSONDecodeError, TypeError, ValueError):
             return None
 
-        # Caso 1: Listagem de busca (catalogServer.data)
         catalog_items = (
             raw_data.get("catalogServer", {}).get("data")
             if isinstance(raw_data.get("catalogServer"), dict)
@@ -80,9 +90,7 @@ class ParseKabumSkill(BaseSkill):
         if isinstance(catalog_items, list) and catalog_items:
             candidates: list[ScrapedData] = []
             for item in catalog_items:
-                if not isinstance(item, dict):
-                    continue
-                if item.get("available") is False:
+                if not isinstance(item, dict) or item.get("available") is False:
                     continue
                 title = str(item.get("name") or "")
                 if not title:
@@ -91,18 +99,13 @@ class ParseKabumSkill(BaseSkill):
                     continue
 
                 raw_price = item.get("priceWithDiscount") or item.get("price")
-                try:
-                    price = float(raw_price) if raw_price else None
-                except (TypeError, ValueError):
-                    price = None
+                price = NormalizeProductSkill.parse_price_string(str(raw_price)) if raw_price else None
                 if not price or price <= 0:
                     continue
 
                 raw_old = item.get("oldPrice")
-                try:
-                    price_orig = float(raw_old) if raw_old and float(raw_old) > price else None
-                except (TypeError, ValueError):
-                    price_orig = None
+                price_orig_val = NormalizeProductSkill.parse_price_string(str(raw_old)) if raw_old else None
+                price_orig = price_orig_val if price_orig_val and price_orig_val > price else None
 
                 code = item.get("code")
                 slug = item.get("friendlyName") or ""
@@ -128,22 +131,18 @@ class ParseKabumSkill(BaseSkill):
                 candidates.sort(key=lambda x: x.preco or float("inf"))
                 return candidates[0]
 
-        # Caso 2: Página individual de produto
         prod_obj = raw_data.get("product") if isinstance(raw_data.get("product"), dict) else raw_data
         if isinstance(prod_obj, dict) and prod_obj.get("name"):
             title = str(prod_obj["name"])
+            if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+                return None
             prices_obj = prod_obj.get("prices") if isinstance(prod_obj.get("prices"), dict) else prod_obj
             raw_price = prices_obj.get("priceWithDiscount") or prices_obj.get("price")
-            try:
-                price = float(raw_price) if raw_price else None
-            except (TypeError, ValueError):
-                price = None
+            price = NormalizeProductSkill.parse_price_string(str(raw_price)) if raw_price else None
             if price and price > 0:
                 raw_old = prices_obj.get("oldPrice")
-                try:
-                    price_orig = float(raw_old) if raw_old and float(raw_old) > price else None
-                except (TypeError, ValueError):
-                    price_orig = None
+                old_val = NormalizeProductSkill.parse_price_string(str(raw_old)) if raw_old else None
+                price_orig = old_val if old_val and old_val > price else None
                 available = prod_obj.get("available", True) is not False
                 return ScrapedData(
                     marketplace="kabum",
@@ -159,17 +158,29 @@ class ParseKabumSkill(BaseSkill):
 
         return None
 
-    def _parse_json_ld(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
+    def _parse_json_ld(
+        self, soup: BeautifulSoup, url: str, keywords: list[str]
+    ) -> ScrapedData | None:
         scripts = soup.find_all("script", type="application/ld+json")
         for s in scripts:
+            if not s.string:
+                continue
             try:
                 data = json.loads(s.string)
                 if isinstance(data, dict) and data.get("@type") == "Product":
-                    title = data.get("name")
+                    title = str(data.get("name") or "")
+                    if not title:
+                        continue
+                    if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+                        continue
                     offers = data.get("offers", {})
-                    price = float(offers.get("price")) if "price" in offers else None
-                    available = "InStock" in offers.get("availability", "")
-                    if title and price:
+                    price = (
+                        NormalizeProductSkill.parse_price_string(str(offers.get("price")))
+                        if "price" in offers
+                        else None
+                    )
+                    available = "InStock" in str(offers.get("availability", ""))
+                    if price:
                         return ScrapedData(
                             marketplace="kabum",
                             success=True,
@@ -185,14 +196,18 @@ class ParseKabumSkill(BaseSkill):
                 continue
         return None
 
-    def _parse_product_page(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
+    def _parse_product_page(
+        self, soup: BeautifulSoup, url: str, keywords: list[str]
+    ) -> ScrapedData | None:
         title_tag = soup.select_one("h1")
         if not title_tag:
             return None
 
         title = title_tag.get_text(strip=True)
+        if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+            return None
 
-        price_tag = soup.select_one("h4.finalPrice, .finalPrice, span.priceCard")
+        price_tag = soup.select_one("h4.finalPrice, .finalPrice")
         if not price_tag:
             return None
 
@@ -232,7 +247,7 @@ class ParseKabumSkill(BaseSkill):
         if not cards:
             return None
 
-        candidates = []
+        candidates: list[ScrapedData] = []
         for card in cards:
             title_tag = card.select_one("span.nameCard, h2")
             if not title_tag:
@@ -243,7 +258,12 @@ class ParseKabumSkill(BaseSkill):
                 continue
 
             link_tag = card.select_one("a")
-            item_url = f"https://www.kabum.com.br{link_tag.get('href')}" if link_tag and link_tag.get("href", "").startswith("/") else (link_tag.get("href") if link_tag else url)
+            raw_href = str(link_tag.get("href", "")) if link_tag else ""
+            item_url = (
+                f"https://www.kabum.com.br{raw_href}"
+                if raw_href.startswith("/")
+                else (raw_href or url)
+            )
 
             price_tag = card.select_one("span.priceCard, .finalPrice")
             if not price_tag:

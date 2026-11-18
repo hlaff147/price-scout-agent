@@ -1,18 +1,21 @@
 """Price analyst subagent for deal evaluation and discount verification."""
 
+from __future__ import annotations
+
 from loguru import logger
 
-from src.core.ports.analyst_port import IAnalyst
-from src.core.ports.matcher_port import IProductMatcher
-from src.core.ports.repository_port import IRepository
-from src.data.models import (
+from src.core.models import (
     Coupon,
     DealAnalysis,
+    MatchResult,
     PriceRecord,
     Product,
     ScrapedData,
     Source,
 )
+from src.core.ports.analyst_port import IAnalyst
+from src.core.ports.matcher_port import IProductMatcher
+from src.core.ports.repository_port import IRepository
 from src.data.repository import Repository
 from src.skills.detect_fake_discount.detector import DetectFakeDiscountSkill
 from src.skills.parse_coupon.parser import ParseCouponSkill
@@ -43,41 +46,53 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
         product: Product,
         scraped_results: list[tuple[Source, ScrapedData]],
     ) -> list[DealAnalysis]:
-        """Processa os dados coletados, persiste registros e identifica oportunidades reais."""
+        """Processa os dados coletados, persiste registros válidos e identifica oportunidades reais."""
         analyses: list[DealAnalysis] = []
 
         # 1. Congelar a linha de base histórica pré-ciclo (estável para todas as fontes do ciclo)
         prev_min = self.repository.get_historical_min_price(product.id)
         prev_avg = self.repository.get_historical_average_price(product.id, days=60)
         history_records = self.repository.get_price_history(product.id, days=90)
-        hist_prices = [r.preco for r in history_records if r.preco is not None and r.preco > 0]
-        hist_dates = [r.coletado_em for r in history_records if r.preco is not None and r.preco > 0]
+        valid_history = [r for r in history_records if r.preco is not None and r.preco > 0]
+        valid_history.sort(key=lambda r: r.coletado_em)
+        hist_prices = [r.preco for r in valid_history]
+        hist_dates = [r.coletado_em for r in valid_history]
 
         for source, scraped in scraped_results:
-            if not scraped.success or scraped.preco is None:
+            if not scraped.success or scraped.preco is None or scraped.preco <= 0:
                 continue
 
-            # 2a. Deduplicação semântica de variantes (antes de persistir para não poluir histórico com acessórios)
-            if scraped.titulo:
+            # 2a. Deduplicação semântica obrigatória (título vazio NUNCA passa como match automático)
+            if scraped.titulo and scraped.titulo.strip():
                 match_result = await self.matcher.match(
                     target=product,
                     candidate_title=scraped.titulo,
                     candidate_url=scraped.url,
                 )
             else:
-                from src.data.models import MatchResult
-                match_result = MatchResult(is_match=True, confidence=1.0, method_used="empty_title_passthrough")
+                match_result = MatchResult(
+                    is_match=False,
+                    confidence=1.0,
+                    divergence_reason="Título do anúncio ausente ou vazio",
+                    method_used="empty_title_rejected",
+                )
 
             # Proteção contra falsos positivos de peças/acessórios muito baratos (< 30% do alvo)
             is_implausibly_cheap = bool(
                 product.preco_alvo > 0 and scraped.preco < (product.preco_alvo * 0.30)
             )
 
-            # 2b. Persistir registro de preço apenas quando compatível e plausível
+            # Garantir source_id válido antes de persistir em price_records (evita violação de FK)
+            resolved_source_id = source.id
+            if match_result.is_match and not is_implausibly_cheap and not resolved_source_id:
+                persisted_src = self.repository.upsert_source(source)
+                resolved_source_id = persisted_src.id
+
+            # 2b. Persistir registro de preço apenas quando compatível, plausível e com source_id íntegro
             saved_record_id: int | None = None
-            if match_result.is_match and not is_implausibly_cheap:
+            if match_result.is_match and not is_implausibly_cheap and resolved_source_id:
                 record = PriceRecord(
-                    source_id=source.id if source.id else 0,
+                    source_id=resolved_source_id,
                     preco=scraped.preco,
                     preco_original=scraped.preco_original,
                     moeda=scraped.moeda,
@@ -89,7 +104,7 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 saved = self.repository.save_price_record(record)
                 saved_record_id = saved.id if saved else record.id
 
-            # 2c. Detecção e persistência de cupom promocional
+            # 2c. Detecção e persistência de cupom promocional (respeitando piso mínimo se houver)
             parsed_coupon: Coupon | None = None
             preco_efetivo = scraped.preco
             if scraped.cupom and match_result.is_match and not is_implausibly_cheap:
@@ -99,12 +114,22 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     product_id=product.id,
                 )
                 if parsed_coupon:
-                    if hasattr(self.repository, "save_coupon"):
-                        self.repository.save_coupon(parsed_coupon)
-                    if parsed_coupon.desconto_percentual:
-                        preco_efetivo = scraped.preco * (1.0 - (parsed_coupon.desconto_percentual / 100.0))
-                    elif parsed_coupon.desconto_fixo:
-                        preco_efetivo = max(0.0, scraped.preco - parsed_coupon.desconto_fixo)
+                    self.repository.save_coupon(parsed_coupon)
+                    meets_min_spend = (
+                        parsed_coupon.preco_minimo is None
+                        or scraped.preco >= parsed_coupon.preco_minimo
+                    )
+                    if meets_min_spend:
+                        if parsed_coupon.desconto_percentual:
+                            preco_efetivo = round(
+                                scraped.preco * (1.0 - (parsed_coupon.desconto_percentual / 100.0)),
+                                2,
+                            )
+                        elif parsed_coupon.desconto_fixo:
+                            preco_efetivo = round(
+                                max(0.01, scraped.preco - parsed_coupon.desconto_fixo),
+                                2,
+                            )
 
             # 3. Analisar condições de promoção, desconto real e estatística de série temporal
             announced_disc, real_disc, is_fake = self.fake_discount_detector.execute(
@@ -114,30 +139,37 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 user_max_price=product.preco_maximo,
             )
 
-            # Cálculo de Métricas de Ciência de Dados sobre a série temporal
             stat_profile = self.statistics_skill.execute(
                 historical_prices=hist_prices,
-                current_price=scraped.preco,
+                current_price=preco_efetivo,
                 historical_dates=hist_dates,
                 target_price=product.preco_alvo,
                 user_max_price=product.preco_maximo,
                 is_fake_discount=is_fake,
             )
 
-            # Condições de compra vantajosa
             is_below_target = scraped.preco <= product.preco_alvo or preco_efetivo <= product.preco_alvo
-            is_all_time_low = prev_min is not None and (scraped.preco < prev_min or preco_efetivo < prev_min)
+            is_all_time_low = prev_min is not None and scraped.preco < prev_min
             is_below_max = scraped.preco <= product.preco_maximo or preco_efetivo <= product.preco_maximo
             is_stat_anomaly = (
                 stat_profile.robust_z_score <= -1.8
                 and stat_profile.sample_size >= 3
                 and not is_fake
             )
+            meaningful_coupon_saving = bool(
+                parsed_coupon
+                and not is_fake
+                and preco_efetivo < scraped.preco
+                and (
+                    preco_efetivo <= product.preco_alvo
+                    or (prev_avg is not None and preco_efetivo <= prev_avg * 0.90)
+                    or ((scraped.preco - preco_efetivo) / scraped.preco >= 0.10)
+                )
+            )
 
-            # Decisão de Deal (somente se a variante for compatível e preço plausível)
             is_deal = False
             motivo = None
-            justificativa_parts = []
+            justificativa_parts: list[str] = []
 
             if not match_result.is_match:
                 logger.info(
@@ -154,7 +186,7 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     f"Cotação ignorada (R$ {scraped.preco:.2f} < 30% do alvo — provável acessório/peça)."
                 )
             elif scraped.disponivel and is_below_max:
-                if is_all_time_low:
+                if is_all_time_low and prev_min is not None:
                     is_deal = True
                     motivo = "minimo_historico"
                     justificativa_parts.append(
@@ -162,27 +194,28 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                     )
                 elif is_below_target:
                     is_deal = True
-                    if preco_efetivo <= product.preco_alvo and scraped.preco > product.preco_alvo and parsed_coupon:
+                    if preco_efetivo <= product.preco_alvo < scraped.preco and parsed_coupon:
                         motivo = "cupom_promocional"
                         justificativa_parts.append(
-                            f"Cupom '{parsed_coupon.codigo}' reduz o preço para R$ {preco_efetivo:.2f}, atingindo seu alvo de compra (R$ {product.preco_alvo:.2f})."
+                            f"Cupom '{parsed_coupon.codigo}' reduz o preço para R$ {preco_efetivo:.2f}, "
+                            f"atingindo seu alvo de compra (R$ {product.preco_alvo:.2f})."
                         )
                     else:
                         motivo = "abaixo_do_alvo"
                         justificativa_parts.append(
                             f"Preço de R$ {scraped.preco:.2f} atingiu seu alvo de compra (R$ {product.preco_alvo:.2f})."
                         )
-                elif real_disc and real_disc >= 15.0:
+                elif real_disc and real_disc >= 15.0 and not is_fake:
                     is_deal = True
                     motivo = "desconto_real"
                     justificativa_parts.append(
                         f"Desconto real de {real_disc:.1f}% em relação à média histórica recente."
                     )
-                elif parsed_coupon and (parsed_coupon.desconto_percentual or parsed_coupon.desconto_fixo):
+                elif meaningful_coupon_saving and parsed_coupon:
                     is_deal = True
                     motivo = "cupom_promocional"
                     justificativa_parts.append(
-                        f"Cupom promocional '{parsed_coupon.codigo}' detectado (preço c/ desconto: R$ {preco_efetivo:.2f})."
+                        f"Cupom promocional '{parsed_coupon.codigo}' reduz significativamente o preço para R$ {preco_efetivo:.2f}."
                     )
                 elif is_stat_anomaly:
                     is_deal = True
@@ -194,7 +227,8 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
 
             if stat_profile.sample_size >= 3 and stat_profile.robust_z_score <= -1.5 and not is_stat_anomaly:
                 justificativa_parts.append(
-                    f"Sinal estatístico: Z-Score Robusto {stat_profile.robust_z_score:.2f} (Percentil {stat_profile.percentile_rank:.0f}%)."
+                    f"Sinal estatístico: Z-Score Robusto {stat_profile.robust_z_score:.2f} "
+                    f"(Percentil {stat_profile.percentile_rank:.0f}%)."
                 )
 
             if parsed_coupon and not is_deal:
@@ -207,10 +241,11 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
 
             analysis = DealAnalysis(
                 product_id=product.id,
-                source_id=source.id if source.id else 0,
+                source_id=resolved_source_id or 0,
                 price_record_id=saved_record_id,
                 marketplace=source.marketplace,
                 preco_atual=scraped.preco,
+                preco_efetivo=preco_efetivo,
                 preco_original_anunciado=scraped.preco_original,
                 preco_minimo_historico=prev_min,
                 preco_medio_historico=prev_avg,
@@ -221,7 +256,11 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
                 is_below_target=is_below_target,
                 is_deal=is_deal,
                 motivo_alerta=motivo,
-                justificativa=" ".join(justificativa_parts) if justificativa_parts else "Preço regular de mercado.",
+                justificativa=(
+                    " ".join(justificativa_parts)
+                    if justificativa_parts
+                    else "Preço regular de mercado."
+                ),
                 url=scraped.url,
                 cupom=scraped.cupom,
                 z_score=stat_profile.z_score,
@@ -237,7 +276,7 @@ class PriceAnalystSubagent(BaseSubagent, IAnalyst):
 
             if is_deal:
                 logger.success(
-                    f"🎯 [OPORTUNIDADE] {product.nome} em {source.marketplace.upper()}: R$ {scraped.preco:.2f} ({motivo})"
+                    f"🎯 [OPORTUNIDADE] {product.nome} em {source.marketplace.upper()}: R$ {preco_efetivo:.2f} ({motivo})"
                 )
             else:
                 logger.info(

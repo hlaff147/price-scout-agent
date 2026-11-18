@@ -1,12 +1,14 @@
 """Playwright Scraper Adapter implementing IScraper for JavaScript-heavy marketplaces."""
 
+from __future__ import annotations
+
 from typing import ClassVar
 
 from loguru import logger
 
+from src.core.models import Product, ScrapedData, Source
 from src.core.ports.scraper_port import IScraper
 from src.core.ports.selector_port import IHealerAgentPort, ISelectorRepositoryPort
-from src.data.models import Product, ScrapedData, Source
 from src.skills.base import BaseSkill
 from src.skills.parse_aliexpress.parser import ParseAliExpressSkill
 from src.skills.parse_amazon.parser import ParseAmazonSkill
@@ -16,6 +18,7 @@ from src.skills.parse_mercadolivre.parser import ParseMercadoLivreSkill
 from src.skills.parse_shopee.parser import ParseShopeeSkill
 from src.subagents.base import BaseSubagent
 from src.subagents.scraper_agent.extractor import extract_with_overrides
+from src.subagents.scraper_agent.http_adapter import _is_antibot_or_spa_block
 from src.tools.browser_pool import PlaywrightBrowserPool, browser_pool
 from src.tools.rate_limiter import DomainRateLimiter, shared_rate_limiter
 
@@ -35,9 +38,8 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
         "google_shopping": ParseGoogleShoppingSkill,
     }
 
-    # Seletores sugeridos para aguardar renderização por marketplace
     WAIT_SELECTORS: ClassVar[dict[str, str]] = {
-        "shopee": ".shopee-search-item-result__item, [data-sq='item'], div.row",
+        "shopee": ".shopee-search-item-result__item, [data-sqe='item'], div.row",
         "aliexpress": "#root, .multi--content--1zgnpvV, div.search-item-card-wrapper-gallery",
         "mercadolivre": ".ui-search-layout, ol.ui-search-layout__items",
         "amazon": "div[data-component-type='s-search-result']",
@@ -61,11 +63,10 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
         }
 
     def register_skill(self, marketplace: str, skill: BaseSkill) -> None:
-        """Permite registrar dinamicamente novos parsers de marketplace."""
         self._skills[marketplace.lower()] = skill
 
     async def run(self, source: Source, product: Product) -> ScrapedData:
-        """Executa a coleta no marketplace utilizando renderização via Playwright com self-healing."""
+        """Executa coleta via Playwright priorizando o parser oficial, overrides validados e self-healing."""
         mkt = source.marketplace.lower()
         parser = self._skills.get(mkt)
         if not parser:
@@ -86,7 +87,21 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
                     wait_selector=wait_sel,
                 )
 
-            # 1. Tenta extrair com overrides aprendidos pelo self-healing (se existirem)
+            scraped = parser.execute(
+                html=html,
+                url=source.url_produto,
+                keywords=product.keywords,
+            )
+            if scraped.success and scraped.preco:
+                logger.info(
+                    f"🌐 [{mkt.upper()}] Preço encontrado via Playwright: R$ {scraped.preco:.2f} (Título: {scraped.titulo})"
+                )
+                return scraped
+
+            if _is_antibot_or_spa_block(scraped.error_message):
+                logger.warning(f"🌐 [{mkt.upper()}] {scraped.error_message}")
+                return scraped
+
             if self.selector_repo:
                 overrides = self.selector_repo.get_active_overrides(mkt)
                 if overrides:
@@ -95,28 +110,18 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
                         overrides=overrides,
                         url=source.url_produto,
                         marketplace=mkt,
+                        keywords=product.keywords,
+                        product=product,
                     )
                     if scraped_override and scraped_override.success and scraped_override.preco:
+                        self.selector_repo.record_override_outcome(mkt, success=True)
                         logger.info(
                             f"🌐 [{mkt.upper()}] Preço extraído via seletores reparados: "
                             f"R$ {scraped_override.preco:.2f} (Título: {scraped_override.titulo})"
                         )
                         return scraped_override
+                    self.selector_repo.record_override_outcome(mkt, success=False)
 
-            # 2. Execução padrão via skill do marketplace
-            scraped = parser.execute(
-                html=html,
-                url=source.url_produto,
-                keywords=product.keywords,
-            )
-
-            if scraped.success and scraped.preco:
-                logger.info(
-                    f"🌐 [{mkt.upper()}] Preço encontrado via Playwright: R$ {scraped.preco:.2f} (Título: {scraped.titulo})"
-                )
-                return scraped
-
-            # 3. Se a extração falhou e healer está configurado, tenta auto-reparo
             if self.healer:
                 logger.warning(
                     f"🌐 [{mkt.upper()}] Extração Playwright falhou. Acionando subagente de self-healing..."
@@ -134,6 +139,8 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
                         overrides=heal_res.proposed_selectors,
                         url=source.url_produto,
                         marketplace=mkt,
+                        keywords=product.keywords,
+                        product=product,
                     )
                     if scraped_healed and scraped_healed.success and scraped_healed.preco:
                         logger.info(
@@ -141,7 +148,10 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
                         )
                         return scraped_healed
 
-            msg = scraped.error_message or "Nenhum produto correspondente identificado na renderização do browser."
+            msg = (
+                scraped.error_message
+                or "Nenhum produto correspondente identificado na renderização do browser."
+            )
             logger.warning(f"🌐 [{mkt.upper()}] {msg}")
             return scraped
 
@@ -153,4 +163,3 @@ class PlaywrightScraperSubagent(BaseSubagent, IScraper):
                 url=source.url_produto,
                 error_message=str(exc),
             )
-

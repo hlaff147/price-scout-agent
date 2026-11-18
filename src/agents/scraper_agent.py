@@ -59,7 +59,9 @@ class AdkScraperAgent(BaseAgent):
                         error_count += 1
                 scraped_pairs.append((source, res))
 
-        prices_collected = len([p for _, p in scraped_pairs if p.preco])
+        prices_collected = len(
+            [p for _, p in scraped_pairs if p.success and p.preco is not None and p.preco > 0]
+        )
 
         summary_text = (
             f"Coleta concluída para '{product.nome}': {len(sources)} fontes consultadas, "

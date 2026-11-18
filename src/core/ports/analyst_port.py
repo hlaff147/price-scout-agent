@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import DealAnalysis, Product, ScrapedData, Source
+from src.core.models import DealAnalysis, Product, ScrapedData, Source
 
 
 class IAnalyst(ABC):

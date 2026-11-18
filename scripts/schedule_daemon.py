@@ -18,6 +18,10 @@ from loguru import logger
 from src.agents.adk_runner import AdkMonitoringRunner
 from src.config.settings import settings
 from src.orchestrator.runner import run_monitoring_cycle
+from src.tools.browser_pool import browser_pool
+from src.tools.http_client import http_client
+
+_DAEMON_RUNNER: AdkMonitoringRunner | None = None
 
 
 def parse_args():
@@ -46,17 +50,26 @@ def parse_args():
 
 
 async def scheduled_task(dry_run: bool, legacy: bool = False):
+    global _DAEMON_RUNNER
     logger.info("⏰ APScheduler: Disparando ciclo periódico de monitoramento...")
     try:
-        if legacy:
-            logger.info("Utilizando motor legado para o ciclo periódico...")
-            await run_monitoring_cycle(dry_run=dry_run)
-        else:
-            logger.info("Utilizando Google ADK para o ciclo periódico (avaliando produtos devidos por prioridade)...")
-            runner = AdkMonitoringRunner()
-            await runner.run_cycle(dry_run=dry_run, only_due=True, generate_report=False)
+        async with http_client:
+            if legacy:
+                logger.info("Utilizando motor legado para o ciclo periódico...")
+                await run_monitoring_cycle(dry_run=dry_run)
+            else:
+                logger.info(
+                    "Utilizando Google ADK para o ciclo periódico (avaliando produtos devidos por prioridade)..."
+                )
+                if _DAEMON_RUNNER is None:
+                    _DAEMON_RUNNER = AdkMonitoringRunner()
+                await _DAEMON_RUNNER.run_cycle(
+                    dry_run=dry_run, only_due=True, generate_report=False
+                )
     except Exception as exc:  # noqa: BLE001
         logger.error(f"Erro durante o ciclo agendado: {exc}")
+    finally:
+        await browser_pool.close()
 
 
 async def main():
@@ -88,7 +101,10 @@ async def main():
             await asyncio.sleep(3600)
     except (KeyboardInterrupt, SystemExit):
         logger.info("Encerrando daemon PromoRadar...")
-        scheduler.shutdown()
+    finally:
+        scheduler.shutdown(wait=False)
+        await http_client.close()
+        await browser_pool.close()
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from src.data.models import Product, ScrapedData, Source
+from src.core.models import Product, ScrapedData, Source
 
 
 class IScraper(ABC):

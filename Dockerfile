@@ -20,11 +20,14 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # ==========================================
 FROM python:3.12-slim AS runtime
 
+ARG INSTALL_PLAYWRIGHT_BROWSERS=true
+
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     TZ=America/Sao_Paulo
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,27 +35,30 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     && rm -rf /var/lib/apt/lists/*
 
+# Copia dependências Python pré-instaladas
+COPY --from=builder /install /usr/local
+
+# Instala binário e dependências de sistema do Chromium headless para fallback JS
+RUN if [ "$INSTALL_PLAYWRIGHT_BROWSERS" = "true" ]; then \
+        mkdir -p /ms-playwright && \
+        playwright install --with-deps chromium && \
+        chmod -R 755 /ms-playwright && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
+
 # Cria usuário não-root para execução segura
 RUN useradd -m -u 1000 -s /bin/bash appuser
 
-# Copia dependências pré-instaladas do builder
-COPY --from=builder /install /usr/local
-
-# Copia o código da aplicação
 COPY --chown=appuser:appuser . /app
 
-# Configura diretórios de dados persistentes e relatórios
 RUN mkdir -p /app/data /app/reports && \
     chown -R appuser:appuser /app/data /app/reports
 
 USER appuser
 
-# Verificação periódica de integridade
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python docker/healthcheck.py || exit 1
 
-# Volumes montados para persistência
 VOLUME ["/app/data", "/app/reports"]
 
-# Execução contínua padrão
 CMD ["python", "scripts/schedule_daemon.py"]

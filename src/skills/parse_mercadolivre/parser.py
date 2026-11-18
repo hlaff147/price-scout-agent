@@ -1,10 +1,13 @@
 """Mercado Livre parsing skill."""
 
+from __future__ import annotations
+
+from typing import ClassVar
 
 from bs4 import BeautifulSoup
 from loguru import logger
 
-from src.data.models import ScrapedData
+from src.core.models import ScrapedData
 from src.skills.base import BaseSkill
 from src.skills.normalize_product.normalizer import NormalizeProductSkill
 
@@ -14,6 +17,17 @@ class ParseMercadoLivreSkill(BaseSkill):
 
     name = "parse_mercadolivre"
     description = "Parser HTML para Mercado Livre (produtos e listagens de busca)."
+
+    SELECTORS: ClassVar[dict[str, str]] = {
+        "container": "li.ui-search-layout__item, div.poly-card",
+        "titulo": "h2.ui-search-item__title, h2.poly-component__title, h1.ui-pdp-title",
+        "preco": ".poly-price__current .andes-money-amount__fraction, .ui-pdp-price__second-line .andes-money-amount__fraction",
+    }
+
+    SEARCH_ITEM_SELECTOR = (
+        "li.ui-search-layout__item, div.ui-search-result__wrapper, "
+        "li.poly-card, div.poly-card, div.ui-search-result"
+    )
 
     def execute(
         self,
@@ -35,16 +49,20 @@ class ParseMercadoLivreSkill(BaseSkill):
             )
 
         soup = BeautifulSoup(html, "html.parser")
+        kw_list = keywords or []
 
-        # 1. Tentar detectar se é página de produto individual
-        product_data = self._parse_product_page(soup, url)
-        if product_data and product_data.preco:
-            return product_data
-
-        # 2. Se não for página de produto, parsear lista de busca
-        listing_data = self._parse_search_listing(soup, url, keywords or [])
-        if listing_data and listing_data.preco:
-            return listing_data
+        # Se a estrutura contiver múltiplos cards de busca, trata prioritariamente como listagem
+        if soup.select_one(self.SEARCH_ITEM_SELECTOR) and not soup.select_one("h1.ui-pdp-title"):
+            listing_data = self._parse_search_listing(soup, url, kw_list)
+            if listing_data and listing_data.preco:
+                return listing_data
+        else:
+            product_data = self._parse_product_page(soup, url, kw_list)
+            if product_data and product_data.preco:
+                return product_data
+            listing_data = self._parse_search_listing(soup, url, kw_list)
+            if listing_data and listing_data.preco:
+                return listing_data
 
         return ScrapedData(
             marketplace="mercadolivre",
@@ -53,18 +71,22 @@ class ParseMercadoLivreSkill(BaseSkill):
             error_message="Nenhum produto ou preço correspondente encontrado no Mercado Livre.",
         )
 
-    def _parse_product_page(self, soup: BeautifulSoup, url: str) -> ScrapedData | None:
-        title_tag = soup.select_one("h1.ui-pdp-title, h1.andes-typography")
+    def _parse_product_page(
+        self, soup: BeautifulSoup, url: str, keywords: list[str]
+    ) -> ScrapedData | None:
+        # Usa exclusivamente seletor específico de PDP (nunca h1.andes-typography genérico de busca)
+        title_tag = soup.select_one("h1.ui-pdp-title")
         if not title_tag:
             return None
 
         title = title_tag.get_text(strip=True)
+        if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
+            return None
 
-        # Preço atual
         price_fraction = soup.select_one(
             ".ui-pdp-price__second-line .andes-money-amount__fraction, "
             ".ui-pdp-price__part--medium .andes-money-amount__fraction, "
-            ".andes-money-amount--cents-superscript .andes-money-amount__fraction"
+            ".andes-money-amount--cents-superscript:not(.andes-money-amount--previous) .andes-money-amount__fraction"
         )
         cents_tag = soup.select_one(
             ".ui-pdp-price__second-line .andes-money-amount__cents, "
@@ -77,7 +99,6 @@ class ParseMercadoLivreSkill(BaseSkill):
             raw_price = f"{price_fraction.get_text(strip=True)},{cents}"
             price = NormalizeProductSkill.parse_price_string(raw_price)
 
-        # Preço original (riscado)
         orig_fraction = soup.select_one(
             "s.andes-money-amount--previous .andes-money-amount__fraction, "
             ".ui-pdp-price__original-value .andes-money-amount__fraction"
@@ -92,13 +113,11 @@ class ParseMercadoLivreSkill(BaseSkill):
             raw_orig = f"{orig_fraction.get_text(strip=True)},{orig_cents}"
             price_orig = NormalizeProductSkill.parse_price_string(raw_orig)
 
-        # Cupom
         coupon_tag = soup.select_one(
             "span.ui-pdp-promotions-pill-label, span.ui-pdp-coupon-label, .ui-pdp-badge"
         )
         coupon = coupon_tag.get_text(strip=True) if coupon_tag else None
 
-        # Disponibilidade
         out_of_stock = soup.find(string=lambda t: t and "estoque esgotado" in t.lower())
         available = out_of_stock is None
 
@@ -120,13 +139,11 @@ class ParseMercadoLivreSkill(BaseSkill):
         url: str,
         keywords: list[str],
     ) -> ScrapedData | None:
-        items = soup.select(
-            "li.ui-search-layout__item, div.ui-search-result__wrapper, li.poly-card, div.poly-card, div.ui-search-result"
-        )
+        items = soup.select(self.SEARCH_ITEM_SELECTOR)
         if not items:
             return None
 
-        candidates = []
+        candidates: list[ScrapedData] = []
         for item in items:
             title_tag = item.select_one(
                 "h2.ui-search-item__title, h2.poly-component__title, a.poly-component__title, a.ui-search-link, h2"
@@ -138,23 +155,37 @@ class ParseMercadoLivreSkill(BaseSkill):
             if keywords and not NormalizeProductSkill.matches_keywords(title, keywords):
                 continue
 
-            # Link do produto
             link_tag = item.select_one("a.ui-search-link, a.poly-component__title, a")
-            item_url = link_tag.get("href") if link_tag else url
+            item_url = str(link_tag.get("href")) if link_tag and link_tag.get("href") else url
 
-            # Preço atual
+            prev_tag = item.select_one("s.andes-money-amount--previous .andes-money-amount__fraction")
+            orig_cents = item.select_one("s.andes-money-amount--previous .andes-money-amount__cents")
+            orig_c = orig_cents.get_text(strip=True) if orig_cents else "00"
+            price_orig = None
+            if prev_tag:
+                raw_orig = f"{prev_tag.get_text(strip=True)},{orig_c}"
+                price_orig = NormalizeProductSkill.parse_price_string(raw_orig)
+
+            # Evita capturar preço riscado ou parcela quando o layout usa classes enxutas
             fraction_tag = item.select_one(
                 ".poly-price__current .andes-money-amount__fraction, "
-                ".andes-money-amount:not(.andes-money-amount--previous) .andes-money-amount__fraction, "
                 ".ui-search-price__second-line .andes-money-amount__fraction, "
-                ".andes-money-amount__fraction"
+                ".andes-money-amount:not(.andes-money-amount--previous) .andes-money-amount__fraction"
             )
             cents_tag = item.select_one(
                 ".poly-price__current .andes-money-amount__cents, "
-                ".andes-money-amount:not(.andes-money-amount--previous) .andes-money-amount__cents, "
                 ".ui-search-price__second-line .andes-money-amount__cents, "
-                ".andes-money-amount__cents"
+                ".andes-money-amount:not(.andes-money-amount--previous) .andes-money-amount__cents"
             )
+            if not fraction_tag:
+                for cand_frac in item.select(".andes-money-amount__fraction"):
+                    if cand_frac is prev_tag or cand_frac.find_parent("s"):
+                        continue
+                    fraction_tag = cand_frac
+                    parent = cand_frac.parent
+                    cents_tag = parent.select_one(".andes-money-amount__cents") if parent else None
+                    break
+
             cents = cents_tag.get_text(strip=True) if cents_tag else "00"
 
             if not fraction_tag:
@@ -164,15 +195,6 @@ class ParseMercadoLivreSkill(BaseSkill):
             price = NormalizeProductSkill.parse_price_string(raw_price)
             if not price:
                 continue
-
-            # Preço original (riscado)
-            prev_tag = item.select_one("s.andes-money-amount--previous .andes-money-amount__fraction")
-            orig_cents = item.select_one("s.andes-money-amount--previous .andes-money-amount__cents")
-            orig_c = orig_cents.get_text(strip=True) if orig_cents else "00"
-            price_orig = None
-            if prev_tag:
-                raw_orig = f"{prev_tag.get_text(strip=True)},{orig_c}"
-                price_orig = NormalizeProductSkill.parse_price_string(raw_orig)
 
             candidates.append(
                 ScrapedData(
@@ -191,6 +213,5 @@ class ParseMercadoLivreSkill(BaseSkill):
         if not candidates:
             return None
 
-        # Ordenar pelo menor preço encontrado que respeitou as palavras-chave
         candidates.sort(key=lambda x: x.preco or float("inf"))
         return candidates[0]

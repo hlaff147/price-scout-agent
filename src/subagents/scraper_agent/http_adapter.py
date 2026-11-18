@@ -1,13 +1,15 @@
 """HTTP Scraper Adapter implementing IScraper for static HTML marketplaces."""
 
+from __future__ import annotations
+
 from typing import ClassVar
 
 from loguru import logger
 
+from src.core.models import Product, ScrapedData, Source
 from src.core.ports.http_port import IHttpClient
 from src.core.ports.scraper_port import IScraper
 from src.core.ports.selector_port import IHealerAgentPort, ISelectorRepositoryPort
-from src.data.models import Product, ScrapedData, Source
 from src.skills.base import BaseSkill
 from src.skills.parse_aliexpress.parser import ParseAliExpressSkill
 from src.skills.parse_amazon.parser import ParseAmazonSkill
@@ -18,6 +20,13 @@ from src.skills.parse_shopee.parser import ParseShopeeSkill
 from src.subagents.base import BaseSubagent
 from src.subagents.scraper_agent.extractor import extract_with_overrides
 from src.tools.http_client import http_client
+
+
+def _is_antibot_or_spa_block(error_message: str | None) -> bool:
+    if not error_message:
+        return False
+    lower = error_message.lower()
+    return any(tok in lower for tok in ("anti-bot", "captcha", "javascript", "spa"))
 
 
 class HttpScraperSubagent(BaseSubagent, IScraper):
@@ -53,7 +62,7 @@ class HttpScraperSubagent(BaseSubagent, IScraper):
         self._skills[marketplace.lower()] = skill
 
     async def run(self, source: Source, product: Product) -> ScrapedData:
-        """Executa a coleta para uma fonte específica com isolamento de falha e self-healing."""
+        """Executa a coleta priorizando o parser oficial, seguido de overrides saudáveis e self-healing."""
         mkt = source.marketplace.lower()
         parser = self._skills.get(mkt)
         if not parser:
@@ -68,24 +77,7 @@ class HttpScraperSubagent(BaseSubagent, IScraper):
             logger.info(f"Coletando preços em [{mkt.upper()}] para '{product.nome}'...")
             html = await self.client.fetch(source.url_produto)
 
-            # 1. Tenta extrair com overrides aprendidos pelo self-healing (se existirem)
-            if self.selector_repo:
-                overrides = self.selector_repo.get_active_overrides(mkt)
-                if overrides:
-                    scraped_override = extract_with_overrides(
-                        html=html,
-                        overrides=overrides,
-                        url=source.url_produto,
-                        marketplace=mkt,
-                    )
-                    if scraped_override and scraped_override.success and scraped_override.preco:
-                        logger.info(
-                            f"[{mkt.upper()}] Preço extraído via seletores reparados: "
-                            f"R$ {scraped_override.preco:.2f} (Título: {scraped_override.titulo})"
-                        )
-                        return scraped_override
-
-            # 2. Execução padrão via skill do marketplace
+            # 1. Execução prioritária via skill oficial do marketplace
             scraped = parser.execute(
                 html=html,
                 url=source.url_produto,
@@ -97,7 +89,33 @@ class HttpScraperSubagent(BaseSubagent, IScraper):
                 )
                 return scraped
 
-            # 3. Se a extração falhou e healer está configurado, tenta auto-reparo
+            # Bloqueio explícito anti-bot ou SPA JS: não acionar overrides nem LLM
+            if _is_antibot_or_spa_block(scraped.error_message):
+                logger.warning(f"[{mkt.upper()}] {scraped.error_message}")
+                return scraped
+
+            # 2. Fallback via seletores reparados ativos (com validação de keywords e auto-rollback)
+            if self.selector_repo:
+                overrides = self.selector_repo.get_active_overrides(mkt)
+                if overrides:
+                    scraped_override = extract_with_overrides(
+                        html=html,
+                        overrides=overrides,
+                        url=source.url_produto,
+                        marketplace=mkt,
+                        keywords=product.keywords,
+                        product=product,
+                    )
+                    if scraped_override and scraped_override.success and scraped_override.preco:
+                        self.selector_repo.record_override_outcome(mkt, success=True)
+                        logger.info(
+                            f"[{mkt.upper()}] Preço extraído via seletores reparados: "
+                            f"R$ {scraped_override.preco:.2f} (Título: {scraped_override.titulo})"
+                        )
+                        return scraped_override
+                    self.selector_repo.record_override_outcome(mkt, success=False)
+
+            # 3. Auto-reparo via subagente LLM com validação em sandbox
             if self.healer:
                 logger.warning(
                     f"[{mkt.upper()}] Extração padrão falhou. Acionando subagente de self-healing..."
@@ -115,6 +133,8 @@ class HttpScraperSubagent(BaseSubagent, IScraper):
                         overrides=heal_res.proposed_selectors,
                         url=source.url_produto,
                         marketplace=mkt,
+                        keywords=product.keywords,
+                        product=product,
                     )
                     if scraped_healed and scraped_healed.success and scraped_healed.preco:
                         logger.info(
@@ -134,4 +154,3 @@ class HttpScraperSubagent(BaseSubagent, IScraper):
                 url=source.url_produto,
                 error_message=str(exc),
             )
-

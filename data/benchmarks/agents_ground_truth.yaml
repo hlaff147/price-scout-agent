@@ -1,5 +1,6 @@
 # Golden Dataset de Benchmark para Avaliação de Machine Learning e Agentes do PromoRadar
-# Cobre as 3 verticais do projeto: Smartphones 512GB, Smartwatches R$ 800-1.200 e Monitores 27" Ergonômicos.
+# Cobre as 4 verticais do projeto: Smartphones 512GB, Smartwatches R$ 800-1.200,
+# Monitores 27" Ergonômicos e Suportes Articulados (Mesa 5 cm Sem Furos), incluindo casos adversariais.
 
 matcher_cases:
   # =========================================================================
@@ -12,6 +13,14 @@ matcher_cases:
     expected_match: true
     category: smartphones_512
     description: "Anúncio autêntico completo de 512GB com RAM e cor legítima"
+
+  - target_id: moto-edge-50-ultra-512
+    target_name: "Motorola Edge 50 Ultra 512GB"
+    target_keywords: ["Edge 50 Ultra 512GB", "Motorola Edge 50 Ultra 512GB"]
+    candidate_title: "Smartphone Motorola Edge 50 Ultra 5G 512GB 12GB RAM + Capa + Carregador Turbo"
+    expected_match: true
+    category: smartphones_512
+    description: "Caso adversarial: aparelho autêntico 512GB citando brindes (+ Capa + Carregador)"
 
   - target_id: moto-edge-50-ultra-512
     target_name: "Motorola Edge 50 Ultra 512GB"
@@ -44,6 +53,14 @@ matcher_cases:
     expected_match: false
     category: smartphones_512
     description: "Armadilha de memória: variante 256GB em vez de 512GB"
+
+  - target_id: xiaomi-14t-512
+    target_name: "Xiaomi 14T 512GB"
+    target_keywords: ["Xiaomi 14T 512GB"]
+    candidate_title: "Smartphone Xiaomi 14T 5G 12/256 Preto Lacrado"
+    expected_match: false
+    category: smartphones_512
+    description: "Caso adversarial: notação compacta RAM/ROM 12/256 sem sufixo GB explícito"
 
   - target_id: poco-x8-pro-512
     target_name: "POCO X8 Pro 512GB"
@@ -182,6 +199,14 @@ matcher_cases:
   - target_id: dell-s2721ds
     target_name: "Dell S2721DS 27 QHD"
     target_keywords: ["Dell S2721DS", "S2721DS"]
+    candidate_title: "Monitor Dell S2721DS 27 QHD IPS Com Suporte Ajustável de Altura e Cabo HDMI"
+    expected_match: true
+    category: monitores_27
+    description: "Caso adversarial: monitor citando 'suporte ajustável' e 'cabo' no próprio título"
+
+  - target_id: dell-s2721ds
+    target_name: "Dell S2721DS 27 QHD"
+    target_keywords: ["Dell S2721DS", "S2721DS"]
     candidate_title: "Suporte Articulado de Mesa Pistão a Gás Para Monitor Dell S2721DS"
     expected_match: false
     category: monitores_27
@@ -219,6 +244,49 @@ matcher_cases:
     category: monitores_27
     description: "Armadilha de cabo de vídeo avulso"
 
+  # =========================================================================
+  # VERTICAL 4: SUPORTES ARTICULADOS DE MONITOR (1 e 2 Telas, Mesa 5 cm)
+  # =========================================================================
+  - target_id: elg-f80n
+    target_name: "ELG F80N (ou F80W Branco)"
+    target_keywords: ["ELG F80N -duplo -f160", "Suporte ELG F80N -duplo -f160"]
+    candidate_title: "Suporte Articulado de Mesa com Pistão a Gás Para Monitor ELG F80N Preto"
+    expected_match: true
+    category: suportes_monitor
+    description: "Caso adversarial: suporte ELG F80N Preto quando o catálogo admite F80N ou F80W Branco"
+
+  - target_id: elg-f80n
+    target_name: "ELG F80N (ou F80W Branco)"
+    target_keywords: ["ELG F80N -duplo -f160", "Suporte ELG F80N -duplo -f160"]
+    candidate_title: "Suporte Duplo Articulado de Mesa ELG F160N Pistão a Gás 2 Monitores"
+    expected_match: false
+    category: suportes_monitor
+    description: "Armadilha de modelo duplo F160N excluído (-duplo -f160)"
+
+  - target_id: nb-f160
+    target_name: "North Bayou NB F160 Duplo"
+    target_keywords: ["North Bayou NB F160", "Suporte Duplo NB F160 -f80"]
+    candidate_title: "Suporte Duplo Articulado de Mesa North Bayou NB F160 Pistão a Gás 17 a 27 Pol"
+    expected_match: true
+    category: suportes_monitor
+    description: "Anúncio autêntico do braço duplo North Bayou NB F160"
+
+  - target_id: nb-f160
+    target_name: "North Bayou NB F160 Duplo"
+    target_keywords: ["North Bayou NB F160", "Suporte Duplo NB F160 -f80"]
+    candidate_title: "Suporte Individual North Bayou NB F80 1 Monitor Pistão a Gás"
+    expected_match: false
+    category: suportes_monitor
+    description: "Armadilha de suporte simples F80 quando o alvo é o duplo F160"
+
+  - target_id: zinnia-nimbo-110
+    target_name: "Zinnia Nimbo 110 V2"
+    target_keywords: ["Zinnia Nimbo 110 -210 -200"]
+    candidate_title: "Suporte Articulado de Mesa Zinnia Nimbo 110 V2 Pistão a Gás Preto"
+    expected_match: true
+    category: suportes_monitor
+    description: "Anúncio autêntico Zinnia Nimbo 110 V2"
+
 fake_discount_cases:
   - description: "Promoção legítima de Black Friday consistente com histórico"
     current_price: 2499.0
@@ -255,6 +323,13 @@ fake_discount_cases:
     user_max_price: 1200.0
     expected_is_fake: true
 
+  - description: "Suporte articulado com desconto real sem inflação do preço riscado"
+    current_price: 149.9
+    original_price_announced: 189.9
+    historical_avg: 179.9
+    user_max_price: 220.0
+    expected_is_fake: false
+
 deal_cases:
   - description: "Queda brusca abaixo do alvo e abaixo da mínima anterior"
     product_id: "test-phone"
@@ -282,3 +357,13 @@ deal_cases:
     scraped_price: 920.0
     expected_is_deal: true
     expected_motivo: "queda_anomala_estatistica"
+
+  - description: "Caso adversarial: texto de parcelamento não deve disparar falso deal de cupom"
+    product_id: "test-arm"
+    target_price: 150.0
+    max_price: 220.0
+    historical_prices: [189.9, 192.0, 188.0, 190.0]
+    scraped_price: 189.9
+    scraped_coupon: "Em até 10x de R$ 18,99 sem juros"
+    expected_is_deal: false
+    expected_motivo: null

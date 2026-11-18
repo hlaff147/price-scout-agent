@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from loguru import logger
 
 from src.config.settings import settings
+from src.core.models import Alert, Coupon, DealAnalysis, Product
 from src.core.ports.notifier_port import INotifier
 from src.core.ports.repository_port import IRepository
-from src.data.models import Alert, Coupon, DealAnalysis, Product
 from src.data.repository import Repository
 from src.skills.format_alert.formatter import FormatAlertSkill
 from src.subagents.base import BaseSubagent
@@ -26,11 +28,10 @@ class NotifierSubagent(BaseSubagent, INotifier):
         product: Product,
         dry_run: bool = False,
     ) -> bool:
-        """Envia alerta de oportunidade pelo canal configurado."""
+        """Envia alerta de oportunidade pelo canal configurado mantendo integridade referencial."""
         if not deal.is_deal:
             return False
 
-        # Verificar política anti-spam (ex: não repetir alerta para o mesmo produto em menos de 6h)
         if not dry_run and self.repository.has_recent_alert(product.id, hours=6):
             logger.info(
                 f"Alerta suprimido para '{product.nome}' devido à proteção anti-spam (alerta recente já enviado)."
@@ -43,7 +44,6 @@ class NotifierSubagent(BaseSubagent, INotifier):
         sent_successfully = False
         canal = "console"
 
-        # Tentar disparo via Telegram se configurado e não for dry_run
         if not dry_run and settings.has_telegram_configured:
             sent_successfully = await self._send_telegram(deal, product)
             if sent_successfully:
@@ -53,24 +53,22 @@ class NotifierSubagent(BaseSubagent, INotifier):
                 logger.info("[DRY RUN] Simulação de alerta concluída com sucesso.")
             else:
                 logger.warning(
-                    "Telegram não configurado (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID ausentes). Alerta exibido apenas no console."
+                    "Telegram não configurado (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID ausentes). "
+                    "Alerta exibido apenas no console."
                 )
             sent_successfully = True
 
-        # Registrar alerta no banco (apenas quando houver um price_record_id válido)
-        record_fk = deal.price_record_id or deal.source_id
-        if sent_successfully and not dry_run and record_fk:
-            try:
-                alert = Alert(
-                    product_id=product.id,
-                    price_record_id=record_fk,
-                    motivo=deal.motivo_alerta or "desconto_identificado",
-                    detalhes=deal.justificativa,
-                    canal=canal,
-                )
-                self.repository.save_alert(alert)
-            except Exception as exc:  # noqa: BLE001
-                logger.warning(f"Não foi possível persistir registro histórico de alerta: {exc}")
+        # Invariante INV-04: usa EXCLUSIVAMENTE deal.price_record_id (ou None),
+        # jamais substituindo por deal.source_id.
+        if sent_successfully and not dry_run:
+            alert = Alert(
+                product_id=product.id,
+                price_record_id=deal.price_record_id,
+                motivo=deal.motivo_alerta or "desconto_identificado",
+                detalhes=deal.justificativa,
+                canal=canal,
+            )
+            self.repository.save_alert(alert)
 
         return sent_successfully
 
@@ -110,9 +108,7 @@ class NotifierSubagent(BaseSubagent, INotifier):
                 return True
             return False
 
-        logger.warning(
-            "Telegram não configurado. Alerta de cupom exibido apenas no console."
-        )
+        logger.warning("Telegram não configurado. Alerta de cupom exibido apenas no console.")
         return True
 
     async def _send_telegram(self, deal: DealAnalysis, product: Product) -> bool:
@@ -123,4 +119,3 @@ class NotifierSubagent(BaseSubagent, INotifier):
             logger.success(f"Alerta enviado com sucesso via Telegram para '{product.nome}'!")
             return True
         return False
-
